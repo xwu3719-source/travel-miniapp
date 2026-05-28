@@ -36,7 +36,7 @@ async function getOpenid() {
   _openidPromise = (async () => {
     if (isCloudReady()) {
       try {
-        const timeout = new Promise(resolve => setTimeout(() => resolve(null), 4000));
+        const timeout = new Promise(resolve => setTimeout(() => resolve(null), 8000));
         const res = await Promise.race([wx.cloud.callFunction({ name: 'getOpenid' }), timeout]);
         if (res && res.result && res.result.openid) {
           _openid = res.result.openid;
@@ -258,6 +258,53 @@ async function batchGetUsers(openids) {
   }
 }
 
+/**
+ * 批量解析语音云文件ID为临时链接（替换原字段）
+ */
+async function resolveVoiceUrls(items, key) {
+  const ids = [...new Set(items.map(i => i[key]).filter(Boolean))];
+  if (ids.length === 0) return;
+  try {
+    const res = await wx.cloud.getTempFileURL({ fileList: ids });
+    const map = {};
+    res.fileList.forEach(item => {
+      if (item.tempFileURL) map[item.fileID] = item.tempFileURL;
+    });
+    items.forEach(i => {
+      if (i[key] && map[i[key]]) i[key] = map[i[key]];
+    });
+  } catch (e) {
+    console.warn('resolveVoiceUrls failed:', e);
+  }
+}
+
+/**
+ * 批量解析动态评论中的语音链接
+ */
+async function resolveCommentVoices(moments) {
+  const ids = [];
+  moments.forEach(m => {
+    (m.comments || []).forEach(c => {
+      if (c.voice) ids.push(c.voice);
+    });
+  });
+  if (ids.length === 0) return;
+  try {
+    const res = await wx.cloud.getTempFileURL({ fileList: ids });
+    const map = {};
+    res.fileList.forEach(item => {
+      if (item.tempFileURL) map[item.fileID] = item.tempFileURL;
+    });
+    moments.forEach(m => {
+      (m.comments || []).forEach(c => {
+        if (c.voice && map[c.voice]) c.voice = map[c.voice];
+      });
+    });
+  } catch (e) {
+    console.warn('resolveCommentVoices failed:', e);
+  }
+}
+
 module.exports = {
   db,
   collection: db.collection.bind(db),
@@ -277,5 +324,7 @@ module.exports = {
   isFollowing,
   toggleFollow,
   getFollowList,
-  batchGetUsers
+  batchGetUsers,
+  resolveVoiceUrls,
+  resolveCommentVoices
 };

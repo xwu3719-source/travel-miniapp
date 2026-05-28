@@ -21,6 +21,7 @@ Page({
   onLoad(options) {
     this.setData({ momentId: options.momentId });
     this.loadMoment();
+    wx.setInnerAudioOption({ obeyMuteSwitch: false });
 
     recorderManager.onStop((res) => {
       this.setData({ commentRecording: false, recordingDuration: 0 });
@@ -64,6 +65,7 @@ Page({
           if (userInfo.nickName) moment.authorName = userInfo.nickName;
         }
       }
+      await cloud.resolveCommentVoices([moment]);
       this.setData({ moment, myOpenid: openid });
     } catch (e) {
       console.error('加载动态失败:', e);
@@ -174,25 +176,43 @@ Page({
     this.setData({ commentVoice: '', commentVoiceDuration: 0 });
   },
 
-  async onPlayCommentVoice(e) {
-    const { url } = e.currentTarget.dataset;
+  onPlayCommentVoice(e) {
+    const url = e.currentTarget.dataset.url;
     if (!url) return;
-    try {
-      const res = await wx.cloud.getTempFileURL({ fileList: [url] });
-      const item = res.fileList[0];
-      if (!item.tempFileURL) { wx.showToast({ title: '音频已过期', icon: 'none' }); return; }
-      const innerAudio = wx.createInnerAudioContext();
-      innerAudio.src = item.tempFileURL;
-      innerAudio.play();
-      innerAudio.onEnded(() => innerAudio.destroy());
-      innerAudio.onError((err) => {
-        console.error('语音播放失败:', err);
-        wx.showToast({ title: '播放失败', icon: 'none' });
-        innerAudio.destroy();
-      });
-    } catch (e) {
-      console.error('获取语音临时链接失败:', e);
+    if (this._currentAudio) { this._currentAudio.stop(); this._currentAudio.destroy(); this._currentAudio = null; }
+    this.setData({ voicePlayingUrl: url });
+    const innerAudio = wx.createInnerAudioContext();
+    this._currentAudio = innerAudio;
+    innerAudio.obeyMuteSwitch = false;
+    const clearPlaying = () => {
+      if (this._currentAudio === innerAudio) this._currentAudio = null;
+      this.setData({ voicePlayingUrl: '' });
+    };
+    innerAudio.onEnded(() => { clearPlaying(); innerAudio.destroy(); });
+    innerAudio.onError((err) => {
+      console.error('语音播放失败:', err);
+      clearPlaying();
       wx.showToast({ title: '播放失败', icon: 'none' });
+      innerAudio.destroy();
+    });
+    if (url.startsWith('cloud://')) {
+      wx.cloud.getTempFileURL({ fileList: [url] }).then(res => {
+        const item = res.fileList[0];
+        if (item && item.tempFileURL) {
+          innerAudio.src = item.tempFileURL;
+          innerAudio.play();
+        } else {
+          clearPlaying();
+          wx.showToast({ title: '音频已过期', icon: 'none' });
+        }
+      }).catch(() => {
+        clearPlaying();
+        innerAudio.destroy();
+        wx.showToast({ title: '播放失败', icon: 'none' });
+      });
+    } else {
+      innerAudio.src = url;
+      innerAudio.play();
     }
   },
 

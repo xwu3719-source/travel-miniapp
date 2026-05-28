@@ -386,6 +386,29 @@
   color: var(--purple);
   font-weight: 600;
 }
+.cc-bubble-voice.voice-playing {
+  background: rgba(168, 85, 247, 0.1);
+  border-radius: 10rpx;
+  padding: 4rpx 12rpx;
+}
+.voice-bars {
+  display: inline-flex;
+  gap: 3rpx;
+  align-items: flex-end;
+  height: 22rpx;
+}
+.voice-bar {
+  width: 5rpx;
+  border-radius: 3rpx;
+  background: var(--purple);
+  animation: voiceBarAnim 0.45s ease-in-out infinite alternate;
+}
+.voice-bar:nth-child(2) { animation-delay: 0.12s; }
+.voice-bar:nth-child(3) { animation-delay: 0.24s; }
+@keyframes voiceBarAnim {
+  from { height: 6rpx; }
+  to { height: 22rpx; }
+}
 
 .cc-voice-icon {
   width: 32rpx;

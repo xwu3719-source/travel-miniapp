@@ -74,9 +74,12 @@
           <text class="cmt-author">{{item.nickName}}</text>
           <text class="cmt-text" wx:if="{{item.text}}">{{item.text}}</text>
           <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" class="cmt-image" bindtap="onPreviewCommentImage" data-url="{{item.image}}"/>
-          <view wx:if="{{item.voice}}" class="cmt-voice" bindtap="onPlayCommentVoice" data-url="{{item.voice}}">
+          <view wx:if="{{item.voice}}" class="cmt-voice {{voicePlayingUrl === item.voice ? 'voice-playing' : ''}}" bindtap="onPlayCommentVoice" data-url="{{item.voice}}">
             <image src="/images/icons/voice.png" mode="aspectFit" class="cmt-voice-icon-img"/>
-            <text class="cmt-voice-dur">{{item.voiceDuration || 0}}″</text>
+            <block wx:if="{{voicePlayingUrl === item.voice}}">
+              <view class="voice-bars"><view class="voice-bar"></view><view class="voice-bar"></view><view class="voice-bar"></view></view>
+            </block>
+            <text wx:else class="cmt-voice-dur">{{item.voiceDuration || 0}}″</text>
           </view>
           <view wx:if="{{item.location}}" class="cmt-location" bindtap="onOpenCommentLocation" data-lat="{{item.location.lat}}" data-lng="{{item.location.lng}}" data-name="{{item.location.name}}">
             <image src="/images/icons/location.png" mode="aspectFit" class="cmt-loc-icon"/> {{item.location.name}}

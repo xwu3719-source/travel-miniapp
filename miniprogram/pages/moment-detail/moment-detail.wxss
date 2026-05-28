@@ -130,8 +130,6 @@
   display: flex;
   gap: 40rpx;
   padding: 20rpx 0;
-  border-top: 1rpx solid var(--border);
-  border-bottom: 1rpx solid var(--border);
 }
 
 .md-action {
@@ -291,6 +289,27 @@
   height: 30rpx;
 }
 
+.cmt-voice.voice-playing {
+  background: rgba(168, 85, 247, 0.12);
+}
+.voice-bars {
+  display: inline-flex;
+  gap: 3rpx;
+  align-items: flex-end;
+  height: 22rpx;
+}
+.voice-bar {
+  width: 5rpx;
+  border-radius: 3rpx;
+  background: var(--purple);
+  animation: voiceBarAnim 0.45s ease-in-out infinite alternate;
+}
+.voice-bar:nth-child(2) { animation-delay: 0.12s; }
+.voice-bar:nth-child(3) { animation-delay: 0.24s; }
+@keyframes voiceBarAnim {
+  from { height: 6rpx; }
+  to { height: 22rpx; }
+}
 .cmt-voice-dur {
   font-size: 22rpx;
   color: var(--text-secondary);

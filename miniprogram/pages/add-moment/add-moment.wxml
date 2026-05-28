@@ -33,17 +33,19 @@
   </view>
 
   <!-- 所在位置 -->
-  <view class="divider"></view>
   <view class="form-group" style="padding-bottom: 0;">
     <view class="loc-bar" bindtap="onChooseLocation">
-      <image wx:if="{{location}}" src="/images/icons/location.png" mode="aspectFit" class="loc-bar-icon"/>
-      <text wx:if="{{location}}" class="loc-bar-text">{{location}}</text>
-      <image wx:else src="/images/icons/location.png" mode="aspectFit" class="loc-bar-icon"/>
-      <text wx:else class="loc-bar-placeholder">所在位置</text>
-      <view wx:if="{{location}}" class="loc-bar-remove" catchtap="onRemoveLocation">✕</view>
+      <block wx:if="{{location}}">
+        <image src="/images/icons/location.png" mode="aspectFit" class="loc-bar-icon"/>
+        <text class="loc-bar-text">{{location}}</text>
+        <view class="loc-bar-remove" catchtap="onRemoveLocation">✕</view>
+      </block>
+      <block wx:else>
+        <image src="/images/icons/location.png" mode="aspectFit" class="loc-bar-icon"/>
+        <text class="loc-bar-placeholder">所在位置</text>
+      </block>
     </view>
   </view>
-  <view class="divider"></view>
 
   <!-- 关联日期 -->
   <view class="form-group" wx:if="{{tripDays.length > 0}}">

@@ -195,9 +195,12 @@
               <text class="cmt-author">{{c.nickName}}</text>
               <text class="cmt-text" wx:if="{{c.text}}">{{c.text}}</text>
               <image wx:if="{{c.image}}" src="{{c.image}}" mode="aspectFill" class="cmt-image" catchtap="onPreviewCommentImage" data-url="{{c.image}}"/>
-              <view wx:if="{{c.voice}}" class="cmt-voice" catchtap="onPlayCommentVoice" data-url="{{c.voice}}">
+              <view wx:if="{{c.voice}}" class="cmt-voice {{voicePlayingUrl === c.voice ? 'voice-playing' : ''}}" catchtap="onPlayCommentVoice" data-url="{{c.voice}}">
                 <image src="/images/icons/voice.png" mode="aspectFit" class="cmt-voice-icon-img"/>
-                <text class="cmt-voice-dur">{{c.voiceDuration || 0}}″</text>
+                <block wx:if="{{voicePlayingUrl === c.voice}}">
+                  <view class="voice-bars"><view class="voice-bar"></view><view class="voice-bar"></view><view class="voice-bar"></view></view>
+                </block>
+                <text wx:else class="cmt-voice-dur">{{c.voiceDuration || 0}}″</text>
               </view>
               <view wx:if="{{c.location}}" class="cmt-location" catchtap="onOpenCommentLocation" data-lat="{{c.location.lat}}" data-lng="{{c.location.lng}}" data-name="{{c.location.name}}">
                 <image src="/images/icons/location.png" mode="aspectFit" class="cmt-loc-icon"/> {{c.location.name}}

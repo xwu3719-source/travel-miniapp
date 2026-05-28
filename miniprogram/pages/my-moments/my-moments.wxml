@@ -80,8 +80,12 @@
         <view class="cc-bubble-body">
           <text wx:if="{{item.commentType === 'text'}}" class="cc-bubble-text">{{item.myComment}}</text>
           <image wx:elif="{{item.commentType === 'image'}}" src="{{item.commentImage}}" mode="aspectFill" class="cc-bubble-img"/>
-          <view wx:elif="{{item.commentType === 'voice'}}" class="cc-bubble-voice" catchtap="onPlayCommentVoice" data-url="{{item.commentVoice}}">
-            <image src="/images/icons/voice.png" mode="aspectFit" class="cc-voice-icon"/> {{item.commentDuration}}″
+          <view wx:elif="{{item.commentType === 'voice'}}" class="cc-bubble-voice {{voicePlayingUrl === item.commentVoice ? 'voice-playing' : ''}}" catchtap="onPlayCommentVoice" data-url="{{item.commentVoice}}">
+            <image src="/images/icons/voice.png" mode="aspectFit" class="cc-voice-icon"/>
+            <block wx:if="{{voicePlayingUrl === item.commentVoice}}">
+              <view class="voice-bars"><view class="voice-bar"></view><view class="voice-bar"></view><view class="voice-bar"></view></view>
+            </block>
+            <text wx:else>{{item.commentDuration}}″</text>
           </view>
           <view wx:elif="{{item.commentType === 'location'}}" class="cc-bubble-loc">
             <image src="/images/icons/location.png" mode="aspectFit" class="cc-loc-icon"/> {{item.myComment}}
