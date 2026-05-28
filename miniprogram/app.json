@@ -1,0 +1,59 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/trip-detail/trip-detail",
+    "pages/trip-create/trip-create",
+    "pages/join/join",
+    "pages/members/members",
+    "pages/ledger/ledger",
+    "pages/add-expense/add-expense",
+    "pages/settlement/settlement",
+    "pages/moments/moments",
+    "pages/add-moment/add-moment",
+    "pages/profile/profile",
+    "pages/my-moments/my-moments",
+    "pages/moment-detail/moment-detail",
+    "pages/user-profile/user-profile",
+    "pages/follow-list/follow-list"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "旅行搭子",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#999",
+    "selectedColor": "#10b981",
+    "backgroundColor": "#fff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "行程"
+      },
+      {
+        "pagePath": "pages/ledger/ledger",
+        "text": "账本"
+      },
+      {
+        "pagePath": "pages/moments/moments",
+        "text": "动态"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于在地图上选择活动地点"
+    }
+  },
+  "requiredPrivateInfos": ["chooseLocation"],
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

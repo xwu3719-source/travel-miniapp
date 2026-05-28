@@ -1,0 +1,66 @@
+<!-- 创建/编辑行程 -->
+<scroll-view scroll-y class="container page-scroll">
+  <view class="form-title">{{isEdit ? '编辑行程' : '新建行程'}}</view>
+
+  <!-- 行程名称 -->
+  <view class="form-group">
+    <view class="form-label">行程名称</view>
+    <input class="form-input" placeholder="{{nameFocus ? '' : '例如：日本关西赏枫之旅'}}" value="{{name}}" bindinput="onNameInput" bindfocus="onNameFocus" bindblur="onNameBlur" maxlength="30"/>
+  </view>
+
+  <!-- 目的地 -->
+  <view class="form-group">
+    <view class="form-label">目的地</view>
+    <input class="form-input" placeholder="{{cityFocus ? '' : '例如：大阪 · 京都 · 奈良'}}" value="{{city}}" bindinput="onCityInput" bindfocus="onCityFocus" bindblur="onCityBlur" maxlength="30"/>
+  </view>
+
+  <!-- 日期 -->
+  <view class="form-group">
+    <view class="form-label">出行日期</view>
+    <view class="date-row">
+      <picker mode="date" value="{{startDate}}" start="2024-01-01" end="2030-12-31" bindchange="onStartDateChange">
+        <view class="date-box">
+          <text wx:if="{{startDate}}">{{startDate}}</text>
+          <text wx:else class="placeholder">开始日期</text>
+        </view>
+      </picker>
+      <text class="date-sep">→</text>
+      <picker mode="date" value="{{endDate}}" start="2024-01-01" end="2030-12-31" bindchange="onEndDateChange">
+        <view class="date-box">
+          <text wx:if="{{endDate}}">{{endDate}}</text>
+          <text wx:else class="placeholder">结束日期</text>
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 总预算 -->
+  <view class="form-group">
+    <view class="form-label">总预算（可选）</view>
+    <view class="budget-input-row">
+      <text class="budget-prefix">¥</text>
+      <input class="form-input budget-input" type="digit" placeholder="{{budgetFocus ? '' : '0'}}" value="{{totalBudget}}" bindinput="onBudgetInput" bindfocus="onBudgetFocus" bindblur="onBudgetBlur"/>
+    </view>
+  </view>
+
+  <!-- 分类预算 -->
+  <view class="form-group">
+    <view class="form-label-row" bindtap="toggleCategoryBudget">
+      <view class="form-label">分类预算（可选）</view>
+      <view class="toggle-arrow {{showCategoryBudget ? 'open' : ''}}">›</view>
+    </view>
+    <block wx:if="{{showCategoryBudget}}">
+      <view class="cat-grid">
+        <view class="cat-item" wx:for="{{categories}}" wx:key="key">
+          <view class="cat-label">{{item.icon}} {{item.label}}</view>
+          <input class="form-input cat-input" type="digit" placeholder="0" value="{{categoryBudgets[item.key]}}" data-cat="{{item.key}}" bindinput="onCatBudgetInput"/>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 保存 -->
+  <view class="btn btn-primary btn-block" bindtap="onSave">
+    {{saving ? '保存中...' : (isEdit ? '✦ 更新行程' : '✦ 创建行程')}}
+  </view>
+</scroll-view>

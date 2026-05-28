@@ -1,0 +1,55 @@
+<!-- 用户主页 -->
+<scroll-view scroll-y class="container page-scroll" wx:if="{{!loading}}">
+  <!-- 头部卡片 -->
+  <view class="up-card">
+    <view class="up-row">
+      <image wx:if="{{user.avatarUrl}}" src="{{user.avatarUrl}}" class="up-avatar" mode="aspectFill"/>
+      <view wx:else class="up-avatar-placeholder">{{user.nickName[0] || '?'}}</view>
+      <view class="up-info">
+        <view class="up-name">{{user.nickName || '未知用户'}}</view>
+        <view class="up-stats">
+          <text class="up-stat-num" bindtap="onGoFollowList" data-type="following">{{followStats.following}}</text>
+          <text class="up-stat-label">关注</text>
+          <text class="up-stat-num" bindtap="onGoFollowList" data-type="followers" style="margin-left: 24rpx;">{{followStats.followers}}</text>
+          <text class="up-stat-label">粉丝</text>
+          <text class="up-stat-num" style="margin-left: 24rpx;">{{momentCount}}</text>
+          <text class="up-stat-label">动态</text>
+        </view>
+      </view>
+    </view>
+    <!-- 关注按钮 -->
+    <view wx:if="{{myOpenid !== targetOpenid}}" class="up-follow-btn {{isFollowing ? 'following' : ''}}" bindtap="onToggleFollow">
+      {{isFollowing ? '已关注' : '+ 关注'}}
+    </view>
+  </view>
+
+  <!-- 动态列表 -->
+  <view class="up-moments-title">TA 的动态</view>
+  <view class="moment-item" wx:for="{{moments}}" wx:key="_id" data-id="{{item._id}}" bindtap="onMomentTap">
+    <view class="mi-text" wx:if="{{item.text}}">{{item.text}}</view>
+    <view class="mi-images" wx:if="{{item.images && item.images.length > 0}}">
+      <image wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="mi-img"/>
+    </view>
+    <view class="mi-videos" wx:if="{{item.videos && item.videos.length > 0}}">
+      <view class="mi-video" wx:for="{{item.videos}}" wx:key="fileID" data-file-id="{{item.fileID}}" catchtap="onPlayMomentVideo">
+        <text class="mi-video-dur">{{item.duration}}″</text>
+        <view class="mi-video-play">▶</view>
+      </view>
+    </view>
+    <view class="mi-footer">
+      <text class="mi-time">{{item.formattedTime}}</text>
+      <view class="mi-actions-sm">
+        <text class="mi-as"><image src="/images/icons/like.png" mode="aspectFit" class="mi-as-icon"/> {{item.likes ? item.likes.length : 0}}</text>
+        <text class="mi-as"><image src="/images/icons/comment.png" mode="aspectFit" class="mi-as-icon"/> {{item.comments ? item.comments.length : 0}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{moments.length === 0}}" class="empty-state">
+    <view class="empty-text">TA 还没有发布过动态</view>
+  </view>
+</scroll-view>
+
+<view wx:if="{{loading}}" class="empty-state">
+  <view class="empty-text">加载中...</view>
+</view>

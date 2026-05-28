@@ -1,0 +1,92 @@
+<!-- 首页 - 行程列表 -->
+<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
+  <!-- 头部操作 -->
+  <view class="index-header">
+    <view class="index-title">✦ 我的旅行</view>
+    <view class="index-actions">
+      <view class="btn btn-outline btn-sm" bindtap="onToggleBatchMode" wx:if="{{activeTrips.length > 0}}">{{batchMode ? '完成' : '编辑'}}</view>
+      <view class="btn btn-outline btn-sm" bindtap="onJoinTap">加入行程</view>
+      <view class="btn btn-primary btn-sm" bindtap="onCreateTap">✦ 创建行程</view>
+    </view>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="empty-state">
+    <view class="empty-icon">⏳</view>
+    <view class="empty-text">加载中...</view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:elif="{{activeTrips.length === 0 && historyTrips.length === 0}}" class="empty-state">
+    <view class="empty-icon">✈️</view>
+    <view class="empty-text">还没有行程记录</view>
+    <view class="btn btn-primary" style="margin-top:32rpx" bindtap="onCreateTap">创建第一次旅行</view>
+  </view>
+
+  <!-- 活跃行程 -->
+  <block wx:else>
+    <view class="section-label" wx:if="{{activeTrips.length > 0}}">✦ 进行中</view>
+
+    <view
+      wx:for="{{activeTrips}}"
+      wx:key="_id"
+      class="trip-card-row"
+    >
+      <view class="trip-swipe-del {{swipedId === item._id ? 'show' : ''}}" data-id="{{item._id}}" catchtap="onDeleteTrip">删除</view>
+      <view
+        class="trip-card {{swipedId === item._id ? 'swiped' : ''}} {{batchMode ? 'batch-mode' : ''}}"
+        data-id="{{item._id}}"
+        bindtouchstart="{{batchMode ? '' : 'onTouchStart'}}"
+        bindtouchmove="{{batchMode ? '' : 'onTouchMove'}}"
+        bindtap="{{batchMode ? 'onToggleSelect' : 'onTripTap'}}"
+      >
+        <view class="trip-select-circle {{item.selected ? 'checked' : ''}}" wx:if="{{batchMode}}">
+          <text wx:if="{{item.selected}}">✓</text>
+        </view>
+        <view class="trip-card-top">
+          <view class="trip-info">
+            <view class="trip-name">{{item.name}}</view>
+            <view class="trip-city">🗺️ {{item.city}}</view>
+          </view>
+          <view class="trip-arrow">›</view>
+        </view>
+        <view class="trip-dates">📅 {{item.startDate}} → {{item.endDate}}  ·  {{item.totalDays}}天</view>
+        <view class="trip-card-bottom" wx:if="{{item.totalBudget}}">
+          <view class="trip-budget">💎 总预算 ¥{{item.totalBudget}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 历史行程 -->
+    <view class="history-toggle" wx:if="{{historyTrips.length > 0}}" bindtap="onToggleHistory">
+      <view class="history-toggle-text">📦 历史行程 ({{historyTrips.length}})</view>
+      <view class="history-toggle-arrow {{showHistory ? 'open' : ''}}">›</view>
+    </view>
+
+    <block wx:if="{{showHistory}}">
+      <view
+        wx:for="{{historyTrips}}"
+        wx:key="_id"
+        class="trip-card archived"
+        data-id="{{item._id}}"
+        bindtap="onTripTap"
+      >
+        <view class="trip-card-top">
+          <view class="trip-info">
+            <view class="trip-name">{{item.name}}</view>
+            <view class="trip-city">🗺️ {{item.city}}</view>
+          </view>
+          <view class="trip-arrow">›</view>
+        </view>
+        <view class="trip-dates">📅 {{item.startDate}} → {{item.endDate}}</view>
+      </view>
+    </block>
+  </block>
+
+  <!-- 批量操作栏 -->
+  <view class="batch-bar" wx:if="{{batchMode}}">
+    <view class="batch-bar-cancel" bindtap="onToggleBatchMode">取消</view>
+    <view class="batch-bar-info">已选 {{selectedIds.length}} 项</view>
+    <view class="batch-bar-btn {{selectedIds.length > 0 ? '' : 'disabled'}}" bindtap="onBatchDelete">删除</view>
+  </view>
+</scroll-view>

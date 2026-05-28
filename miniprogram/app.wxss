@@ -1,0 +1,325 @@
+/* ═══════════════════════════════════════
+   全局样式 — 旅行搭子 · 彩趣渐变
+   ═══════════════════════════════════════ */
+
+page {
+  /* ===== 渐变色系 ===== */
+  --gradient-sunset: linear-gradient(135deg, #ff6b6b, #ffa06a);
+  --gradient-coral: linear-gradient(135deg, #ff6b6b, #ff8e53);
+  --gradient-ocean: linear-gradient(135deg, #0ea5e9, #06b6d4, #10b981);
+  --gradient-teal: linear-gradient(135deg, #0d9488, #10b981);
+  --gradient-forest: linear-gradient(135deg, #22c55e, #10b981, #0d9488);
+  --gradient-purple: linear-gradient(135deg, #a855f7, #ec4899);
+  --gradient-sky: linear-gradient(135deg, #667eea, #764ba2);
+  --gradient-rose: linear-gradient(135deg, #ec4899, #f43f5e);
+  --gradient-amber: linear-gradient(135deg, #f59e0b, #f97316);
+  --gradient-night: linear-gradient(135deg, #1e293b, #334155);
+  --gradient-mint: linear-gradient(135deg, #34d399, #10b981);
+  --gradient-lagoon: linear-gradient(135deg, #06b6d4, #3b82f6, #6366f1);
+
+  /* ===== 强调色 ===== */
+  --coral: #ff6b6b;
+  --coral-light: #fff0ee;
+  --teal: #0d9488;
+  --teal-light: #e6faf7;
+  --purple: #a855f7;
+  --purple-light: #f5f0ff;
+  --amber: #f59e0b;
+  --amber-light: #fffbf0;
+  --sky: #0ea5e9;
+  --sky-light: #f0f9ff;
+  --rose: #f43f5e;
+  --rose-light: #fff1f2;
+  --indigo: #6366f1;
+  --indigo-light: #eef2ff;
+
+  /* ===== 基础色（保留兼容） ===== */
+  --green: #10b981;
+  --green-dark: #059669;
+  --green-light: #ecfdf5;
+  --yellow: #f59e0b;
+  --yellow-light: #fffbeb;
+  --red: #ef4444;
+  --red-light: #fef2f2;
+  --blue: #3b82f6;
+  --blue-light: #eff6ff;
+  --orange: #f97316;
+  --orange-light: #fff7ed;
+
+  /* ===== 背景 & 卡片 ===== */
+  --bg: #f7f8fc;
+  --card-bg: #ffffff;
+  --border: #f0f1f5;
+
+  /* ===== 文字 ===== */
+  --text-primary: #1e1e2e;
+  --text-secondary: #6b7280;
+  --text-hint: #9ca3af;
+
+  /* ===== 圆角 & 阴影 ===== */
+  --radius: 20rpx;
+  --radius-sm: 12rpx;
+  --radius-lg: 28rpx;
+  --shadow-sm: 0 2rpx 12rpx rgba(0,0,0,0.05);
+  --shadow-md: 0 4rpx 20rpx rgba(0,0,0,0.07);
+  --shadow-lg: 0 8rpx 30rpx rgba(0,0,0,0.10);
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  background: var(--bg);
+  box-sizing: border-box;
+}
+
+/* ===== 通用布局 ===== */
+.container {
+  padding: 24rpx;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.page-scroll {
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+/* ===== 卡片 ===== */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ===== 渐变卡片工具类 ===== */
+.card-sunset {
+  background: var(--gradient-sunset);
+  color: #fff;
+}
+
+.card-ocean {
+  background: var(--gradient-ocean);
+  color: #fff;
+}
+
+.card-purple {
+  background: var(--gradient-purple);
+  color: #fff;
+}
+
+.card-teal {
+  background: var(--gradient-teal);
+  color: #fff;
+}
+
+.card-sky {
+  background: var(--gradient-sky);
+  color: #fff;
+}
+
+/* ===== 按钮 ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16rpx 36rpx;
+  border-radius: 24rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--gradient-sunset);
+  color: #fff;
+  box-shadow: 0 4rpx 16rpx rgba(255, 107, 107, 0.3);
+}
+
+.btn-outline {
+  background: var(--card-bg);
+  color: var(--coral);
+  border: 2rpx solid var(--coral);
+}
+
+.btn-sm {
+  padding: 12rpx 24rpx;
+  font-size: 24rpx;
+  border-radius: 16rpx;
+  line-height: 1.2;
+}
+
+.btn-block {
+  display: flex;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 24rpx;
+  font-size: 30rpx;
+  border-radius: 48rpx;
+  margin-top: 40rpx;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 12rpx 20rpx;
+}
+
+/* ===== 表单 ===== */
+.form-group {
+  margin-bottom: 24rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10rpx;
+}
+
+.form-input {
+  width: 100%;
+  padding: 20rpx 24rpx;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  font-size: 28rpx;
+  height: 80rpx;
+  line-height: 40rpx;
+  box-sizing: border-box;
+  border: 2rpx solid transparent;
+}
+
+.form-input:focus {
+  border-color: var(--teal);
+  background: var(--card-bg);
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 160rpx;
+  padding: 20rpx 24rpx;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+/* ===== 标签 ===== */
+.tag {
+  display: inline-block;
+  font-size: 22rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  font-weight: 500;
+}
+
+.tag-green  { background: var(--green-light);  color: var(--green); }
+.tag-yellow { background: var(--yellow-light); color: #b45309; }
+.tag-red    { background: var(--red-light);    color: var(--red); }
+.tag-blue   { background: var(--blue-light);   color: var(--blue); }
+.tag-orange { background: var(--orange-light); color: #c2410c; }
+.tag-purple { background: var(--purple-light); color: var(--purple); }
+.tag-teal   { background: var(--teal-light);   color: var(--teal); }
+
+/* ===== 空状态 ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: var(--text-hint);
+  text-align: center;
+}
+
+/* ===== 弹窗 ===== */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 36rpx;
+  width: 600rpx;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+}
+
+.modal-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 28rpx;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 28rpx;
+}
+
+.modal-btns .btn {
+  flex: 1;
+}
+
+/* ===== 分隔线 ===== */
+.divider {
+  height: 1rpx;
+  background: var(--border);
+  margin: 20rpx 0;
+}
+
+/* ===== 文本省略 ===== */
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== 安全区 ===== */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ===== 通用渐变动画 ===== */
+@keyframes shimmer {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.gradient-text {
+  background: var(--gradient-sunset);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== 加载更多 ===== */
+.load-more {
+  text-align: center;
+  padding: 28rpx;
+  font-size: 26rpx;
+  color: var(--text-hint);
+}

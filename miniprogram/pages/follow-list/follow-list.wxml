@@ -1,0 +1,19 @@
+<!-- 关注/粉丝列表 -->
+<scroll-view scroll-y class="container page-scroll">
+  <view class="fl-user" wx:for="{{users}}" wx:key="openid" data-openid="{{item.openid}}" bindtap="onUserTap">
+    <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="fl-avatar" mode="aspectFill"/>
+    <view wx:else class="fl-avatar-placeholder">{{item.nickName[0] || '?'}}</view>
+    <text class="fl-name">{{item.nickName}}</text>
+    <view wx:if="{{item.openid !== myOpenid}}" class="fl-btn {{myFollowingSet[item.openid] ? 'following' : ''}}" catchtap="onToggleFollow" data-openid="{{item.openid}}">
+      {{myFollowingSet[item.openid] ? '已关注' : '+ 关注'}}
+    </view>
+  </view>
+
+  <view wx:if="{{users.length === 0 && !loading}}" class="empty-state">
+    <view class="empty-text">暂无数据</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty-state">
+    <view class="empty-text">加载中...</view>
+  </view>
+</scroll-view>

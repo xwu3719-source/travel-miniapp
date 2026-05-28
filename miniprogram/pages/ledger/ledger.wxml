@@ -1,0 +1,113 @@
+<!-- 账本 -->
+<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
+  <!-- 行程选择 -->
+  <scroll-view scroll-x class="trip-selector">
+    <view
+      wx:for="{{trips}}"
+      wx:key="_id"
+      class="trip-chip {{selectedTripId === item._id ? 'active' : ''}}"
+      data-id="{{item._id}}"
+      bindtap="onTripSelect"
+    >{{item.name}}</view>
+  </scroll-view>
+
+  <!-- 统计 -->
+  <view class="ledger-stats" wx:if="{{selectedTrip}}">
+    <view class="ledger-stat">
+      <view class="ls-num">¥{{summary.total}}</view>
+      <view class="ls-label">总消费</view>
+    </view>
+    <view class="ledger-stat">
+      <view class="ls-num">¥{{summary.shared}}</view>
+      <view class="ls-label">公共</view>
+    </view>
+    <view class="ledger-stat">
+      <view class="ls-num">¥{{summary.private}}</view>
+      <view class="ls-label">私人</view>
+    </view>
+  </view>
+
+  <!-- 预算进度 -->
+  <view class="budget-bar" wx:if="{{selectedTrip && selectedTrip.totalBudget}}">
+    <view class="budget-bar-label">💎 预算 ¥{{selectedTrip.totalBudget}}</view>
+    <view class="budget-bar-track">
+      <view class="budget-bar-fill {{summary.total > selectedTrip.totalBudget ? 'over' : ''}}" style="width: {{summary.total / selectedTrip.totalBudget * 100 > 100 ? 100 : summary.total / selectedTrip.totalBudget * 100}}%"></view>
+    </view>
+    <view class="budget-remaining {{summary.total > selectedTrip.totalBudget ? 'over' : ''}}">
+      {{summary.total > selectedTrip.totalBudget ? '超支 ¥' + (summary.total - selectedTrip.totalBudget) : '剩余 ¥' + (selectedTrip.totalBudget - summary.total)}}
+    </view>
+  </view>
+
+  <!-- 分类占比条 -->
+  <view class="category-breakdown" wx:if="{{categoryBreakdown.length > 0}}">
+    <view class="cb-title">分类占比</view>
+    <view class="cb-bar">
+      <view
+        wx:for="{{categoryBreakdown}}"
+        wx:key="key"
+        class="cb-segment cb-{{item.key}}"
+        style="width: {{item.percent}}%"
+      ></view>
+    </view>
+    <view class="cb-legend">
+      <view class="cb-legend-item" wx:for="{{categoryBreakdown}}" wx:key="key">
+        <view class="cb-dot cb-dot-{{item.key}}"></view>
+        <text class="cb-name">{{item.label}}</text>
+        <text class="cb-amount">¥{{item.amount}}</text>
+        <text class="cb-percent">{{item.percent}}%</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 类型筛选 -->
+  <view class="filter-section">
+    <view class="filter-label">类型</view>
+    <view class="filter-row">
+      <view class="filter-chip {{filterType === 'all' ? 'active' : ''}}" data-type="all" bindtap="onTypeFilter">全部</view>
+      <view class="filter-chip {{filterType === 'shared' ? 'active' : ''}}" data-type="shared" bindtap="onTypeFilter">👥 公共</view>
+      <view class="filter-chip {{filterType === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeFilter">👤 私人</view>
+    </view>
+  </view>
+
+  <!-- 分类筛选 -->
+  <view class="filter-section">
+    <view class="filter-label">分类</view>
+    <view class="filter-row">
+      <view
+        wx:for="{{categories}}"
+        wx:key="key"
+        class="filter-chip cat-chip {{filterCategory === item.key ? 'active' : ''}}"
+        data-cat="{{item.key}}"
+        bindtap="onCategoryFilter"
+      >{{item.icon}} {{item.label}}</view>
+    </view>
+  </view>
+
+  <!-- 消费列表 -->
+  <view wx:if="{{filteredExpenses.length === 0}}" class="empty-state">
+    <view class="empty-icon">💎</view>
+    <view class="empty-text">{{expenses.length === 0 ? '还没有消费记录' : '无匹配记录'}}</view>
+  </view>
+
+  <view class="expense-item" wx:for="{{filteredExpenses}}" wx:key="_id">
+    <view class="ei-left">
+      <view class="ei-cat ei-cat-{{item.category}}">
+        {{item.icon || '💎'}}
+      </view>
+      <view class="ei-info">
+        <view class="ei-desc">{{item.description}}</view>
+        <view class="ei-meta">
+          <text class="ei-payer">由 {{item.paidByName}} 支付</text>
+          <text class="ei-type tag-{{item.type}}">{{item.type === 'shared' ? '公共' : '私人'}}</text>
+        </view>
+        <view class="ei-date" wx:if="{{item.createdAt}}">{{item.createdAt}}</view>
+      </view>
+    </view>
+    <view class="ei-amount">¥{{item.amount}}</view>
+  </view>
+</scroll-view>
+
+<!-- FAB -->
+<view class="detail-fabs">
+  <view class="detail-fab" bindtap="onAddExpense">✦</view>
+</view>

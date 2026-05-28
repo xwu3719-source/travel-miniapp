@@ -1,0 +1,144 @@
+<!-- 我的 -->
+<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll profile-page">
+  <!-- 个人卡片 -->
+  <view class="profile-card">
+    <view class="pc-header">
+      <view class="pc-row">
+        <!-- 头像 -->
+        <view class="pc-avatar-wrap" bindtap="onAvatarTap">
+          <image wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" class="pc-avatar" mode="aspectFill"/>
+          <view wx:else class="pc-avatar-placeholder">✦</view>
+        </view>
+
+        <!-- 右侧信息 -->
+        <view class="pc-info">
+          <text class="pc-name" bindtap="onNickTap">{{userInfo.nickName || '点击设置昵称'}}</text>
+          <view class="pc-follow-row">
+            <text class="pc-follow-num" bindtap="onGoFollowList" data-type="following">{{followStats.following}}</text>
+            <text class="pc-follow-label">关注</text>
+            <text class="pc-follow-num" bindtap="onGoFollowList" data-type="followers" style="margin-left: 24rpx;">{{followStats.followers}}</text>
+            <text class="pc-follow-label">粉丝</text>
+          </view>
+        </view>
+      </view>
+      <text class="pc-edit" bindtap="onEditProfile">编辑</text>
+    </view>
+  </view>
+
+  <!-- 统计卡片 -->
+  <view class="stats-row">
+    <view class="stat-box stat-active" bindtap="onStatTap" data-action="active">
+      <view class="stat-icon">🗺️</view>
+      <view class="stat-num">{{tripCount}}</view>
+      <view class="stat-label">进行中</view>
+    </view>
+    <view class="stat-box stat-archived" bindtap="onStatTap" data-action="archived">
+      <view class="stat-icon">📦</view>
+      <view class="stat-num">{{historyTrips.length}}</view>
+      <view class="stat-label">已归档</view>
+    </view>
+    <view class="stat-box stat-total" bindtap="onStatTap" data-action="total">
+      <view class="stat-icon">✈️</view>
+      <view class="stat-num">{{totalTrips}}</view>
+      <view class="stat-label">总行程</view>
+    </view>
+  </view>
+
+  <!-- 想去的地方 -->
+  <view class="wish-section">
+    <view class="wish-header">
+      <view class="section-title">
+        <text class="section-dot wish-dot">◆</text>
+        <text>想去的地方</text>
+      </view>
+      <view class="wish-add-btn" bindtap="onAddCityTap">✦ 添加</view>
+    </view>
+    <view class="wish-chips" wx:if="{{wishCities.length > 0}}">
+      <view class="wish-chip" wx:for="{{wishCities}}" wx:key="*this">
+        <view class="wish-chip-rank">{{index + 1}}</view>
+        <text class="wish-chip-text">{{item}}</text>
+        <view class="wish-chip-del" data-index="{{index}}" catchtap="onRemoveCity">✕</view>
+      </view>
+    </view>
+    <view wx:else class="wish-empty">
+      <text>标记你想去的地方 ✈️</text>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <view class="menu-item" bindtap="onGoMySpace">
+      <view class="menu-icon-wrap mi-space">
+        <text class="menu-icon-text">🌅</text>
+      </view>
+      <text class="menu-label">我的空间</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-action="about">
+      <view class="menu-icon-wrap mi-about">
+        <text class="menu-icon-text">✦</text>
+      </view>
+      <text class="menu-label">关于我们</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-action="tips">
+      <view class="menu-icon-wrap mi-tips">
+        <text class="menu-icon-text">💡</text>
+      </view>
+      <text class="menu-label">旅行小贴士</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 历史行程 -->
+  <view wx:if="{{historyTrips.length > 0}}" class="history-section">
+    <view class="section-header" bindtap="onToggleHistory">
+      <view class="section-title">
+        <text class="section-dot">◆</text>
+        <text>历史行程 ({{historyTrips.length}})</text>
+      </view>
+      <text class="toggle-arrow {{showHistory ? 'open' : ''}}">›</text>
+    </view>
+    <block wx:if="{{showHistory}}">
+      <view class="history-card" wx:for="{{historyTrips}}" wx:key="_id" data-id="{{item._id}}" bindtap="onTripTap">
+        <view class="hc-name">{{item.name}}</view>
+        <view class="hc-meta">
+          <text>🗺️ {{item.city}}</text>
+          <text>📅 {{item.startDate}} → {{item.endDate}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view wx:if="{{historyTrips.length === 0}}" class="empty-state" style="padding-top: 60rpx;">
+    <view class="empty-icon">✈️</view>
+    <view class="empty-text">还没有完成的旅行</view>
+  </view>
+
+  <!-- 修改昵称弹窗 -->
+  <view wx:if="{{showNickModal}}" class="modal-mask" catchtap="onCloseNickModal">
+    <view class="modal-content" catchtap="preventBubble">
+      <view class="modal-title">修改昵称</view>
+      <input class="form-input" placeholder="请输入昵称" value="{{nickInput}}" bindinput="onNickInput" focus="{{true}}" maxlength="20"/>
+      <view class="modal-btns" style="margin-top: 24rpx;">
+        <view class="btn btn-outline" bindtap="onCloseNickModal">取消</view>
+        <view class="btn btn-primary" bindtap="onConfirmNick">确定</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 添加目的地弹窗 -->
+  <view wx:if="{{showCityInput}}" class="modal-mask" catchtap="onCloseCityInput">
+    <view class="modal-content" catchtap="preventBubble">
+      <view class="modal-title">想去哪里？</view>
+      <input class="form-input" placeholder="输入城市或国家名称" value="{{cityInput}}" bindinput="onCityInput" focus="{{true}}" maxlength="30"/>
+      <view class="city-suggestions" wx:if="{{citySuggestions.length > 0}}">
+        <view class="city-sug-item" wx:for="{{citySuggestions}}" wx:key="*this" data-name="{{item}}" catchtap="onSelectSuggestion">{{item}}</view>
+      </view>
+      <view class="modal-btns">
+        <view class="btn btn-outline" bindtap="onCloseCityInput">取消</view>
+        <view class="btn btn-primary" bindtap="onConfirmAddCity">添加</view>
+      </view>
+    </view>
+  </view>
+</scroll-view>

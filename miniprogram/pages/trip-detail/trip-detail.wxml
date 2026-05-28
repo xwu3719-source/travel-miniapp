@@ -1,0 +1,311 @@
+<!-- 行程详情 · 彩趣版 -->
+<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
+  <!-- 行程头部 -->
+  <view class="trip-hero" wx:if="{{trip}}">
+    <view class="trip-hero-name">{{trip.name}}</view>
+    <view class="trip-hero-actions" wx:if="{{isCreator}}">
+      <view class="trip-hero-edit" bindtap="onEditTrip">编辑</view>
+      <view class="trip-hero-archive" wx:if="{{trip.status !== 'archived'}}" bindtap="onArchive">归档</view>
+      <view class="trip-hero-unarchive" wx:if="{{trip.status === 'archived'}}" bindtap="onUnarchive">恢复</view>
+      <view class="trip-hero-delete" bindtap="onDelete">删除</view>
+    </view>
+    <view class="trip-hero-city">🗺️ {{trip.city}}</view>
+    <view class="trip-hero-dates">📅 {{trip.startDate}} → {{trip.endDate}}  ·  {{trip.totalDays}}天</view>
+    <view class="trip-hero-budget" wx:if="{{trip.totalBudget}}">💎 总预算 ¥{{trip.totalBudget}}</view>
+
+    <!-- 成员头像 -->
+    <scroll-view scroll-x class="member-row">
+      <view class="member-avatar" wx:for="{{members}}" wx:key="_id">
+        <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="member-avatar-img" mode="aspectFill"/>
+        <view wx:else class="member-avatar-placeholder">{{item.nickName[0] || '旅'}}</view>
+        <view class="member-name">{{item.nickName}}</view>
+        <view wx:if="{{item.role === 'creator'}}" class="member-badge">♛</view>
+      </view>
+      <view class="member-avatar" bindtap="onGoMembers">
+        <view class="member-add">✦</view>
+        <view class="member-name">邀请</view>
+      </view>
+    </scroll-view>
+    <view class="invite-row" wx:if="{{inviteCode}}" bindtap="onCopyInviteCode">
+      <text class="invite-label">邀请码</text>
+      <text class="invite-code">{{inviteCode}}</text>
+      <text class="invite-copy-hint">（点击复制）</text>
+    </view>
+  </view>
+
+  <!-- 二级Tab：行程 / 账本 / 动态 -->
+  <view class="detail-tabs">
+    <view class="detail-tab tab-plan {{currentTab === 'plan' ? 'active' : ''}}" data-tab="plan" bindtap="onTabTap">
+      <text class="tab-emoji">🗺️</text>
+      <text>行程</text>
+    </view>
+    <view class="detail-tab tab-expense {{currentTab === 'expense' ? 'active' : ''}}" data-tab="expense" bindtap="onTabTap">
+      <text class="tab-emoji">💎</text>
+      <text>账本</text>
+    </view>
+    <view class="detail-tab tab-moments {{currentTab === 'moments' ? 'active' : ''}}" data-tab="moments" bindtap="onTabTap">
+      <text class="tab-emoji">🌅</text>
+      <text>动态</text>
+    </view>
+  </view>
+
+  <!-- ══════ 行程视图 ══════ -->
+  <block wx:if="{{currentTab === 'plan'}}">
+    <!-- 日期切换 -->
+    <scroll-view scroll-x class="day-tabs">
+      <view class="day-tab {{currentDay === 0 ? 'active' : ''}}" data-day="{{0}}" bindtap="onDayTap">✦ 全部</view>
+      <view
+        wx:for="{{planDays}}"
+        wx:key="dayIndex"
+        class="day-tab {{currentDay === item.dayIndex ? 'active' : ''}}"
+        data-day="{{item.dayIndex}}"
+        bindtap="onDayTap"
+      >Day {{item.dayIndex}}</view>
+    </scroll-view>
+
+    <!-- 行程列表 -->
+    <block wx:for="{{dayPlans}}" wx:for-item="dp" wx:key="dayIndex">
+      <block wx:if="{{currentDay === 0 || currentDay === dp.dayIndex}}">
+        <view class="plan-day-header">
+          <view class="plan-day-label">Day {{dp.dayIndex}}</view>
+          <view class="plan-day-date">{{dp.date}}</view>
+        </view>
+
+        <view class="plan-item" wx:for="{{dp.items}}" wx:for-item="item" wx:key="index">
+          <view class="plan-item-time" wx:if="{{item.time}}">{{item.time}}</view>
+          <view class="plan-item-dot plan-dot-{{index % 5}}"></view>
+          <view class="plan-item-content">
+            <view class="plan-item-title">{{item.title}}</view>
+            <view class="plan-item-loc" wx:if="{{item.location}}">📍 {{item.location}}</view>
+            <view class="plan-item-notes" wx:if="{{item.notes}}">{{item.notes}}</view>
+          </view>
+          <view class="plan-item-del" data-day="{{dp.dayIndex}}" data-index="{{index}}" catchtap="onDeletePlanItem">✕</view>
+        </view>
+
+        <view class="plan-add-btn" data-day="{{dp.dayIndex}}" bindtap="onAddPlanItem">✦ 添加活动</view>
+      </block>
+    </block>
+
+    <!-- 空状态 -->
+    <view wx:if="{{dayPlans.length === 0}}" class="empty-state">
+      <view class="empty-icon">🗺️</view>
+      <view class="empty-text">还没有行程安排</view>
+      <view class="btn btn-primary btn-sm" style="margin-top:20rpx" data-day="1" bindtap="onAddPlanItem">开始规划</view>
+    </view>
+  </block>
+
+  <!-- ══════ 账本视图 ══════ -->
+  <block wx:if="{{currentTab === 'expense'}}">
+    <!-- 消费统计 -->
+    <view class="expense-stats" wx:if="{{expenses.length > 0}}">
+      <view class="expense-stat es-total">
+        <view class="es-num">¥{{expenseSummary.total}}</view>
+        <view class="es-label">总消费</view>
+      </view>
+      <view class="expense-stat es-shared">
+        <view class="es-num">¥{{expenseSummary.shared}}</view>
+        <view class="es-label">公共</view>
+      </view>
+      <view class="expense-stat es-private">
+        <view class="es-num">¥{{expenseSummary.private}}</view>
+        <view class="es-label">私人</view>
+      </view>
+    </view>
+
+    <!-- 消费列表 -->
+    <view class="expense-item" wx:for="{{expenses}}" wx:key="_id">
+      <view class="ei-left">
+        <view class="ei-cat ei-cat-{{index % 6}}">
+          {{item.icon || '💎'}}
+        </view>
+        <view class="ei-info">
+          <view class="ei-desc">{{item.description}}</view>
+          <view class="ei-paid">由 {{item.paidByName}} 支付  ·  {{item.type === 'shared' ? '公共' : '私人'}}</view>
+        </view>
+      </view>
+      <view class="ei-amount">¥{{item.amount}}</view>
+    </view>
+
+    <view wx:if="{{expenses.length === 0}}" class="empty-state">
+      <view class="empty-icon">💎</view>
+      <view class="empty-text">还没有消费记录</view>
+    </view>
+
+    <view class="detail-fabs">
+      <view class="detail-fab" bindtap="onAddExpense">✦</view>
+    </view>
+  </block>
+
+  <!-- ══════ 动态视图 ══════ -->
+  <block wx:if="{{currentTab === 'moments'}}">
+    <view class="moment-item" wx:for="{{moments}}" wx:key="_id" data-id="{{item._id}}" bindtap="onMomentTap">
+      <view class="mi-header">
+        <view class="mi-author" data-openid="{{item.authorId}}" catchtap="onAuthorTap">
+          <image wx:if="{{item.authorAvatar}}" src="{{item.authorAvatar}}" class="mi-avatar" mode="aspectFill"/>
+          <view wx:else class="mi-avatar-placeholder">{{item.authorName[0] || '旅'}}</view>
+          <view>
+            <view class="mi-name">{{item.authorName}}</view>
+            <view class="mi-time">{{item.formattedTime || item.createdAt}}</view>
+          </view>
+        </view>
+        <view class="mi-more" wx:if="{{myOpenid && item.authorId === myOpenid}}" data-id="{{item._id}}" catchtap="onToggleMenu">
+          <text class="mi-more-icon">···</text>
+        </view>
+      </view>
+
+      <!-- 管理菜单 -->
+      <view class="mi-menu" wx:if="{{menuId === item._id}}" catchtap="preventBubble">
+	        <view class="mi-menu-item" data-id="{{item._id}}" catchtap="onEditMoment">编辑</view>
+	        <view class="mi-menu-item" data-id="{{item._id}}" catchtap="onTogglePrivate">{{item.isPrivate ? '设为公开' : '设为私密'}}</view>
+	        <view class="mi-menu-item danger" data-id="{{item._id}}" catchtap="onDeleteMoment">删除</view>
+      </view>
+      <view class="mi-text" wx:if="{{item.text}}">{{item.text}}</view>
+      <view class="mi-images" wx:if="{{item.images && item.images.length > 0}}">
+        <image wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="mi-img"/>
+      </view>
+      <view class="mi-videos" wx:if="{{item.videos && item.videos.length > 0}}">
+        <view class="mi-video" wx:for="{{item.videos}}" wx:key="fileID" data-file-id="{{item.fileID}}" catchtap="onPlayMomentVideo">
+          <text class="mi-video-dur">{{item.duration}}″</text>
+          <view class="mi-video-play">▶</view>
+        </view>
+      </view>
+      <view class="mi-location" wx:if="{{item.location}}"><image src="/images/icons/location.png" mode="aspectFit" class="mi-loc-icon"/> <text>{{item.location}}</text></view>
+
+      <!-- 互动栏 -->
+      <view class="mi-actions">
+        <view class="mi-action {{item.liked ? 'liked' : ''}}" data-id="{{item._id}}" catchtap="onLikeMoment">
+          <image src="/images/icons/{{item.liked ? 'like2' : 'like'}}.png" mode="aspectFit" class="mi-action-icon-img"/>
+          <text class="mi-action-num">{{item.likes ? item.likes.length : 0}}</text>
+        </view>
+        <view class="mi-action {{item.favorited ? 'favorited' : ''}}" data-id="{{item._id}}" catchtap="onToggleFavorite">
+          <image src="/images/icons/{{item.favorited ? 'favorited' : 'favorite'}}.png" mode="aspectFit" class="mi-action-icon-img"/>
+          <text class="mi-action-num">{{item.favorites ? item.favorites.length : 0}}</text>
+        </view>
+        <view class="mi-action" data-id="{{item._id}}" catchtap="onToggleCommentInput">
+          <image src="/images/icons/comment.png" mode="aspectFit" class="mi-action-icon-img"/>
+          <text class="mi-action-num">{{item.comments ? item.comments.length : 0}}</text>
+        </view>
+      </view>
+
+      <!-- 评论区 -->
+      <view class="mi-comments" wx:if="{{item.comments && item.comments.length > 0}}">
+        <view class="cmt-list">
+          <view class="cmt-item" wx:for="{{item.comments}}" wx:for-item="c" wx:key="createdAt">
+            <view class="cmt-body">
+              <text class="cmt-author">{{c.nickName}}</text>
+              <text class="cmt-text" wx:if="{{c.text}}">{{c.text}}</text>
+              <image wx:if="{{c.image}}" src="{{c.image}}" mode="aspectFill" class="cmt-image" catchtap="onPreviewCommentImage" data-url="{{c.image}}"/>
+              <view wx:if="{{c.voice}}" class="cmt-voice" catchtap="onPlayCommentVoice" data-url="{{c.voice}}">
+                <image src="/images/icons/voice.png" mode="aspectFit" class="cmt-voice-icon-img"/>
+                <text class="cmt-voice-dur">{{c.voiceDuration || 0}}″</text>
+              </view>
+              <view wx:if="{{c.location}}" class="cmt-location" catchtap="onOpenCommentLocation" data-lat="{{c.location.lat}}" data-lng="{{c.location.lng}}" data-name="{{c.location.name}}">
+                <image src="/images/icons/location.png" mode="aspectFit" class="cmt-loc-icon"/> {{c.location.name}}
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 评论输入区 -->
+      <view class="cmt-input-area" wx:if="{{commentingId === item._id}}">
+        <view class="cmt-media-preview" wx:if="{{commentImage || commentVoice || commentLocation}}">
+          <view class="cmp-item" wx:if="{{commentImage}}">
+            <image src="{{commentImage}}" mode="aspectFill" class="cmp-img"/>
+            <view class="cmp-remove" catchtap="onRemoveCommentImage">✕</view>
+          </view>
+          <view class="cmp-item cmp-voice-item" wx:if="{{commentVoice}}">
+            <image src="/images/icons/voice.png" mode="aspectFit" class="cmp-voice-icon-img"/>
+            <text class="cmp-voice-dur">{{commentVoiceDuration}}″</text>
+            <view class="cmp-remove" catchtap="onRemoveCommentVoice">✕</view>
+          </view>
+          <view class="cmp-item cmp-loc-item" wx:if="{{commentLocation}}">
+            <text><image src="/images/icons/location.png" mode="aspectFit" class="cmt-loc-icon"/> {{commentLocation.name}}</text>
+            <view class="cmp-remove" catchtap="onRemoveCommentLocation">✕</view>
+          </view>
+        </view>
+        <!-- 录音状态条 -->
+        <view class="recording-bar" wx:if="{{commentRecording}}">
+          <view class="rec-dot"></view>
+          <text class="rec-text">录音中...</text>
+          <text class="rec-time">{{recordingDuration}}″</text>
+          <view class="rec-stop" catchtap="onToggleVoice">停止</view>
+        </view>
+        <view class="cmt-input-row">
+          <view class="cmt-tool-btn {{commentRecording ? 'recording' : ''}}" catchtap="onToggleVoice">
+            <image src="/images/icons/voice.png" mode="aspectFit" class="cmt-tool-icon"/>
+          </view>
+          <input class="cmt-input" placeholder="写评论..." value="{{commentText}}" bindinput="onCommentInput" confirm-type="send" bindconfirm="onPostComment" data-id="{{item._id}}" focus="{{commentingId === item._id}}"/>
+          <view class="cmt-tool-btn" catchtap="onChooseCommentImage">
+            <image src="/images/icons/image.png" mode="aspectFit" class="cmt-tool-icon"/>
+          </view>
+          <view class="cmt-tool-btn" catchtap="onChooseCommentLocation">
+            <image src="/images/icons/location.png" mode="aspectFit" class="cmt-tool-icon"/>
+          </view>
+          <view class="cmt-send" catchtap="onPostComment" data-id="{{item._id}}">发送</view>
+        </view>
+      </view>
+
+    </view>
+
+    <view wx:if="{{momentsHasMore}}" class="load-more" bindtap="onLoadMoreMoments">
+      <text>{{momentsLoadingMore ? '加载中...' : '加载更多'}}</text>
+    </view>
+
+    <view wx:if="{{moments.length === 0}}" class="empty-state">
+      <view class="empty-icon">🌅</view>
+      <view class="empty-text">还没有旅途动态</view>
+    </view>
+
+    <view class="detail-fabs">
+      <view class="detail-fab detail-fab-purple" bindtap="onAddMoment">✦</view>
+    </view>
+  </block>
+
+</scroll-view>
+
+<!-- 底部操作栏 -->
+<view class="action-bar safe-bottom" wx:if="{{trip}}">
+  <view class="action-btn" bindtap="onGoMembers">
+    <text class="action-emoji">👥</text>
+    <text class="action-label">成员</text>
+  </view>
+  <view class="action-btn" bindtap="onGoSettlement">
+    <text class="action-emoji">📊</text>
+    <text class="action-label">结算</text>
+  </view>
+  <view class="action-btn" bindtap="onAddExpense">
+    <text class="action-emoji">💰</text>
+    <text class="action-label">记账</text>
+  </view>
+</view>
+
+<!-- 添加行程项弹窗 -->
+<view wx:if="{{showPlanModal}}" class="modal-mask" catchtap="onClosePlanModal">
+  <view class="modal-content" catchtap="preventBubble">
+    <view class="modal-title">✦ 添加行程活动</view>
+    <view class="form-group">
+      <view class="form-label">时间（可选）</view>
+      <input class="form-input" placeholder="例如：09:00" value="{{planForm.time}}" data-field="time" bindinput="onPlanFormInput"/>
+    </view>
+    <view class="form-group">
+      <view class="form-label">活动名称</view>
+      <input class="form-input" placeholder="例如：参观清水寺" value="{{planForm.title}}" data-field="title" bindinput="onPlanFormInput"/>
+    </view>
+    <view class="form-group">
+      <view class="form-label">地点（可选）</view>
+      <view class="form-input form-location-picker" bindtap="onChooseLocation">
+        <text wx:if="{{planForm.location}}" class="form-location-text"><image src="/images/icons/location.png" mode="aspectFit" class="form-loc-icon"/> {{planForm.location}}</text>
+        <text wx:else class="form-location-placeholder">🔍 搜索或选择地点</text>
+      </view>
+    </view>
+    <view class="form-group">
+      <view class="form-label">备注（可选）</view>
+      <input class="form-input" placeholder="备注" value="{{planForm.notes}}" data-field="notes" bindinput="onPlanFormInput"/>
+    </view>
+    <view class="modal-btns">
+      <view class="btn btn-outline" bindtap="onClosePlanModal">取消</view>
+      <view class="btn btn-primary" bindtap="onSavePlanItem">保存</view>
+    </view>
+  </view>
+</view>

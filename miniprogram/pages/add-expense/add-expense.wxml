@@ -1,0 +1,77 @@
+<!-- 添加消费 -->
+<scroll-view scroll-y class="container page-scroll">
+  <view class="form-title">记一笔</view>
+
+  <!-- 类型：公共 / 私人 -->
+  <view class="form-group">
+    <view class="form-label">类型</view>
+    <view class="type-row">
+      <view class="type-btn {{type === 'shared' ? 'active' : ''}}" data-type="shared" bindtap="onTypeTap">👥 公共开销</view>
+      <view class="type-btn {{type === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeTap">👤 私人开销</view>
+    </view>
+  </view>
+
+  <!-- 分类 -->
+  <view class="form-group">
+    <view class="form-label">分类</view>
+    <view class="cat-row">
+      <view
+        wx:for="{{categories}}"
+        wx:key="key"
+        class="cat-btn {{category === item.key ? 'active' : ''}}"
+        data-cat="{{item.key}}"
+        bindtap="onCategoryTap"
+      >{{item.icon}} {{item.label}}</view>
+    </view>
+  </view>
+
+  <!-- 金额 -->
+  <view class="form-group">
+    <view class="form-label">金额</view>
+    <view class="amount-row">
+      <text class="amount-prefix">¥</text>
+      <input class="form-input amount-input" type="digit" placeholder="0.00" value="{{amount}}" bindinput="onAmountInput" focus="{{true}}"/>
+    </view>
+  </view>
+
+  <!-- 描述 -->
+  <view class="form-group">
+    <view class="form-label">描述</view>
+    <input class="form-input" placeholder="例如：新干线 东京→京都" value="{{description}}" bindinput="onDescInput" maxlength="50"/>
+  </view>
+
+  <!-- 付款人 -->
+  <view class="form-group">
+    <view class="form-label">付款人</view>
+    <picker mode="selector" range="{{members}}" range-key="nickName" bindchange="onPaidByChange">
+      <view class="picker-box">
+        <text wx:if="{{members.length > 0}}">{{members[0].nickName || '选择付款人'}}</text>
+        <text wx:else>选择付款人</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 分摊人（仅公共） -->
+  <view class="form-group" wx:if="{{type === 'shared'}}">
+    <view class="form-label">分摊人（公共开销由谁分摊）</view>
+    <view class="split-list">
+      <view
+        wx:for="{{members}}"
+        wx:key="openid"
+        class="split-item"
+        data-openid="{{item.openid}}"
+        bindtap="onSplitToggle"
+      >
+        <view class="split-check {{splitAmong.indexOf(item.openid) > -1 ? 'checked' : ''}}">
+          <text wx:if="{{splitAmong.indexOf(item.openid) > -1}}">✓</text>
+        </view>
+        <text>{{item.nickName}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 保存 -->
+  <view class="btn btn-primary btn-block" bindtap="onSave">
+    {{saving ? '保存中...' : '✦ 记一笔'}}
+  </view>
+</scroll-view>

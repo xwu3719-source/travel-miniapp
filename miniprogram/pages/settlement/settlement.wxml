@@ -1,0 +1,84 @@
+<!-- 结算 -->
+<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
+  <view wx:if="{{loading}}" class="empty-state">
+    <view class="empty-icon">⏳</view>
+    <view class="empty-text">计算中...</view>
+  </view>
+
+  <block wx:else>
+    <!-- 个人消费汇总 -->
+    <view class="settle-title">个人消费汇总</view>
+
+    <view class="settle-card" wx:for="{{settlements}}" wx:key="openid">
+      <view class="sc-header">
+        <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="sc-avatar" mode="aspectFill"/>
+        <view wx:else class="sc-avatar-placeholder">😊</view>
+        <view class="sc-name">{{item.nickName}}</view>
+        <view class="sc-badge {{item.sharedBalance > 0 ? 'earn' : item.sharedBalance < 0 ? 'owe' : ''}}" wx:if="{{item.sharedBalance !== 0}}">
+          {{item.sharedBalance > 0 ? '应收' : '应付'}}
+        </view>
+      </view>
+      <view class="sc-row">
+        <view class="sc-item">
+          <view class="sc-label">私人开销</view>
+          <view class="sc-val">¥{{item.privateTotal}}</view>
+        </view>
+        <view class="sc-item">
+          <view class="sc-label">垫付公共</view>
+          <view class="sc-val shared">¥{{item.paidForShared}}</view>
+        </view>
+        <view class="sc-item">
+          <view class="sc-label">应摊公共</view>
+          <view class="sc-val">¥{{item.sharedDue}}</view>
+        </view>
+        <view class="sc-item">
+          <view class="sc-label">个人合计</view>
+          <view class="sc-val total">¥{{item.totalDue}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 转账结算 -->
+    <view class="settle-title" style="margin-top:40rpx">🧾 谁该给谁转账</view>
+
+    <view wx:if="{{transfers.length === 0}}" class="empty-state">
+      <view class="empty-icon">✅</view>
+      <view class="empty-text">公共账目已平，无需转账</view>
+    </view>
+
+    <view class="transfer-card" wx:for="{{transfers}}" wx:key="index">
+      <view class="tc-from">
+        <image wx:if="{{item.fromAvatar}}" src="{{item.fromAvatar}}" class="tc-avatar" mode="aspectFill"/>
+        <view wx:else class="tc-avatar-placeholder">😊</view>
+        <view class="tc-name">{{item.from}}</view>
+      </view>
+      <view class="tc-arrow">
+        <view class="tc-amount">¥{{item.amount}}</view>
+        <view class="tc-arrow-icon">→</view>
+      </view>
+      <view class="tc-to">
+        <image wx:if="{{item.toAvatar}}" src="{{item.toAvatar}}" class="tc-avatar" mode="aspectFill"/>
+        <view wx:else class="tc-avatar-placeholder">😊</view>
+        <view class="tc-name">{{item.to}}</view>
+      </view>
+    </view>
+
+    <!-- 公共消费明细 -->
+    <view class="settle-title" style="margin-top:40rpx">📋 公共消费明细</view>
+
+    <view wx:if="{{expenses.length === 0}}" class="empty-state">
+      <view class="empty-text">暂无消费记录</view>
+    </view>
+
+    <view class="expense-item" wx:for="{{expenses}}" wx:for-item="e" wx:key="_id" wx:if="{{e.type === 'shared'}}">
+      <view class="ei-left">
+        <view class="ei-cat">{{e.icon || '💰'}}</view>
+        <view class="ei-info">
+          <view class="ei-desc">{{e.description}}</view>
+          <view class="ei-paid">{{e.paidByName}} 垫付  ·  {{e.splitAmong.length}}人均摊</view>
+        </view>
+      </view>
+      <view class="ei-amount">¥{{e.amount}}</view>
+    </view>
+  </block>
+</scroll-view>

@@ -1,0 +1,125 @@
+/* 添加消费 · 色彩版 */
+
+.form-title {
+  font-size: 38rpx;
+  font-weight: 800;
+  margin-bottom: 36rpx;
+  background: var(--gradient-teal);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.type-row {
+  display: flex;
+  gap: 14rpx;
+}
+
+.type-btn {
+  flex: 1;
+  text-align: center;
+  padding: 22rpx 0;
+  border-radius: var(--radius-sm);
+  font-size: 26rpx;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-secondary);
+  border: 3rpx solid transparent;
+}
+
+.type-btn.active {
+  background: var(--teal-light);
+  color: var(--teal);
+  border-color: var(--teal);
+}
+
+.cat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.cat-btn {
+  padding: 14rpx 22rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  background: var(--bg);
+  color: var(--text-secondary);
+  border: 2rpx solid transparent;
+}
+
+.cat-btn.active {
+  border-color: var(--teal);
+  background: var(--teal-light);
+  color: var(--teal);
+}
+
+.amount-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.amount-prefix {
+  font-size: 44rpx;
+  font-weight: 700;
+  background: var(--gradient-teal);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.amount-input {
+  flex: 1;
+  font-size: 44rpx;
+  font-weight: 700;
+  padding: 24rpx;
+}
+
+.picker-box {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 22rpx 24rpx;
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+.split-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+}
+
+.split-item {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 12rpx 20rpx;
+  background: var(--bg);
+  border-radius: 20rpx;
+  font-size: 26rpx;
+}
+
+.split-check {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  border: 3rpx solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  color: #fff;
+}
+
+.split-check.checked {
+  background: var(--teal);
+  border-color: var(--teal);
+}
+
+/* 按钮 - 翡翠渐变 */
+.btn-primary {
+  background: var(--gradient-teal) !important;
+  box-shadow: 0 6rpx 20rpx rgba(16, 185, 129, 0.35) !important;
+}

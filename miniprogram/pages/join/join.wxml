@@ -1,0 +1,24 @@
+<!-- 加入行程 -->
+<view class="container join-page">
+  <view class="join-header">
+    <view class="join-icon">🔑</view>
+    <view class="join-title">加入行程</view>
+    <view class="join-desc">输入朋友分享的邀请码，加入 TA 的旅行</view>
+  </view>
+
+  <view class="code-box">
+    <input
+      class="code-input"
+      type="text"
+      placeholder="输入邀请码"
+      maxlength="6"
+      value="{{code}}"
+      bindinput="onCodeInput"
+      focus="{{true}}"
+    />
+  </view>
+
+  <view class="btn btn-primary btn-block" bindtap="onJoin">
+    {{joining ? '加入中...' : '✦ 加入行程'}}
+  </view>
+</view>

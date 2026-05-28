@@ -1,0 +1,376 @@
+/* 我的 · 海洋渐变主题 */
+
+/* ══════ 个人卡片 ══════ */
+.profile-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 32rpx 28rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 16rpx rgba(0,0,0,0.06);
+}
+
+.pc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.pc-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex: 1;
+}
+
+.pc-edit {
+  font-size: 26rpx;
+  color: #94a3b8;
+  padding: 8rpx 0;
+}
+
+/* 头像 */
+.pc-avatar-wrap {
+  width: 120rpx;
+  height: 120rpx;
+  flex-shrink: 0;
+}
+
+.pc-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+}
+
+.pc-avatar-placeholder {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  color: #0ea5e9;
+}
+
+/* 右侧信息 */
+.pc-info {
+  flex: 1;
+}
+
+.pc-name {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #1e1e2e;
+  line-height: 48rpx;
+}
+
+.pc-follow-row {
+  margin-top: 8rpx;
+  display: flex;
+  align-items: center;
+}
+
+.pc-follow-num {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1e1e2e;
+}
+
+.pc-follow-label {
+  font-size: 22rpx;
+  color: var(--text-hint);
+  margin-left: 6rpx;
+}
+
+
+
+/* ══════ 统计卡片 ══════ */
+.stats-row {
+  display: flex;
+  gap: 14rpx;
+  margin-bottom: 28rpx;
+}
+
+.stat-box {
+  flex: 1;
+  border-radius: var(--radius);
+  padding: 18rpx 10rpx;
+  text-align: center;
+  color: #fff;
+}
+
+.stat-active { background: var(--gradient-sky); }
+.stat-archived { background: var(--gradient-purple); }
+.stat-total { background: var(--gradient-teal); }
+
+.stat-icon {
+  font-size: 26rpx;
+  margin-bottom: 2rpx;
+}
+
+.stat-num {
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 20rpx;
+  opacity: 0.75;
+  margin-top: 2rpx;
+}
+
+/* ══════ 想去城市 ══════ */
+.wish-section {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24rpx 28rpx;
+  margin-bottom: 28rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.wish-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.wish-dot {
+  background: var(--gradient-amber) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.wish-add-btn {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--coral);
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  border: 2rpx solid var(--coral);
+}
+
+.wish-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+}
+
+.wish-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 10rpx 18rpx 10rpx 10rpx;
+  border-radius: 24rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #fff;
+  position: relative;
+}
+
+.wish-chip-rank {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.wish-chip-text {
+  max-width: 200rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wish-chip:nth-child(5n+1) { background: var(--gradient-sunset); }
+.wish-chip:nth-child(5n+2) { background: var(--gradient-ocean); }
+.wish-chip:nth-child(5n+3) { background: var(--gradient-purple); }
+.wish-chip:nth-child(5n+4) { background: var(--gradient-teal); }
+.wish-chip:nth-child(5n+5) { background: var(--gradient-amber); }
+
+.wish-chip-emoji {
+  font-size: 22rpx;
+  display: none;
+}
+
+.wish-chip-del {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+  margin-left: 4rpx;
+}
+
+.wish-empty {
+  text-align: center;
+  font-size: 24rpx;
+  color: var(--text-hint);
+  padding: 16rpx 0;
+}
+
+/* 城市联想列表 */
+.city-suggestions {
+  max-height: 320rpx;
+  overflow-y: auto;
+  background: var(--bg);
+  border-radius: 12rpx;
+  margin-top: 12rpx;
+}
+
+.city-sug-item {
+  padding: 18rpx 24rpx;
+  font-size: 26rpx;
+  color: var(--text-primary);
+  border-bottom: 1rpx solid var(--border);
+}
+
+.city-sug-item:last-child {
+  border-bottom: none;
+}
+
+.city-sug-item:active {
+  background: var(--purple-light);
+}
+
+/* ══════ 功能菜单 ══════ */
+.menu-section {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  margin-bottom: 28rpx;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx;
+  border-bottom: 1rpx solid var(--border);
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-icon-wrap {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 14rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.mi-about {
+  background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+}
+
+.mi-tips {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+}
+
+.mi-space {
+  background: linear-gradient(135deg, #f5e0ff, #ecccff);
+}
+
+.menu-icon-text {
+  font-size: 28rpx;
+}
+
+.menu-label {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.menu-arrow {
+  font-size: 32rpx;
+  color: var(--text-hint);
+  font-weight: 300;
+}
+
+/* ══════ 历史行程 ══════ */
+.history-section {
+  margin-top: 4rpx;
+  padding-bottom: 40rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 28rpx;
+  font-weight: 700;
+  padding: 16rpx 4rpx 20rpx;
+  color: var(--text-primary);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.section-dot {
+  font-size: 24rpx;
+  background: var(--gradient-purple);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.toggle-arrow {
+  font-size: 36rpx;
+  color: var(--text-hint);
+  transition: transform 0.25s;
+  font-weight: 300;
+}
+
+.toggle-arrow.open {
+  transform: rotate(90deg);
+}
+
+.history-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24rpx 28rpx;
+  margin-bottom: 12rpx;
+  box-shadow: var(--shadow-sm);
+  border-left: 8rpx solid;
+  position: relative;
+  overflow: hidden;
+}
+
+.history-card:nth-child(5n+1) { border-left-color: #ff6b6b; }
+.history-card:nth-child(5n+2) { border-left-color: #0ea5e9; }
+.history-card:nth-child(5n+3) { border-left-color: #a855f7; }
+.history-card:nth-child(5n+4) { border-left-color: #10b981; }
+.history-card:nth-child(5n+5) { border-left-color: #f59e0b; }
+
+.hc-name {
+  font-size: 28rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+  color: var(--text-primary);
+}
+
+.hc-meta {
+  display: flex;
+  gap: 24rpx;
+  font-size: 22rpx;
+  color: var(--text-hint);
+}

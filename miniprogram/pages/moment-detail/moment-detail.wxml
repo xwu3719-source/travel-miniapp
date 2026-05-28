@@ -1,0 +1,131 @@
+<!-- 动态详情 -->
+<scroll-view scroll-y class="container page-scroll" wx:if="{{moment}}" bindtap="onPageTap">
+  <!-- 作者头部 -->
+  <view class="md-header">
+    <view class="md-author" data-openid="{{moment.authorId}}" catchtap="onAuthorTap">
+      <image wx:if="{{moment.authorAvatar}}" src="{{moment.authorAvatar}}" class="md-avatar" mode="aspectFill"/>
+      <view wx:else class="md-avatar-placeholder">{{moment.authorName[0] || '旅'}}</view>
+      <view>
+        <view class="md-name">{{moment.authorName}}</view>
+        <view class="md-time">{{moment.formattedTime}}</view>
+      </view>
+    </view>
+    <view class="md-more" wx:if="{{moment.isOwner}}" catchtap="onToggleMenu">
+      <text class="md-more-icon">···</text>
+    </view>
+  </view>
+
+  <!-- 文字 -->
+  <view class="md-text" wx:if="{{moment.text}}">{{moment.text}}</view>
+
+  <!-- 图片 -->
+  <view class="md-images" wx:if="{{moment.images && moment.images.length > 0}}">
+    <image
+      wx:for="{{moment.images}}"
+      wx:key="*this"
+      src="{{item}}"
+      mode="aspectFill"
+      class="md-img"
+      data-url="{{item}}"
+      data-urls="{{moment.images.join(',')}}"
+      bindtap="onPreviewImage"
+    />
+  </view>
+
+  <!-- 视频 -->
+  <view class="md-videos" wx:if="{{moment.videos && moment.videos.length > 0}}">
+    <view class="md-video" wx:for="{{moment.videos}}" wx:key="fileID" data-file-id="{{item.fileID}}" bindtap="onPlayMomentVideo">
+      <view class="md-video-inner">
+        <view class="md-video-play">▶</view>
+        <text class="md-video-dur">{{item.duration}}″</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 地点 -->
+  <view class="md-location" wx:if="{{moment.location}}"><image src="/images/icons/location.png" mode="aspectFit" class="md-loc-icon"/> <text>{{moment.location}}</text></view>
+
+  <!-- 互动栏 -->
+  <view class="md-actions">
+    <view class="md-action {{moment.liked ? 'liked' : ''}}" bindtap="onLike">
+      <image src="/images/icons/{{moment.liked ? 'like2' : 'like'}}.png" mode="aspectFit" class="md-action-icon-img"/>
+      <text class="md-action-num">{{moment.likes ? moment.likes.length : 0}}</text>
+    </view>
+    <view class="md-action {{moment.favorited ? 'favorited' : ''}}" bindtap="onToggleFavorite">
+      <image src="/images/icons/{{moment.favorited ? 'favorited' : 'favorite'}}.png" mode="aspectFit" class="md-action-icon-img"/>
+      <text class="md-action-num">{{moment.favorites ? moment.favorites.length : 0}}</text>
+    </view>
+  </view>
+
+  <!-- 管理菜单 -->
+  <view class="md-menu" wx:if="{{moment.isOwner && menuOpen}}" catchtap="preventBubble">
+    <view class="md-menu-item" catchtap="onEditMoment">编辑</view>
+    <view class="md-menu-item" catchtap="onTogglePrivate">{{moment.isPrivate ? '设为公开' : '设为私密'}}</view>
+    <view class="md-menu-item danger" catchtap="onDeleteMoment">删除</view>
+  </view>
+
+  <!-- 评论区 -->
+  <view class="md-comments">
+    <view class="md-comments-title">评论 {{moment.comments ? moment.comments.length : 0}}</view>
+
+    <view wx:if="{{moment.comments && moment.comments.length > 0}}" class="cmt-list">
+      <view class="cmt-item" wx:for="{{moment.comments}}" wx:key="createdAt">
+        <view class="cmt-body">
+          <text class="cmt-author">{{item.nickName}}</text>
+          <text class="cmt-text" wx:if="{{item.text}}">{{item.text}}</text>
+          <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" class="cmt-image" bindtap="onPreviewCommentImage" data-url="{{item.image}}"/>
+          <view wx:if="{{item.voice}}" class="cmt-voice" bindtap="onPlayCommentVoice" data-url="{{item.voice}}">
+            <image src="/images/icons/voice.png" mode="aspectFit" class="cmt-voice-icon-img"/>
+            <text class="cmt-voice-dur">{{item.voiceDuration || 0}}″</text>
+          </view>
+          <view wx:if="{{item.location}}" class="cmt-location" bindtap="onOpenCommentLocation" data-lat="{{item.location.lat}}" data-lng="{{item.location.lng}}" data-name="{{item.location.name}}">
+            <image src="/images/icons/location.png" mode="aspectFit" class="cmt-loc-icon"/> {{item.location.name}}
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:else class="cmt-empty">暂无评论，来说两句吧</view>
+
+    <!-- 评论输入 -->
+    <view class="cmt-media-preview" wx:if="{{commentImage || commentVoice || commentLocation}}">
+      <view class="cmp-item" wx:if="{{commentImage}}">
+        <image src="{{commentImage}}" mode="aspectFill" class="cmp-img"/>
+        <view class="cmp-remove" bindtap="onRemoveCommentImage">✕</view>
+      </view>
+      <view class="cmp-item cmp-voice-item" wx:if="{{commentVoice}}">
+        <image src="/images/icons/voice.png" mode="aspectFit" class="cmp-voice-icon-img"/>
+        <text class="cmp-voice-dur">{{commentVoiceDuration}}″</text>
+        <view class="cmp-remove" bindtap="onRemoveCommentVoice">✕</view>
+      </view>
+      <view class="cmp-item cmp-loc-item" wx:if="{{commentLocation}}">
+        <text><image src="/images/icons/location.png" mode="aspectFit" class="cmt-loc-icon"/> {{commentLocation.name}}</text>
+        <view class="cmp-remove" bindtap="onRemoveCommentLocation">✕</view>
+      </view>
+    </view>
+    <!-- 录音状态条 -->
+    <view class="recording-bar" wx:if="{{commentRecording}}">
+      <view class="rec-dot"></view>
+      <text class="rec-text">录音中...</text>
+      <text class="rec-time">{{recordingDuration}}″</text>
+      <view class="rec-stop" bindtap="onToggleVoice">停止</view>
+    </view>
+    <view class="cmt-input-row">
+      <view class="cmt-tool-btn {{commentRecording ? 'recording' : ''}}" bindtap="onToggleVoice">
+        <image src="/images/icons/voice.png" mode="aspectFit" class="cmt-tool-icon"/>
+      </view>
+      <input class="cmt-input" placeholder="写评论..." value="{{commentInput}}" bindinput="onCommentInput" confirm-type="send" bindconfirm="onPostComment"/>
+      <view class="cmt-tool-btn" bindtap="onChooseCommentImage">
+        <image src="/images/icons/image.png" mode="aspectFit" class="cmt-tool-icon"/>
+      </view>
+      <view class="cmt-tool-btn" bindtap="onChooseCommentLocation">
+        <image src="/images/icons/location.png" mode="aspectFit" class="cmt-tool-icon"/>
+      </view>
+      <view class="cmt-send" bindtap="onPostComment">发送</view>
+    </view>
+  </view>
+</scroll-view>
+
+<!-- 加载中 -->
+<view wx:if="{{!moment}}" class="empty-state">
+  <view class="empty-text">加载中...</view>
+</view>

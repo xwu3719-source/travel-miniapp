@@ -1,0 +1,158 @@
+<!-- 个人动态空间 -->
+<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
+  <!-- 头部 -->
+  <view class="space-header">
+    <view class="space-avatar-wrap">
+      <image wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" class="space-avatar" mode="aspectFill"/>
+      <view wx:else class="space-avatar-placeholder">{{userInfo.nickName ? userInfo.nickName[0] : '我'}}</view>
+    </view>
+    <view class="space-nick">{{userInfo.nickName || '我'}}</view>
+    <view class="space-stats">
+      <view class="space-stat">
+        <view class="space-stat-num">{{myMoments.length}}</view>
+        <view class="space-stat-label">动态</view>
+      </view>
+      <view class="space-stat">
+        <view class="space-stat-num">{{commentMoments.length}}</view>
+        <view class="space-stat-label">评论</view>
+      </view>
+      <view class="space-stat">
+        <view class="space-stat-num">{{favMoments.length}}</view>
+        <view class="space-stat-label">收藏</view>
+      </view>
+      <view class="space-stat">
+        <view class="space-stat-num">{{likedMoments.length}}</view>
+        <view class="space-stat-label">赞过</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Tab 切换 -->
+  <view class="space-tabs">
+    <view class="space-tab {{currentTab === 'my' ? 'active' : ''}}" data-tab="my" bindtap="onTabTap">我的动态</view>
+    <view class="space-tab {{currentTab === 'comment' ? 'active' : ''}}" data-tab="comment" bindtap="onTabTap">我的评论</view>
+    <view class="space-tab {{currentTab === 'fav' ? 'active' : ''}}" data-tab="fav" bindtap="onTabTap">我的收藏</view>
+    <view class="space-tab {{currentTab === 'liked' ? 'active' : ''}}" data-tab="liked" bindtap="onTabTap">赞过</view>
+  </view>
+
+  <!-- 我的动态 -->
+  <block wx:if="{{currentTab === 'my'}}">
+    <view class="moment-card" wx:for="{{myMoments}}" wx:key="_id" data-id="{{item._id}}" bindtap="onMomentTap">
+      <view class="mc-header">
+        <view class="mc-trip-name" wx:if="{{item.tripName}}">{{item.tripName}}</view>
+      </view>
+      <view class="mc-text" wx:if="{{item.text}}">{{item.text}}</view>
+      <view class="mc-images" wx:if="{{item.images && item.images.length > 0}}">
+        <image wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="mc-img"/>
+      </view>
+      <view class="mc-videos" wx:if="{{item.videos && item.videos.length > 0}}">
+        <view class="mc-video" wx:for="{{item.videos}}" wx:key="fileID" data-file-id="{{item.fileID}}" catchtap="onPlayMomentVideo">
+          <text class="mc-video-dur">{{item.duration}}″</text>
+          <view class="mc-video-play">▶</view>
+        </view>
+      </view>
+      <view class="mc-location" wx:if="{{item.location}}"><image src="/images/icons/location.png" mode="aspectFit" class="mc-loc-icon"/> <text>{{item.location}}</text></view>
+      <view class="mc-footer">
+        <view class="mc-time">{{item.formattedTime}}</view>
+        <view class="mc-badge private" wx:if="{{item.isPrivate}}">私密</view>
+      </view>
+      <view class="mc-author-tools">
+        <view class="mc-at-btn" data-id="{{item._id}}" catchtap="onEditMoment">编辑</view>
+        <view class="mc-at-btn" catchtap="onTogglePrivate" data-id="{{item._id}}">{{item.isPrivate ? '设为公开' : '设为私密'}}</view>
+        <view class="mc-at-btn danger" data-id="{{item._id}}" catchtap="onDeleteMoment">删除</view>
+      </view>
+    </view>
+    <view wx:if="{{myMoments.length === 0 && !loading}}" class="empty-state">
+      <view class="empty-icon">📝</view>
+      <view class="empty-text">还没有发布过动态</view>
+    </view>
+  </block>
+
+  <!-- 我的评论 -->
+  <block wx:if="{{currentTab === 'comment'}}">
+    <view class="comment-card" wx:for="{{commentMoments}}" wx:key="_id" data-id="{{item._id}}" bindtap="onMomentTap">
+      <!-- 我的评论气泡 -->
+      <view class="cc-bubble">
+        <view class="cc-bubble-header">
+          <text class="cc-bubble-label">我的评论</text>
+          <text class="cc-bubble-time" wx:if="{{item.commentTime}}">{{item.commentTime}}</text>
+        </view>
+        <view class="cc-bubble-body">
+          <text wx:if="{{item.commentType === 'text'}}" class="cc-bubble-text">{{item.myComment}}</text>
+          <image wx:elif="{{item.commentType === 'image'}}" src="{{item.commentImage}}" mode="aspectFill" class="cc-bubble-img"/>
+          <view wx:elif="{{item.commentType === 'voice'}}" class="cc-bubble-voice" catchtap="onPlayCommentVoice" data-url="{{item.commentVoice}}">
+            <image src="/images/icons/voice.png" mode="aspectFit" class="cc-voice-icon"/> {{item.commentDuration}}″
+          </view>
+          <view wx:elif="{{item.commentType === 'location'}}" class="cc-bubble-loc">
+            <image src="/images/icons/location.png" mode="aspectFit" class="cc-loc-icon"/> {{item.myComment}}
+          </view>
+        </view>
+      </view>
+      <!-- 原动态引用 -->
+      <view class="cc-ref">
+        <view class="cc-ref-row" data-openid="{{item.authorId}}" catchtap="onAuthorTap">
+          <image wx:if="{{item.authorAvatar}}" src="{{item.authorAvatar}}" class="cc-ref-avatar" mode="aspectFill"/>
+          <view wx:else class="cc-ref-placeholder">{{item.authorName[0] || '旅'}}</view>
+          <text class="cc-ref-name">{{item.authorName}}</text>
+          <text class="cc-ref-label">的动态</text>
+          <view class="mc-trip-name" wx:if="{{item.tripName}}">{{item.tripName}}</view>
+        </view>
+        <view class="cc-ref-text" wx:if="{{item.text}}">{{item.text.length > 60 ? item.text.slice(0, 60) + '...' : item.text}}</view>
+      </view>
+    </view>
+    <view wx:if="{{commentMoments.length === 0 && !loading}}" class="empty-state">
+      <view class="empty-icon">💬</view>
+      <view class="empty-text">还没有评论过动态</view>
+    </view>
+  </block>
+
+  <!-- 我的收藏 -->
+  <block wx:if="{{currentTab === 'fav'}}">
+    <view class="moment-card" wx:for="{{favMoments}}" wx:key="_id" data-id="{{item._id}}" bindtap="onMomentTap">
+      <view class="mc-header">
+        <view class="mc-author-row" data-openid="{{item.authorId}}" catchtap="onAuthorTap">
+          <image wx:if="{{item.authorAvatar}}" src="{{item.authorAvatar}}" class="mc-author-avatar" mode="aspectFill"/>
+          <view wx:else class="mc-author-placeholder">{{item.authorName[0] || '旅'}}</view>
+          <view class="mc-author-name">{{item.authorName}}</view>
+        </view>
+      </view>
+      <view class="mc-trip-name" wx:if="{{item.tripName}}">{{item.tripName}}</view>
+      <view class="mc-text" wx:if="{{item.text}}">{{item.text}}</view>
+      <view class="mc-images" wx:if="{{item.images && item.images.length > 0}}">
+        <image wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="mc-img"/>
+      </view>
+      <view class="mc-footer">
+        <view class="mc-time">{{item.formattedTime}}</view>
+      </view>
+    </view>
+    <view wx:if="{{favMoments.length === 0 && !loading}}" class="empty-state">
+      <view class="empty-icon">⭐</view>
+      <view class="empty-text">还没有收藏过动态</view>
+    </view>
+  </block>
+
+  <!-- 赞过 -->
+  <block wx:if="{{currentTab === 'liked'}}">
+    <view class="moment-card" wx:for="{{likedMoments}}" wx:key="_id" data-id="{{item._id}}" bindtap="onMomentTap">
+      <view class="mc-header">
+        <view class="mc-author-row" data-openid="{{item.authorId}}" catchtap="onAuthorTap">
+          <image wx:if="{{item.authorAvatar}}" src="{{item.authorAvatar}}" class="mc-author-avatar" mode="aspectFill"/>
+          <view wx:else class="mc-author-placeholder">{{item.authorName[0] || '旅'}}</view>
+          <view class="mc-author-name">{{item.authorName}}</view>
+        </view>
+      </view>
+      <view class="mc-trip-name" wx:if="{{item.tripName}}">{{item.tripName}}</view>
+      <view class="mc-text" wx:if="{{item.text}}">{{item.text}}</view>
+      <view class="mc-images" wx:if="{{item.images && item.images.length > 0}}">
+        <image wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="mc-img"/>
+      </view>
+      <view class="mc-footer">
+        <view class="mc-time">{{item.formattedTime}}</view>
+      </view>
+    </view>
+    <view wx:if="{{likedMoments.length === 0 && !loading}}" class="empty-state">
+      <view class="empty-icon">❤️</view>
+      <view class="empty-text">还没有赞过动态</view>
+    </view>
+  </block>
+</scroll-view>

@@ -1,0 +1,224 @@
+/* 结算 · 彩趣版 */
+
+.settle-title {
+  font-size: 32rpx;
+  font-weight: 800;
+  margin-bottom: 20rpx;
+  color: var(--text-primary);
+}
+
+.settle-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 28rpx;
+  margin-bottom: 18rpx;
+  box-shadow: var(--shadow-sm);
+  border-left: 6rpx solid var(--teal);
+}
+
+.sc-header {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+  padding-bottom: 18rpx;
+  border-bottom: 1rpx solid var(--border);
+}
+
+.sc-avatar, .sc-avatar-placeholder {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+}
+
+.sc-avatar-placeholder {
+  background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: var(--sky);
+  font-weight: 600;
+}
+
+.sc-name {
+  font-size: 30rpx;
+  font-weight: 700;
+  flex: 1;
+}
+
+.sc-badge {
+  font-size: 22rpx;
+  padding: 6rpx 18rpx;
+  border-radius: 14rpx;
+  font-weight: 600;
+}
+
+.sc-badge.earn {
+  background: var(--green-light);
+  color: var(--green);
+}
+
+.sc-badge.owe {
+  background: var(--coral-light);
+  color: var(--coral);
+}
+
+.sc-row {
+  display: flex;
+  gap: 8rpx;
+}
+
+.sc-item {
+  flex: 1;
+  text-align: center;
+}
+
+.sc-label {
+  font-size: 22rpx;
+  color: var(--text-hint);
+  margin-bottom: 6rpx;
+}
+
+.sc-val {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sc-val.shared { color: var(--teal); }
+.sc-val.total { color: var(--coral); font-size: 30rpx; }
+
+/* 转账卡片 */
+.transfer-card {
+  display: flex;
+  align-items: center;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24rpx 20rpx;
+  margin-bottom: 14rpx;
+  box-shadow: var(--shadow-sm);
+  gap: 12rpx;
+  border-left: 6rpx solid var(--amber);
+}
+
+.tc-from, .tc-to {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  min-width: 100rpx;
+}
+
+.tc-arrow {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.tc-avatar, .tc-avatar-placeholder {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+}
+
+.tc-avatar-placeholder {
+  background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: var(--sky);
+  font-weight: 600;
+}
+
+.tc-name {
+  font-size: 24rpx;
+  font-weight: 600;
+  text-align: center;
+}
+
+.tc-amount {
+  font-size: 34rpx;
+  font-weight: 800;
+  background: var(--gradient-coral);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tc-arrow-icon {
+  font-size: 36rpx;
+  color: var(--text-hint);
+}
+
+/* 消费明细 */
+.expense-item {
+  display: flex;
+  align-items: center;
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  padding: 20rpx 20rpx 20rpx 14rpx;
+  margin-bottom: 10rpx;
+  box-shadow: 0 1rpx 4rpx rgba(0,0,0,0.03);
+  border-left: 6rpx solid #d1d5db;
+}
+
+.expense-item:nth-child(5n+1) { border-left-color: #0ea5e9; }
+.expense-item:nth-child(5n+2) { border-left-color: #a855f7; }
+.expense-item:nth-child(5n+3) { border-left-color: #f97316; }
+.expense-item:nth-child(5n+4) { border-left-color: #10b981; }
+.expense-item:nth-child(5n+5) { border-left-color: #ec4899; }
+
+.ei-left {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex: 1;
+  overflow: hidden;
+}
+
+.ei-cat {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  flex-shrink: 0;
+}
+
+.ei-cat:nth-child(5n+1) { background: linear-gradient(135deg, #e0f2fe, #bae6fd); }
+.ei-cat:nth-child(5n+2) { background: linear-gradient(135deg, #f5f0ff, #e8dcf8); }
+.ei-cat:nth-child(5n+3) { background: linear-gradient(135deg, #fff7ed, #fed7aa); }
+.ei-cat:nth-child(5n+4) { background: linear-gradient(135deg, #ecfdf5, #a7f3d0); }
+.ei-cat:nth-child(5n+5) { background: linear-gradient(135deg, #fff1f2, #fecdd3); }
+
+.ei-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.ei-desc {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ei-paid {
+  font-size: 22rpx;
+  color: var(--text-hint);
+}
+
+.ei-amount {
+  font-size: 30rpx;
+  font-weight: 800;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}

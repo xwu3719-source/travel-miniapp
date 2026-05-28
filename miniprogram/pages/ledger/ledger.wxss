@@ -1,0 +1,334 @@
+/* 账本 · 海洋绿渐变 */
+
+.trip-selector {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 24rpx;
+  white-space: nowrap;
+}
+
+.trip-chip {
+  display: inline-flex;
+  padding: 14rpx 26rpx;
+  border-radius: 24rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  box-shadow: 0 1rpx 4rpx rgba(0,0,0,0.04);
+}
+
+.trip-chip.active {
+  background: var(--gradient-teal);
+  color: #fff;
+  box-shadow: 0 4rpx 14rpx rgba(16, 185, 129, 0.25);
+}
+
+/* ══════ 统计卡片 ══════ */
+.ledger-stats {
+  display: flex;
+  gap: 14rpx;
+  margin-bottom: 20rpx;
+}
+
+.ledger-stat {
+  flex: 1;
+  border-radius: var(--radius);
+  padding: 24rpx;
+  text-align: center;
+  color: #fff;
+}
+
+.ledger-stat:nth-child(1) { background: var(--gradient-sky); }
+.ledger-stat:nth-child(2) { background: var(--gradient-teal); }
+.ledger-stat:nth-child(3) { background: var(--gradient-purple); }
+
+.ls-num {
+  font-size: 36rpx;
+  font-weight: 800;
+}
+
+.ls-label {
+  font-size: 24rpx;
+  opacity: 0.85;
+  margin-top: 6rpx;
+}
+
+/* ══════ 预算进度条 ══════ */
+.budget-bar {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.budget-bar-label {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 14rpx;
+}
+
+.budget-bar-track {
+  height: 18rpx;
+  background: var(--bg);
+  border-radius: 9rpx;
+  overflow: hidden;
+  margin-bottom: 10rpx;
+}
+
+.budget-bar-fill {
+  height: 100%;
+  background: var(--gradient-teal);
+  border-radius: 9rpx;
+  transition: width 0.4s ease;
+}
+
+.budget-bar-fill.over {
+  background: var(--gradient-rose);
+}
+
+.budget-remaining {
+  font-size: 24rpx;
+  color: var(--teal);
+  font-weight: 600;
+}
+
+.budget-remaining.over {
+  color: var(--rose);
+}
+
+/* ══════ 分类占比条 ══════ */
+.category-breakdown {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.cb-title {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 16rpx;
+}
+
+.cb-bar {
+  display: flex;
+  height: 16rpx;
+  border-radius: 8rpx;
+  overflow: hidden;
+  background: var(--bg);
+  margin-bottom: 18rpx;
+}
+
+.cb-segment {
+  height: 100%;
+  min-width: 4rpx;
+}
+
+.cb-transport { background: #0ea5e9; }
+.cb-hotel { background: #a855f7; }
+.cb-food { background: #f97316; }
+.cb-tickets { background: #ec4899; }
+.cb-shopping { background: #10b981; }
+.cb-other { background: #6b7280; }
+
+.cb-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.cb-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 22rpx;
+}
+
+.cb-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+}
+
+.cb-dot-transport { background: #0ea5e9; }
+.cb-dot-hotel { background: #a855f7; }
+.cb-dot-food { background: #f97316; }
+.cb-dot-tickets { background: #ec4899; }
+.cb-dot-shopping { background: #10b981; }
+.cb-dot-other { background: #6b7280; }
+
+.cb-name {
+  color: var(--text-secondary);
+}
+
+.cb-amount {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cb-percent {
+  color: var(--text-hint);
+}
+
+/* ══════ 筛选区 ══════ */
+.filter-section {
+  margin-bottom: 16rpx;
+}
+
+.filter-label {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: var(--text-hint);
+  margin-bottom: 10rpx;
+  padding-left: 4rpx;
+}
+
+.filter-row {
+  display: flex;
+  gap: 10rpx;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  padding: 12rpx 22rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  box-shadow: 0 1rpx 4rpx rgba(0,0,0,0.04);
+}
+
+.filter-chip.active {
+  background: var(--teal-light);
+  color: var(--teal);
+}
+
+.cat-chip.active {
+  background: var(--purple-light);
+  color: var(--purple);
+}
+
+/* ══════ 消费列表 ══════ */
+.expense-item {
+  display: flex;
+  align-items: center;
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  padding: 20rpx 20rpx 20rpx 14rpx;
+  margin-bottom: 10rpx;
+  border-left: 6rpx solid #d1d5db;
+  box-shadow: 0 1rpx 4rpx rgba(0,0,0,0.03);
+}
+
+.expense-item:nth-child(5n+1) { border-left-color: #0ea5e9; }
+.expense-item:nth-child(5n+2) { border-left-color: #a855f7; }
+.expense-item:nth-child(5n+3) { border-left-color: #f97316; }
+.expense-item:nth-child(5n+4) { border-left-color: #10b981; }
+.expense-item:nth-child(5n+5) { border-left-color: #ec4899; }
+
+.ei-left {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex: 1;
+  overflow: hidden;
+}
+
+.ei-cat {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  flex-shrink: 0;
+}
+
+.ei-cat-transport { background: linear-gradient(135deg, #e0f2fe, #bae6fd); }
+.ei-cat-hotel { background: linear-gradient(135deg, #f5f0ff, #e8dcf8); }
+.ei-cat-food { background: linear-gradient(135deg, #fff7ed, #fed7aa); }
+.ei-cat-tickets { background: linear-gradient(135deg, #fff1f2, #fecdd3); }
+.ei-cat-shopping { background: linear-gradient(135deg, #ecfdf5, #a7f3d0); }
+.ei-cat-other { background: linear-gradient(135deg, #f3f4f6, #d1d5db); }
+
+.ei-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.ei-desc {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 6rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ei-meta {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 4rpx;
+}
+
+.ei-payer {
+  font-size: 22rpx;
+  color: var(--text-hint);
+}
+
+.ei-type {
+  font-size: 20rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+  font-weight: 500;
+}
+
+.tag-shared {
+  background: var(--teal-light);
+  color: var(--teal);
+}
+
+.tag-private {
+  background: var(--purple-light);
+  color: var(--purple);
+}
+
+.ei-date {
+  font-size: 20rpx;
+  color: var(--text-hint);
+}
+
+.ei-amount {
+  font-size: 30rpx;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+/* ══════ FAB ══════ */
+.detail-fabs {
+  position: fixed;
+  right: 40rpx;
+  bottom: 240rpx;
+  z-index: 99;
+}
+
+.detail-fab {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: var(--gradient-teal);
+  color: #fff;
+  font-size: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(16, 185, 129, 0.35);
+}

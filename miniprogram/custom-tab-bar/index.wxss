@@ -1,0 +1,98 @@
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: #fff;
+  padding: 8rpx 0 4rpx;
+  padding-bottom: calc(8rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -2rpx 20rpx rgba(0,0,0,0.05);
+  z-index: 999;
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rpx 0;
+  flex: 1;
+  transition: all 0.2s;
+}
+
+.tab-icon-wrap {
+  width: 80rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18rpx;
+  margin-bottom: 2rpx;
+  transition: all 0.25s;
+}
+
+.tab-icon {
+  font-size: 36rpx;
+  color: #b0b0b0;
+  transition: all 0.25s;
+}
+
+.tab-text {
+  font-size: 20rpx;
+  color: #b0b0b0;
+  font-weight: 500;
+  transition: all 0.25s;
+}
+
+/* ══════ 选中态 · 每项不同渐变 ══════ */
+
+/* 行程 - 日落珊瑚 */
+.tab-item.tab-0.active .tab-icon-wrap {
+  background: linear-gradient(135deg, #fff0ee, #ffe8e0);
+}
+.tab-item.tab-0.active .tab-icon {
+  color: #ff6b6b;
+}
+.tab-item.tab-0.active .tab-text {
+  color: #ff6b6b;
+  font-weight: 700;
+}
+
+/* 账本 - 翡翠绿 */
+.tab-item.tab-1.active .tab-icon-wrap {
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+}
+.tab-item.tab-1.active .tab-icon {
+  color: #10b981;
+}
+.tab-item.tab-1.active .tab-text {
+  color: #10b981;
+  font-weight: 700;
+}
+
+/* 动态 - 紫粉 */
+.tab-item.tab-2.active .tab-icon-wrap {
+  background: linear-gradient(135deg, #f5f0ff, #ede0ff);
+}
+.tab-item.tab-2.active .tab-icon {
+  color: #a855f7;
+}
+.tab-item.tab-2.active .tab-text {
+  color: #a855f7;
+  font-weight: 700;
+}
+
+/* 我的 - 海洋蓝 */
+.tab-item.tab-3.active .tab-icon-wrap {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+}
+.tab-item.tab-3.active .tab-icon {
+  color: #0ea5e9;
+}
+.tab-item.tab-3.active .tab-text {
+  color: #0ea5e9;
+  font-weight: 700;
+}

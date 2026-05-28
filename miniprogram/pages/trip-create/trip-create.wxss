@@ -1,0 +1,157 @@
+/* 创建/编辑行程 · 日落暖调 */
+
+.form-title {
+  font-size: 38rpx;
+  font-weight: 800;
+  margin-bottom: 36rpx;
+  background: var(--gradient-sunset);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ══════ 输入框聚焦 ══════ */
+.form-group input:focus {
+  background: var(--card-bg);
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.06);
+}
+
+.form-group:nth-child(2) .form-input:focus { border-color: var(--coral); }
+.form-group:nth-child(3) .form-input:focus { border-color: var(--sky); }
+
+/* ══════ 日期选择 ══════ */
+.date-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.date-row picker {
+  flex: 1;
+}
+
+.date-box {
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  padding: 24rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+  box-shadow: 0 1rpx 4rpx rgba(0,0,0,0.04);
+  border: 2rpx solid transparent;
+  transition: border 0.2s;
+}
+
+.date-sep {
+  font-size: 32rpx;
+  color: var(--coral);
+  font-weight: 600;
+}
+
+/* ══════ 预算 ══════ */
+.budget-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 0 24rpx;
+  border: 2rpx solid transparent;
+  transition: border 0.2s;
+}
+
+.budget-input-row:focus-within {
+  border-color: var(--amber);
+  background: var(--card-bg);
+}
+
+.budget-prefix {
+  font-size: 36rpx;
+  font-weight: 700;
+  background: var(--gradient-sunset);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.budget-input {
+  flex: 1;
+  background: transparent !important;
+  border: none !important;
+  padding: 24rpx 0 !important;
+  height: auto !important;
+}
+
+/* ══════ 分类预算 ══════ */
+.form-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toggle-arrow {
+  font-size: 32rpx;
+  color: var(--text-hint);
+  transition: transform 0.25s;
+}
+
+.toggle-arrow.open {
+  transform: rotate(90deg);
+}
+
+.cat-grid {
+  margin-top: 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.cat-item {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  padding: 8rpx 20rpx;
+  border-left: 6rpx solid;
+  box-shadow: 0 1rpx 4rpx rgba(0,0,0,0.03);
+}
+
+.cat-item:nth-child(1) { border-left-color: #0ea5e9; }
+.cat-item:nth-child(2) { border-left-color: #a855f7; }
+.cat-item:nth-child(3) { border-left-color: #f97316; }
+.cat-item:nth-child(4) { border-left-color: #ec4899; }
+.cat-item:nth-child(5) { border-left-color: #10b981; }
+.cat-item:nth-child(6) { border-left-color: #6b7280; }
+
+.cat-label {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 140rpx;
+}
+
+.cat-input {
+  flex: 1;
+  background: var(--bg) !important;
+  border: 2rpx solid transparent !important;
+  padding: 16rpx 20rpx !important;
+  height: auto !important;
+}
+
+.cat-input:focus {
+  border-color: var(--teal) !important;
+  background: var(--card-bg) !important;
+}
+
+/* ══════ 按钮 ══════ */
+.btn-primary {
+  background: var(--gradient-sunset) !important;
+  box-shadow: 0 6rpx 20rpx rgba(255, 107, 107, 0.35) !important;
+}
+
+.btn-block {
+  margin-top: 48rpx;
+  margin-bottom: 40rpx;
+}

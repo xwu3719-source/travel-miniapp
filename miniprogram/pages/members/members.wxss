@@ -1,0 +1,89 @@
+/* 成员管理 · 彩趣版 */
+
+.invite-section {
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  border-radius: var(--radius-lg);
+  padding: 36rpx;
+  margin-bottom: 28rpx;
+  text-align: center;
+  border: 2rpx solid rgba(16, 185, 129, 0.1);
+}
+
+.invite-label {
+  font-size: 24rpx;
+  color: var(--teal);
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.invite-code {
+  font-size: 60rpx;
+  font-weight: 800;
+  letter-spacing: 10rpx;
+  background: var(--gradient-teal);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16rpx;
+}
+
+.invite-hint {
+  font-size: 22rpx;
+  color: var(--text-hint);
+}
+
+.section-label {
+  font-size: 28rpx;
+  font-weight: 700;
+  margin-bottom: 18rpx;
+  padding-left: 4rpx;
+}
+
+.member-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 20rpx 24rpx;
+  margin-bottom: 12rpx;
+  box-shadow: var(--shadow-sm);
+  border-left: 6rpx solid transparent;
+}
+
+.member-card:nth-child(3n+2) { border-left-color: var(--coral); }
+.member-card:nth-child(3n+3) { border-left-color: var(--teal); }
+.member-card:nth-child(3n+4) { border-left-color: var(--purple); }
+
+.mc-left {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.mc-avatar, .mc-avatar-placeholder {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+}
+
+.mc-avatar-placeholder {
+  background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: var(--sky);
+  font-weight: 600;
+}
+
+.mc-name {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.mc-role {
+  font-size: 22rpx;
+  color: var(--text-hint);
+  margin-top: 4rpx;
+}

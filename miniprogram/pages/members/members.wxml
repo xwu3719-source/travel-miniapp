@@ -1,0 +1,30 @@
+<!-- 成员管理 -->
+<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
+  <!-- 邀请码 -->
+  <view class="invite-section" wx:if="{{isCreator && inviteCode}}">
+    <view class="invite-label">邀请码</view>
+    <view class="invite-code">{{inviteCode}}</view>
+    <view class="invite-hint">将此邀请码分享给朋友，TA 在「加入行程」中输入即可加入</view>
+  </view>
+
+  <!-- 成员列表 -->
+  <view class="section-label">成员 ({{members.length}})</view>
+  <view class="member-card" wx:for="{{members}}" wx:key="_id">
+    <view class="mc-left">
+      <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="mc-avatar" mode="aspectFill"/>
+      <view wx:else class="mc-avatar-placeholder">😊</view>
+      <view class="mc-info">
+        <view class="mc-name">{{item.nickName}} {{item.role === 'creator' ? '👑' : ''}}</view>
+        <view class="mc-role">{{item.role === 'creator' ? '创建者' : '成员'}}</view>
+      </view>
+    </view>
+    <view
+      wx:if="{{isCreator && item.role !== 'creator'}}"
+      class="btn btn-sm btn-ghost"
+      style="color:var(--red)"
+      data-id="{{item._id}}"
+      data-name="{{item.nickName}}"
+      bindtap="onRemoveMember"
+    >移除</view>
+  </view>
+</scroll-view>

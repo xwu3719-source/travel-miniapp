@@ -1,0 +1,56 @@
+/* 关注/粉丝列表 */
+
+.fl-user {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 24rpx 28rpx;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  margin-bottom: 12rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.fl-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.fl-avatar-placeholder {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f5e0ff, #ecccff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: var(--purple);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.fl-name {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.fl-btn {
+  padding: 12rpx 28rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  background: var(--gradient-purple);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.fl-btn.following {
+  background: var(--bg);
+  color: var(--text-secondary);
+  border: 2rpx solid var(--border);
+}

@@ -1,0 +1,66 @@
+<!-- 发布动态 -->
+<scroll-view scroll-y class="container page-scroll">
+  <view class="form-title">{{isEditing ? '编辑动态' : '分享旅途瞬间'}}</view>
+
+  <!-- 文字 -->
+  <view class="form-group">
+    <textarea class="form-textarea" placeholder="记录今天的感受..." value="{{text}}" bindinput="onTextInput" maxlength="500"/>
+  </view>
+
+  <!-- 媒体（图片+视频统一网格） -->
+  <view class="form-group">
+    <view class="form-label">照片/视频（最多9个）</view>
+    <view class="media-grid">
+      <!-- 图片 -->
+      <view class="media-item" wx:for="{{images}}" wx:key="*this">
+        <image src="{{item}}" mode="aspectFill" class="media-preview"/>
+        <view class="media-remove" data-index="{{index}}" catchtap="onRemoveImage">✕</view>
+      </view>
+      <!-- 视频 -->
+      <view class="media-item" wx:for="{{videos}}" wx:key="fileID">
+        <view class="media-video-preview">
+          <view class="media-video-play">▶</view>
+          <text class="media-video-dur">{{item.duration}}″</text>
+        </view>
+        <view class="media-remove" data-index="{{index}}" catchtap="onRemoveVideo">✕</view>
+      </view>
+      <!-- 添加按钮 -->
+      <view class="media-add" wx:if="{{images.length + videos.length < 9}}" bindtap="onAddMedia">
+        <view class="media-add-icon">+</view>
+      </view>
+    </view>
+    <view wx:if="{{uploading}}" class="uploading-hint">上传中...</view>
+  </view>
+
+  <!-- 所在位置 -->
+  <view class="divider"></view>
+  <view class="form-group" style="padding-bottom: 0;">
+    <view class="loc-bar" bindtap="onChooseLocation">
+      <image wx:if="{{location}}" src="/images/icons/location.png" mode="aspectFit" class="loc-bar-icon"/>
+      <text wx:if="{{location}}" class="loc-bar-text">{{location}}</text>
+      <image wx:else src="/images/icons/location.png" mode="aspectFit" class="loc-bar-icon"/>
+      <text wx:else class="loc-bar-placeholder">所在位置</text>
+      <view wx:if="{{location}}" class="loc-bar-remove" catchtap="onRemoveLocation">✕</view>
+    </view>
+  </view>
+  <view class="divider"></view>
+
+  <!-- 关联日期 -->
+  <view class="form-group" wx:if="{{tripDays.length > 0}}">
+    <view class="form-label">关联到（可选）</view>
+    <scroll-view scroll-x class="day-row">
+      <view
+        wx:for="{{tripDays}}"
+        wx:key="dayIndex"
+        class="day-chip {{dayIndex === item.dayIndex ? 'active' : ''}}"
+        data-day="{{item.dayIndex}}"
+        bindtap="onDayTap"
+      >{{item.label}}</view>
+    </scroll-view>
+  </view>
+
+  <!-- 发布 -->
+  <view class="btn btn-primary btn-block" bindtap="onPublish">
+    {{publishing ? '保存中...' : (isEditing ? '保存修改' : '发布动态')}}
+  </view>
+</scroll-view>
