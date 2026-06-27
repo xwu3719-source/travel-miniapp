@@ -1,92 +1,195 @@
+<message-popup />
 <!-- 我的 -->
-<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll profile-page">
-  <!-- 个人卡片 -->
+<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll profile-page" show-scrollbar="{{false}}" enhanced="{{true}}">
+  <!-- 个人中心头部 -->
   <view class="profile-card">
-    <view class="pc-header">
-      <view class="pc-row">
-        <!-- 头像 -->
-        <view class="pc-avatar-wrap" bindtap="onAvatarTap">
-          <image wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" class="pc-avatar" mode="aspectFill"/>
-          <view wx:else class="pc-avatar-placeholder">✦</view>
-        </view>
+    <view class="pc-topline">
+      <text class="pc-kicker">个人中心</text>
+    </view>
 
-        <!-- 右侧信息 -->
-        <view class="pc-info">
-          <text class="pc-name" bindtap="onNickTap">{{userInfo.nickName || '点击设置昵称'}}</text>
-          <view class="pc-follow-row">
-            <text class="pc-follow-num" bindtap="onGoFollowList" data-type="following">{{followStats.following}}</text>
-            <text class="pc-follow-label">关注</text>
-            <text class="pc-follow-num" bindtap="onGoFollowList" data-type="followers" style="margin-left: 24rpx;">{{followStats.followers}}</text>
-            <text class="pc-follow-label">粉丝</text>
+    <view class="pc-row">
+      <view class="pc-avatar-wrap" bindtap="onAvatarTap">
+        <image wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" class="pc-avatar" mode="aspectFill"/>
+        <view wx:else class="pc-avatar-placeholder">{{userInfo.nickName ? userInfo.nickName[0] : '我'}}</view>
+      </view>
+      <view class="pc-info">
+        <view class="pc-name-row">
+          <view class="pc-name" bindtap="onEditProfile">{{userInfo.nickName || '点击设置昵称'}}</view>
+          <!-- 官方认证 -->
+          <image wx:if="{{isOfficial}}" class="pc-verified" src="/images/icons/官方认证.png" mode="aspectFit" />
+          <!-- 佩戴中的徽章 -->
+          <image wx:if="{{wornBadgeIcon}}" class="pc-worn-badge" src="/images/icons/{{wornBadgeIcon}}" mode="aspectFit" />
+          <view class="pc-status-trigger {{mood && mood.icon ? 'active' : ''}}" catchtap="onGoMood" hover-class="pc-status-trigger-pressed" aria-label="{{mood && mood.icon ? '修改心情状态' : '设置心情状态'}}">
+            <image wx:if="{{mood && mood.icon}}" class="pc-status-icon" src="/images/icons/status/{{mood.icon}}.png" mode="aspectFit" />
+            <image wx:else class="pc-status-icon" src="/images/icons/status-entry.png" mode="aspectFit" />
           </view>
         </view>
+        <view wx:if="{{userInfo.publicId}}" class="pc-id-row">
+          <view class="pc-public-id" bindtap="onCopyPublicId">ID {{userInfo.publicId}}</view>
+          <view class="pc-id-edit" bindtap="onOpenIdEditor">修改</view>
+        </view>
+        <view class="pc-social-row">
+          <view class="pc-social-item" bindtap="onGoFollowList" data-type="following">
+            <text class="pc-social-num">{{followStats.following}}</text>
+            <text class="pc-social-label">关注</text>
+          </view>
+          <view class="pc-social-divider"></view>
+          <view class="pc-social-item" bindtap="onGoFollowList" data-type="followers">
+            <text class="pc-social-num">{{followStats.followers}}</text>
+            <text class="pc-social-label">粉丝</text>
+          </view>
+        </view>
+        <view class="pc-signature {{userInfo.signature ? '' : 'empty'}}" bindtap="onEditProfile">
+          {{userInfo.signature || '添加个性签名'}}
+        </view>
       </view>
-      <text class="pc-edit" bindtap="onEditProfile">编辑</text>
+    </view>
+
+    <view class="pc-action-row">
+      <view class="pc-action primary" bindtap="onEditProfile">编辑资料</view>
+      <view class="pc-action secondary" bindtap="onGoSettings">设置</view>
+    </view>
+
+    <!-- 资料完整度 -->
+    <view class="completeness-wrap" wx:if="{{profileCompleteness < 100}}">
+      <view class="completeness-bar">
+        <view class="completeness-fill" style="width: {{profileCompleteness}}%;"></view>
+      </view>
+      <text class="completeness-hint">{{completenessHint}}</text>
     </view>
   </view>
 
-  <!-- 统计卡片 -->
-  <view class="stats-row">
-    <view class="stat-box stat-active" bindtap="onStatTap" data-action="active">
-      <view class="stat-icon">🗺️</view>
-      <view class="stat-num">{{tripCount}}</view>
-      <view class="stat-label">进行中</view>
-    </view>
-    <view class="stat-box stat-archived" bindtap="onStatTap" data-action="archived">
-      <view class="stat-icon">📦</view>
-      <view class="stat-num">{{historyTrips.length}}</view>
-      <view class="stat-label">已归档</view>
-    </view>
-    <view class="stat-box stat-total" bindtap="onStatTap" data-action="total">
-      <view class="stat-icon">✈️</view>
-      <view class="stat-num">{{totalTrips}}</view>
-      <view class="stat-label">总行程</view>
-    </view>
-  </view>
-
-  <!-- 想去的地方 -->
-  <view class="wish-section">
-    <view class="wish-header">
+  <!-- 徽章 -->
+  <view wx:if="{{badges.length > 0}}" class="badge-section">
+    <view class="section-header compact">
       <view class="section-title">
-        <text class="section-dot wish-dot">◆</text>
-        <text>想去的地方</text>
-      </view>
-      <view class="wish-add-btn" bindtap="onAddCityTap">✦ 添加</view>
-    </view>
-    <view class="wish-chips" wx:if="{{wishCities.length > 0}}">
-      <view class="wish-chip" wx:for="{{wishCities}}" wx:key="*this">
-        <view class="wish-chip-rank">{{index + 1}}</view>
-        <text class="wish-chip-text">{{item}}</text>
-        <view class="wish-chip-del" data-index="{{index}}" catchtap="onRemoveCity">✕</view>
+        <image class="section-icon" src="/images/icons/徽章.png" mode="aspectFit" />
+        <text>徽章</text>
+        <text class="badge-count">{{earnedBadgeCount}}/{{badges.length}}</text>
       </view>
     </view>
-    <view wx:else class="wish-empty">
-      <text>标记你想去的地方 ✈️</text>
+    <view class="badge-grid">
+      <view
+        wx:for="{{badges}}"
+        wx:key="id"
+        class="badge-item {{item.earned ? 'earned' : 'locked'}} {{item.wearing ? 'wearing' : ''}}"
+        data-id="{{item.id}}"
+        data-earned="{{item.earned}}"
+        bindtap="onBadgeTap"
+      >
+        <image class="badge-icon" src="/images/icons/{{item.icon}}" mode="aspectFit" />
+        <view class="badge-info">
+          <view class="badge-name-row">
+            <text class="badge-name">{{item.name}}</text>
+            <text wx:if="{{item.wearing}}" class="badge-wearing-tag">佩戴中</text>
+          </view>
+          <text class="badge-condition">{{item.condition}}</text>
+        </view>
+      </view>
     </view>
   </view>
 
-  <!-- 功能菜单 -->
-  <view class="menu-section">
-    <view class="menu-item" bindtap="onGoMySpace">
-      <view class="menu-icon-wrap mi-space">
-        <text class="menu-icon-text">🌅</text>
+  <!-- 旅行概览 -->
+  <view class="overview-section">
+    <view class="section-header compact">
+      <view class="section-title">
+        <image class="section-icon" src="/images/icons/tab-trip.png" mode="aspectFit" />
+        <text>旅行概览</text>
       </view>
-      <text class="menu-label">我的空间</text>
-      <text class="menu-arrow">›</text>
     </view>
-    <view class="menu-item" bindtap="onMenuTap" data-action="about">
-      <view class="menu-icon-wrap mi-about">
-        <text class="menu-icon-text">✦</text>
+    <view class="stats-row">
+      <view class="stat-box" bindtap="onStatTap" data-action="active">
+        <view class="stat-num">{{tripCount}}</view>
+        <view class="stat-label">进行中</view>
       </view>
-      <text class="menu-label">关于我们</text>
-      <text class="menu-arrow">›</text>
+      <view class="stat-box" bindtap="onStatTap" data-action="archived">
+        <view class="stat-num">{{historyTrips.length}}</view>
+        <view class="stat-label">已归档</view>
+      </view>
+      <view class="stat-box" bindtap="onStatTap" data-action="total">
+        <view class="stat-num">{{totalTrips}}</view>
+        <view class="stat-label">总行程</view>
+      </view>
     </view>
-    <view class="menu-item" bindtap="onMenuTap" data-action="tips">
-      <view class="menu-icon-wrap mi-tips">
-        <text class="menu-icon-text">💡</text>
+    <!-- 旅行 & 互动统计 -->
+    <view class="stats-row stats-row-sub">
+      <view class="stat-box">
+        <view class="stat-num">{{travelDays}}</view>
+        <view class="stat-label">旅行天数</view>
       </view>
-      <text class="menu-label">旅行小贴士</text>
-      <text class="menu-arrow">›</text>
+      <view class="stat-box">
+        <view class="stat-num">{{uniqueCityCount}}</view>
+        <view class="stat-label">城市</view>
+      </view>
+      <view class="stat-box">
+        <view class="stat-num">{{interactionStats.totalLikes + interactionStats.totalFavorites}}</view>
+        <view class="stat-label">获赞 & 收藏</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 旅行足迹 -->
+  <view wx:if="{{footprintCities.length > 0}}" class="footprint-section">
+    <view class="section-header compact">
+      <view class="section-title">
+        <image class="section-icon" src="/images/icons/footprint.png" mode="aspectFit" />
+        <text>旅行足迹</text>
+        <text class="footprint-count">{{footprintCities.length}} 城</text>
+      </view>
+    </view>
+    <view class="footprint-chips">
+      <text class="footprint-chip" wx:for="{{footprintCities}}" wx:key="*this">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 旅行档案 -->
+  <view class="passport-section">
+    <view class="section-header compact">
+      <view class="section-title">
+        <image class="section-icon" src="/images/icons/profile-archive.png" mode="aspectFit" />
+        <text>旅行档案</text>
+      </view>
+    </view>
+    <view class="passport-card">
+      <view class="passport-item" bindtap="onGoMyMoments">
+        <view class="passport-icon pi-moment">
+          <image class="passport-icon-img" src="/images/icons/tab-moments.png" mode="aspectFit" />
+        </view>
+        <view class="passport-copy">
+          <view class="passport-title">动态档案</view>
+          <view class="passport-desc">发布、评论、收藏和赞过的动态</view>
+        </view>
+        <view class="passport-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 我的账本 -->
+  <view class="packing-section">
+    <view class="packing-header" bindtap="onGoLedger">
+      <view class="passport-icon pi-packing">
+        <image class="passport-icon-img" src="/images/icons/trip-ledger.png" mode="aspectFit" />
+      </view>
+      <view class="passport-copy">
+        <view class="passport-title">我的账本</view>
+        <view class="passport-desc">查看所有行程的消费记录与统计</view>
+      </view>
+      <view class="passport-arrow">›</view>
+    </view>
+  </view>
+
+  <!-- 行李清单 -->
+  <view class="packing-section">
+    <view class="packing-header" bindtap="onGoPackingList">
+      <view class="passport-icon pi-packing">
+        <image class="passport-icon-img" src="/images/icons/packing.png" mode="aspectFit" />
+      </view>
+      <view class="passport-copy">
+        <view class="passport-title">行李清单</view>
+        <view class="passport-desc">{{packingItems.length ? '已打包 ' + packingChecked + '/' + packingItems.length : '规划你的出行装备'}}</view>
+      </view>
+      <view class="progress-badge" wx:if="{{packingItems.length > 0}}">{{packingPercentText}}</view>
+      <view class="passport-arrow">›</view>
     </view>
   </view>
 
@@ -103,41 +206,26 @@
       <view class="history-card" wx:for="{{historyTrips}}" wx:key="_id" data-id="{{item._id}}" bindtap="onTripTap">
         <view class="hc-name">{{item.name}}</view>
         <view class="hc-meta">
-          <text>🗺️ {{item.city}}</text>
-          <text>📅 {{item.startDate}} → {{item.endDate}}</text>
+          <text><image class="ui-inline-icon ui-theme-icon" src="/images/icons/location.png" mode="aspectFit"/> {{item.city}}</text>
+          <text><image class="ui-inline-icon ui-theme-icon" src="/images/icons/date.png" mode="aspectFit"/> {{item.startDate}} → {{item.endDate}}</text>
         </view>
       </view>
     </block>
   </view>
 
   <view wx:if="{{historyTrips.length === 0}}" class="empty-state" style="padding-top: 60rpx;">
-    <view class="empty-icon">✈️</view>
+    <image class="ui-empty-icon ui-theme-icon" src="/images/icons/tab-trip.png" mode="aspectFit"/>
     <view class="empty-text">还没有完成的旅行</view>
   </view>
 
-  <!-- 修改昵称弹窗 -->
-  <view wx:if="{{showNickModal}}" class="modal-mask" catchtap="onCloseNickModal">
-    <view class="modal-content" catchtap="preventBubble">
-      <view class="modal-title">修改昵称</view>
-      <input class="form-input" placeholder="请输入昵称" value="{{nickInput}}" bindinput="onNickInput" focus="{{true}}" maxlength="20"/>
-      <view class="modal-btns" style="margin-top: 24rpx;">
-        <view class="btn btn-outline" bindtap="onCloseNickModal">取消</view>
-        <view class="btn btn-primary" bindtap="onConfirmNick">确定</view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 添加目的地弹窗 -->
-  <view wx:if="{{showCityInput}}" class="modal-mask" catchtap="onCloseCityInput">
-    <view class="modal-content" catchtap="preventBubble">
-      <view class="modal-title">想去哪里？</view>
-      <input class="form-input" placeholder="输入城市或国家名称" value="{{cityInput}}" bindinput="onCityInput" focus="{{true}}" maxlength="30"/>
-      <view class="city-suggestions" wx:if="{{citySuggestions.length > 0}}">
-        <view class="city-sug-item" wx:for="{{citySuggestions}}" wx:key="*this" data-name="{{item}}" catchtap="onSelectSuggestion">{{item}}</view>
-      </view>
+  <view wx:if="{{showIdEditor}}" class="modal-mask" catchtap="onCloseIdEditor">
+    <view class="modal-content id-editor-modal" catchtap="preventBubble">
+      <view class="modal-title">修改 ID</view>
+      <input class="form-input" value="{{idInput}}" placeholder="请输入 6 位数字" type="number" maxlength="6" bindinput="onIdInput" focus="{{true}}"/>
+      <view class="id-editor-note">好友将通过这个 ID 搜索你，修改后旧 ID 会失效。</view>
       <view class="modal-btns">
-        <view class="btn btn-outline" bindtap="onCloseCityInput">取消</view>
-        <view class="btn btn-primary" bindtap="onConfirmAddCity">添加</view>
+        <view class="btn btn-outline" bindtap="onCloseIdEditor">取消</view>
+        <view class="btn btn-primary" bindtap="onSavePublicId">{{savingId ? '保存中...' : '保存'}}</view>
       </view>
     </view>
   </view>

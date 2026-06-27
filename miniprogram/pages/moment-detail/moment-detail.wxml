@@ -1,12 +1,19 @@
+<message-popup />
 <!-- 动态详情 -->
-<scroll-view scroll-y class="container page-scroll" wx:if="{{moment}}" bindtap="onPageTap">
+<view class="container" wx:if="{{moment}}">
+<scroll-view scroll-y class="page-scroll content-scroll" bindtap="onPageTap" show-scrollbar="{{false}}" enhanced="{{true}}">
   <!-- 作者头部 -->
   <view class="md-header">
-    <view class="md-author" data-openid="{{moment.authorId}}" catchtap="onAuthorTap">
+    <view class="md-author" data-openid="{{moment.authorId}}" data-nick-name="{{moment.authorName}}" data-avatar-url="{{moment.authorAvatar}}" catchtap="onAuthorTap">
       <image wx:if="{{moment.authorAvatar}}" src="{{moment.authorAvatar}}" class="md-avatar" mode="aspectFill"/>
       <view wx:else class="md-avatar-placeholder">{{moment.authorName[0] || '旅'}}</view>
       <view>
-        <view class="md-name">{{moment.authorName}}</view>
+        <view class="md-name-row">
+          <view class="md-name">{{moment.authorName}}</view>
+          <image wx:if="{{moment.authorVerified}}" class="md-verified-icon" src="/images/icons/官方认证.png" mode="aspectFit" />
+          <image wx:if="{{moment.authorBadgeIcon}}" class="md-badge-icon" src="/images/icons/{{moment.authorBadgeIcon}}" mode="aspectFit" />
+          <image wx:if="{{moment.authorMoodIcon}}" class="md-status-icon" src="/images/icons/status/{{moment.authorMoodIcon}}.png" mode="aspectFit" />
+        </view>
         <view class="md-time">{{moment.formattedTime}}</view>
       </view>
     </view>
@@ -27,8 +34,8 @@
       mode="aspectFill"
       class="md-img"
       data-url="{{item}}"
-      data-urls="{{moment.images.join(',')}}"
-      bindtap="onPreviewImage"
+      data-urls="{{moment.images}}"
+      catchtap="onPreviewImage"
     />
   </view>
 
@@ -36,7 +43,7 @@
   <view class="md-videos" wx:if="{{moment.videos && moment.videos.length > 0}}">
     <view class="md-video" wx:for="{{moment.videos}}" wx:key="fileID" data-file-id="{{item.fileID}}" bindtap="onPlayMomentVideo">
       <view class="md-video-inner">
-        <view class="md-video-play">▶</view>
+      <view class="md-video-play"><image src="/images/icons/play.png" mode="aspectFit"/></view>
         <text class="md-video-dur">{{item.duration}}″</text>
       </view>
     </view>
@@ -55,6 +62,37 @@
       <image src="/images/icons/{{moment.favorited ? 'favorited' : 'favorite'}}.png" mode="aspectFit" class="md-action-icon-img"/>
       <text class="md-action-num">{{moment.favorites ? moment.favorites.length : 0}}</text>
     </view>
+    <view class="md-action" bindtap="onShareMoment">
+      <image src="/images/icons/share.png" mode="aspectFit" class="md-action-icon-img"/>
+      <text class="md-action-num">{{moment.shareCount || 0}}</text>
+    </view>
+  </view>
+
+  <!-- 点赞者 -->
+  <view wx:if="{{moment.likers && moment.likers.length > 0}}" class="md-likers">
+    <image src="/images/icons/like2.png" mode="aspectFit" class="md-likers-icon"/>
+    <view class="md-likers-avatars">
+      <block wx:for="{{moment.likers}}" wx:key="openid">
+        <image
+          wx:if="{{index < 20 && item.avatarUrl}}"
+          src="{{item.avatarUrl}}"
+          class="md-liker-avatar {{index > 0 ? 'overlap' : ''}}"
+          mode="aspectFill"
+          data-openid="{{item.openid}}"
+          data-nick-name="{{item.nickName}}"
+          data-avatar-url="{{item.avatarUrl}}"
+          catchtap="onAuthorTap"
+        />
+        <view
+          wx:elif="{{index < 20}}"
+          class="md-liker-avatar-placeholder {{index > 0 ? 'overlap' : ''}}"
+          data-openid="{{item.openid}}"
+          data-nick-name="{{item.nickName}}"
+          catchtap="onAuthorTap"
+        >{{item.nickName[0] || '?'}}</view>
+      </block>
+    </view>
+    <text class="md-likers-suffix">{{moment.likers.length}}人赞了</text>
   </view>
 
   <!-- 管理菜单 -->
@@ -69,64 +107,85 @@
     <view class="md-comments-title">评论 {{moment.comments ? moment.comments.length : 0}}</view>
 
     <view wx:if="{{moment.comments && moment.comments.length > 0}}" class="cmt-list">
-      <view class="cmt-item" wx:for="{{moment.comments}}" wx:key="createdAt">
+      <view class="cmt-item {{index < moment.comments.length - 1 ? 'cmt-divider' : ''}}" wx:for="{{moment.comments}}" wx:key="_cid" data-index="{{index}}" catchtap="onTapComment" catchlongpress="onLongPressComment">
+        <image
+          wx:if="{{item.avatarUrl}}"
+          src="{{item.avatarUrl}}"
+          class="cmt-avatar"
+          mode="aspectFill"
+          data-openid="{{item.openid}}"
+          data-nick-name="{{item.nickName}}"
+          data-avatar-url="{{item.avatarUrl}}"
+          catchtap="onAuthorTap"
+        />
+        <view wx:else class="cmt-avatar-placeholder" data-openid="{{item.openid}}" data-nick-name="{{item.nickName}}" catchtap="onAuthorTap">{{item.nickName[0] || '?'}}</view>
         <view class="cmt-body">
-          <text class="cmt-author">{{item.nickName}}</text>
+          <view class="cmt-header">
+            <text class="cmt-author">{{item.nickName}}</text>
+            <block wx:if="{{item.replyTo && item.replyTo.nickName}}">
+              <text class="cmt-reply-mark">回复</text>
+              <text class="cmt-author">{{item.replyTo.nickName}}</text>
+            </block>
+            <text wx:if="{{item.editedAt}}" class="cmt-edited-tag">已编辑</text>
+          </view>
           <text class="cmt-text" wx:if="{{item.text}}">{{item.text}}</text>
-          <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" class="cmt-image" bindtap="onPreviewCommentImage" data-url="{{item.image}}"/>
-          <view wx:if="{{item.voice}}" class="cmt-voice {{voicePlayingUrl === item.voice ? 'voice-playing' : ''}}" bindtap="onPlayCommentVoice" data-url="{{item.voice}}">
+          <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" class="cmt-image" catchtap="onPreviewCommentImage" data-url="{{item.image}}"/>
+          <view wx:if="{{item.voice}}" class="cmt-voice {{voicePlayingUrl === item.voice ? 'voice-playing' : ''}}" catchtap="onPlayCommentVoice" data-url="{{item.voice}}">
             <image src="/images/icons/voice.png" mode="aspectFit" class="cmt-voice-icon-img"/>
             <block wx:if="{{voicePlayingUrl === item.voice}}">
               <view class="voice-bars"><view class="voice-bar"></view><view class="voice-bar"></view><view class="voice-bar"></view></view>
             </block>
             <text wx:else class="cmt-voice-dur">{{item.voiceDuration || 0}}″</text>
           </view>
-          <view wx:if="{{item.location}}" class="cmt-location" bindtap="onOpenCommentLocation" data-lat="{{item.location.lat}}" data-lng="{{item.location.lng}}" data-name="{{item.location.name}}">
+          <view wx:if="{{item.location}}" class="cmt-location" catchtap="onOpenCommentLocation" data-lat="{{item.location.lat}}" data-lng="{{item.location.lng}}" data-name="{{item.location.name}}">
             <image src="/images/icons/location.png" mode="aspectFit" class="cmt-loc-icon"/> {{item.location.name}}
           </view>
         </view>
       </view>
     </view>
     <view wx:else class="cmt-empty">暂无评论，来说两句吧</view>
-
-    <!-- 评论输入 -->
-    <view class="cmt-media-preview" wx:if="{{commentImage || commentVoice || commentLocation}}">
-      <view class="cmp-item" wx:if="{{commentImage}}">
-        <image src="{{commentImage}}" mode="aspectFill" class="cmp-img"/>
-        <view class="cmp-remove" bindtap="onRemoveCommentImage">✕</view>
-      </view>
-      <view class="cmp-item cmp-voice-item" wx:if="{{commentVoice}}">
-        <image src="/images/icons/voice.png" mode="aspectFit" class="cmp-voice-icon-img"/>
-        <text class="cmp-voice-dur">{{commentVoiceDuration}}″</text>
-        <view class="cmp-remove" bindtap="onRemoveCommentVoice">✕</view>
-      </view>
-      <view class="cmp-item cmp-loc-item" wx:if="{{commentLocation}}">
-        <text><image src="/images/icons/location.png" mode="aspectFit" class="cmt-loc-icon"/> {{commentLocation.name}}</text>
-        <view class="cmp-remove" bindtap="onRemoveCommentLocation">✕</view>
-      </view>
-    </view>
-    <!-- 录音状态条 -->
-    <view class="recording-bar" wx:if="{{commentRecording}}">
-      <view class="rec-dot"></view>
-      <text class="rec-text">录音中...</text>
-      <text class="rec-time">{{recordingDuration}}″</text>
-      <view class="rec-stop" bindtap="onToggleVoice">停止</view>
-    </view>
-    <view class="cmt-input-row">
-      <view class="cmt-tool-btn {{commentRecording ? 'recording' : ''}}" bindtap="onToggleVoice">
-        <image src="/images/icons/voice.png" mode="aspectFit" class="cmt-tool-icon"/>
-      </view>
-      <input class="cmt-input" placeholder="写评论..." value="{{commentInput}}" bindinput="onCommentInput" confirm-type="send" bindconfirm="onPostComment"/>
-      <view class="cmt-tool-btn" bindtap="onChooseCommentImage">
-        <image src="/images/icons/image.png" mode="aspectFit" class="cmt-tool-icon"/>
-      </view>
-      <view class="cmt-tool-btn" bindtap="onChooseCommentLocation">
-        <image src="/images/icons/location.png" mode="aspectFit" class="cmt-tool-icon"/>
-      </view>
-      <view class="cmt-send" bindtap="onPostComment">发送</view>
-    </view>
   </view>
 </scroll-view>
+
+<!-- 固定底部评论输入栏 -->
+<view class="cmt-bar-fixed">
+  <view class="cmt-media-preview" wx:if="{{commentImage || commentVoice || commentLocation}}">
+    <view class="cmp-item" wx:if="{{commentImage}}">
+      <image src="{{commentImage}}" mode="aspectFill" class="cmp-img"/>
+      <view class="cmp-remove" bindtap="onRemoveCommentImage"><image src="/images/icons/close.png" mode="aspectFit"/></view>
+    </view>
+    <view class="cmp-item cmp-voice-item" wx:if="{{commentVoice}}">
+      <image src="/images/icons/voice.png" mode="aspectFit" class="cmp-voice-icon-img"/>
+      <text class="cmp-voice-dur">{{commentVoiceDuration}}″</text>
+      <view class="cmp-remove" bindtap="onRemoveCommentVoice"><image src="/images/icons/close.png" mode="aspectFit"/></view>
+    </view>
+    <view class="cmp-item cmp-loc-item" wx:if="{{commentLocation}}">
+      <text><image src="/images/icons/location.png" mode="aspectFit" class="cmt-loc-icon"/> {{commentLocation.name}}</text>
+      <view class="cmp-remove" bindtap="onRemoveCommentLocation"><image src="/images/icons/close.png" mode="aspectFit"/></view>
+    </view>
+  </view>
+  <view class="recording-bar" wx:if="{{commentRecording}}">
+    <view class="rec-dot"></view>
+    <text class="rec-text">录音中...</text>
+    <text class="rec-time">{{recordingDuration}}″</text>
+    <view class="rec-stop" bindtap="onToggleVoice">停止</view>
+  </view>
+  <view class="cmt-input-row">
+    <view class="cmt-tool-btn {{commentRecording ? 'recording' : ''}}" bindtap="onToggleVoice">
+      <image src="/images/icons/voice.png" mode="aspectFit" class="cmt-tool-icon"/>
+    </view>
+    <input class="cmt-input" placeholder="{{editingCid ? '编辑评论...' : (replyTo ? '回复 ' + replyTo.nickName + '...' : '写评论...')}}" value="{{commentInput}}" focus="{{commentFocus}}" adjust-position="{{true}}" cursor-spacing="20" bindinput="onCommentInput" confirm-type="send" bindconfirm="onPostComment"/>
+    <view class="cmt-tool-btn" bindtap="onChooseCommentImage">
+      <image src="/images/icons/image.png" mode="aspectFit" class="cmt-tool-icon"/>
+    </view>
+    <view class="cmt-tool-btn" bindtap="onChooseCommentLocation">
+      <image src="/images/icons/location.png" mode="aspectFit" class="cmt-tool-icon"/>
+    </view>
+    <text wx:if="{{editingCid}}" class="cmt-cancel-edit" bindtap="onCancelEdit">取消</text>
+    <view class="cmt-send" bindtap="onPostComment">{{editingCid ? '保存' : '发送'}}</view>
+  </view>
+</view>
+</view>
 
 <!-- 加载中 -->
 <view wx:if="{{!moment}}" class="empty-state">

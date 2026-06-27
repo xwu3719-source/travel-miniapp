@@ -1,38 +1,143 @@
+<message-popup />
 <!-- 首页 - 行程列表 -->
 <scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
   <!-- 头部操作 -->
   <view class="index-header">
-    <view class="index-title">✦ 我的旅行</view>
+    <view class="index-title">我的旅行</view>
     <view class="index-actions">
-      <view class="btn btn-outline btn-sm" bindtap="onToggleBatchMode" wx:if="{{activeTrips.length > 0}}">{{batchMode ? '完成' : '编辑'}}</view>
-      <view class="btn btn-outline btn-sm" bindtap="onJoinTap">加入行程</view>
-      <view class="btn btn-primary btn-sm" bindtap="onCreateTap">✦ 创建行程</view>
+      <view wx:if="{{batchMode}}" class="header-done" bindtap="onToggleBatchMode">完成</view>
+      <view wx:if="{{!batchMode}}" class="header-more {{showHeaderMenu ? 'active' : ''}}" bindtap="onToggleHeaderMenu">
+        <image src="/images/icons/more.png" mode="aspectFit"/>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showHeaderMenu}}" class="header-menu-mask" bindtap="onCloseHeaderMenu">
+    <view class="header-menu" catchtap="preventBubble">
+      <view class="header-menu-item" bindtap="onCreateFromMenu">
+        <image src="/images/icons/create.png" mode="aspectFit"/>
+        <text>创建行程</text>
+      </view>
+      <view class="header-menu-item" bindtap="onJoinFromMenu">
+        <image src="/images/icons/trip-members.png" mode="aspectFit"/>
+        <text>加入行程</text>
+      </view>
+      <view wx:if="{{activeTrips.length > 0}}" class="header-menu-item" bindtap="onBatchFromMenu">
+        <image src="/images/icons/edit.png" mode="aspectFit"/>
+        <text>批量管理</text>
+      </view>
     </view>
   </view>
 
   <!-- 加载中 -->
   <view wx:if="{{loading}}" class="empty-state">
-    <view class="empty-icon">⏳</view>
+    <image class="state-icon loading" src="/images/icons/tab-trip.png" mode="aspectFit"/>
     <view class="empty-text">加载中...</view>
   </view>
 
   <!-- 空状态 -->
   <view wx:elif="{{activeTrips.length === 0 && historyTrips.length === 0}}" class="empty-state">
-    <view class="empty-icon">✈️</view>
+    <image class="state-icon" src="/images/icons/tab-trip.png" mode="aspectFit"/>
     <view class="empty-text">还没有行程记录</view>
-    <view class="btn btn-primary" style="margin-top:32rpx" bindtap="onCreateTap">创建第一次旅行</view>
+    <view class="btn btn-primary" style="margin-top:32rpx" bindtap="onCreateTap">
+      <image class="create-btn-icon" src="/images/icons/create.png" mode="aspectFit"/>
+      <text>创建第一次旅行</text>
+    </view>
   </view>
 
   <!-- 活跃行程 -->
   <block wx:else>
-    <view class="section-label" wx:if="{{activeTrips.length > 0}}">✦ 进行中</view>
+    <view class="dashboard-skeleton" wx:if="{{dashboardLoading && !dashboard}}">
+      <view class="skeleton-line wide"></view>
+      <view class="skeleton-line"></view>
+      <view class="skeleton-grid"><view></view><view></view><view></view></view>
+    </view>
+
+    <view class="current-dashboard" wx:if="{{dashboard}}" bindtap="onDashboardTripTap">
+      <view class="dashboard-top">
+        <view>
+          <view class="dashboard-kicker">当前行程</view>
+          <view class="dashboard-title">{{dashboard.trip.name}}</view>
+          <view class="dashboard-meta">{{dashboard.trip.city}} · {{dashboard.trip.startDate}} → {{dashboard.trip.endDate}}</view>
+        </view>
+        <view class="dashboard-badge">{{dashboard.trip.totalDays}}天</view>
+      </view>
+
+      <view class="dashboard-metrics">
+        <view class="dashboard-metric">
+          <view class="dm-value">¥{{dashboard.total}}</view>
+          <view class="dm-label">已花费</view>
+        </view>
+        <view class="dashboard-metric">
+          <view class="dm-value">{{dashboard.unreadTotal}}</view>
+          <view class="dm-label">待处理</view>
+        </view>
+        <view class="dashboard-metric">
+          <view class="dm-value">{{dashboard.moments.length}}</view>
+          <view class="dm-label">新动态</view>
+        </view>
+      </view>
+
+      <view class="dashboard-budget" wx:if="{{dashboard.budget}}">
+        <view class="dashboard-budget-copy">
+          <text>预算进度 {{dashboard.budgetPercent}}%</text>
+          <text>{{dashboard.budgetRemain >= 0 ? '剩余 ¥' + dashboard.budgetRemainText : '超支 ¥' + dashboard.budgetRemainText}}</text>
+        </view>
+        <view class="dashboard-budget-track">
+          <view class="dashboard-budget-fill {{dashboard.budgetRemain < 0 ? 'over' : ''}}" style="width: {{dashboard.budgetPercent}}%"></view>
+        </view>
+      </view>
+
+      <view class="dashboard-today">
+        <view class="dashboard-section-title">{{dashboard.todayLabel}}</view>
+        <view wx:if="{{dashboard.todayItems.length}}">
+          <view class="today-item" wx:for="{{dashboard.todayItems}}" wx:key="dashboardKey">
+            <text class="today-time">{{item.time || '待定'}}</text>
+            <text class="today-title">{{item.title}}</text>
+          </view>
+        </view>
+        <view wx:else class="today-empty">今天还没有安排</view>
+      </view>
+    </view>
+
+    <view class="dashboard-reminders" wx:if="{{dashboard && dashboard.reminders.length}}">
+      <view class="dashboard-reminder reminder-{{item.type}}" wx:for="{{dashboard.reminders}}" wx:key="text">
+        <view class="dashboard-reminder-dot"></view>
+        <text>{{item.text}}</text>
+      </view>
+    </view>
+
+    <view class="quick-dashboard-actions" wx:if="{{currentTripId}}">
+      <view class="quick-dashboard-action" data-action="plan" bindtap="onDashboardAction">
+        <image src="/images/icons/trip-plan.png" mode="aspectFit"/>
+        <text>今日行程</text>
+      </view>
+      <view class="quick-dashboard-action" data-action="ledger" bindtap="onDashboardAction">
+        <image src="/images/icons/wallet.png" mode="aspectFit"/>
+        <text>看账本</text>
+      </view>
+      <view class="quick-dashboard-action" data-action="summary" bindtap="onDashboardAction">
+        <image src="/images/icons/archive.png" mode="aspectFit"/>
+        <text>总结</text>
+      </view>
+      <view class="quick-dashboard-action" data-action="ai" bindtap="onDashboardAction">
+        <image src="/images/icons/tab-ai.png" mode="aspectFit"/>
+        <text>问 AI</text>
+      </view>
+    </view>
+
+    <view class="section-label" wx:if="{{activeTrips.length > 0}}">
+      <image src="/images/icons/tab-trip.png" mode="aspectFit"/>
+      <text>进行中</text>
+    </view>
 
     <view
       wx:for="{{activeTrips}}"
       wx:key="_id"
       class="trip-card-row"
     >
-      <view class="trip-swipe-del {{swipedId === item._id ? 'show' : ''}}" data-id="{{item._id}}" catchtap="onDeleteTrip">删除</view>
+      <view wx:if="{{item.myRole === 'owner' || item.myRole === 'creator'}}" class="trip-swipe-del {{swipedId === item._id ? 'show' : ''}}" data-id="{{item._id}}" catchtap="onDeleteTrip">删除</view>
+      <view wx:else class="trip-swipe-leave {{swipedId === item._id ? 'show' : ''}}" data-id="{{item._id}}" catchtap="onLeaveTrip">退出</view>
       <view
         class="trip-card {{swipedId === item._id ? 'swiped' : ''}} {{batchMode ? 'batch-mode' : ''}}"
         data-id="{{item._id}}"
@@ -40,27 +145,35 @@
         bindtouchmove="{{batchMode ? '' : 'onTouchMove'}}"
         bindtap="{{batchMode ? 'onToggleSelect' : 'onTripTap'}}"
       >
-        <view class="trip-select-circle {{item.selected ? 'checked' : ''}}" wx:if="{{batchMode}}">
-          <text wx:if="{{item.selected}}">✓</text>
-        </view>
+        <checkbox wx:if="{{batchMode}}" class="trip-select-checkbox" checked="{{item.selected}}" disabled color="#5b9ff5"/>
         <view class="trip-card-top">
           <view class="trip-info">
             <view class="trip-name">{{item.name}}</view>
-            <view class="trip-city">🗺️ {{item.city}}</view>
+            <view class="trip-city">
+              <image class="trip-city-icon" src="/images/icons/trip-plan.png" mode="aspectFit"/>
+              <text>{{item.city}}</text>
+            </view>
           </view>
-          <view class="trip-arrow">›</view>
+          <view class="trip-card-side" wx:if="{{!batchMode}}">
+            <view wx:if="{{item.isCurrent}}" class="current-trip-badge">当前行程</view>
+            <view wx:else class="set-current-trip" data-id="{{item._id}}" catchtap="onSetCurrentTrip">设为当前</view>
+            <image class="trip-arrow-img" src="/images/icons/chevron-right.png" mode="aspectFit"/>
+          </view>
         </view>
-        <view class="trip-dates">📅 {{item.startDate}} → {{item.endDate}}  ·  {{item.totalDays}}天</view>
+        <view class="trip-dates">
+          <image class="trip-date-icon" src="/images/icons/date.png" mode="aspectFit"/>
+          <text>{{item.startDate}} → {{item.endDate}}  ·  {{item.totalDays}}天</text>
+        </view>
         <view class="trip-card-bottom" wx:if="{{item.totalBudget}}">
-          <view class="trip-budget">💎 总预算 ¥{{item.totalBudget}}</view>
+          <view class="trip-budget"><image src="/images/icons/wallet.png" mode="aspectFit"/><text>总预算 ¥{{item.totalBudget}}</text></view>
         </view>
       </view>
     </view>
 
     <!-- 历史行程 -->
     <view class="history-toggle" wx:if="{{historyTrips.length > 0}}" bindtap="onToggleHistory">
-      <view class="history-toggle-text">📦 历史行程 ({{historyTrips.length}})</view>
-      <view class="history-toggle-arrow {{showHistory ? 'open' : ''}}">›</view>
+      <view class="history-toggle-text"><image src="/images/icons/history.png" mode="aspectFit"/><text>历史行程 ({{historyTrips.length}})</text></view>
+      <image class="history-toggle-arrow {{showHistory ? 'open' : ''}}" src="/images/icons/chevron-right.png" mode="aspectFit"/>
     </view>
 
     <block wx:if="{{showHistory}}">
@@ -74,11 +187,25 @@
         <view class="trip-card-top">
           <view class="trip-info">
             <view class="trip-name">{{item.name}}</view>
-            <view class="trip-city">🗺️ {{item.city}}</view>
+            <view class="trip-city">
+              <image class="trip-city-icon" src="/images/icons/trip-plan.png" mode="aspectFit"/>
+              <text>{{item.city}}</text>
+            </view>
           </view>
-          <view class="trip-arrow">›</view>
+          <image class="trip-arrow-img" src="/images/icons/chevron-right.png" mode="aspectFit"/>
         </view>
-        <view class="trip-dates">📅 {{item.startDate}} → {{item.endDate}}</view>
+        <view class="trip-dates">
+          <image class="trip-date-icon" src="/images/icons/date.png" mode="aspectFit"/>
+          <text>{{item.startDate}} → {{item.endDate}}</text>
+        </view>
+        <view class="history-card-actions">
+          <view class="history-card-action" data-id="{{item._id}}" catchtap="onCopyHistoryTrip">
+            <image src="/images/icons/create.png" mode="aspectFit"/><text>复制为新行程</text>
+          </view>
+          <view class="history-card-action" data-id="{{item._id}}" catchtap="onSaveHistoryTemplate">
+            <image src="/images/icons/archive.png" mode="aspectFit"/><text>保存模板</text>
+          </view>
+        </view>
       </view>
     </block>
   </block>
@@ -87,6 +214,7 @@
   <view class="batch-bar" wx:if="{{batchMode}}">
     <view class="batch-bar-cancel" bindtap="onToggleBatchMode">取消</view>
     <view class="batch-bar-info">已选 {{selectedIds.length}} 项</view>
+    <view class="batch-bar-btn {{selectedIds.length > 0 ? '' : 'disabled'}} batch-btn-leave" bindtap="onBatchLeave">退出</view>
     <view class="batch-bar-btn {{selectedIds.length > 0 ? '' : 'disabled'}}" bindtap="onBatchDelete">删除</view>
   </view>
 </scroll-view>

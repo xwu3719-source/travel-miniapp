@@ -26,40 +26,36 @@ Page({
   async loadAll() {
     try {
       const app = getApp();
-      const userInfo = app.globalData.userInfo || {};
       const myOpenid = await cloud.getOpenid();
+      const cloudProfile = await cloud.getUserProfile(myOpenid);
+      const userInfo = cloudProfile ? {
+        nickName: cloudProfile.nickName || '',
+        avatarUrl: cloudProfile.avatarUrl || '',
+        rawAvatarUrl: cloudProfile.rawAvatarUrl || '',
+        avatarFileId: cloudProfile.rawAvatarUrl || '',
+        signature: cloudProfile.signature || ''
+      } : (app.globalData.userInfo || {});
+      if (app.globalData) app.globalData.userInfo = userInfo;
       this.setData({ userInfo, myOpenid, loading: true });
 
-      const db = cloud.db;
-      const { data: memberships } = await db.collection('trip_members')
-        .where({ openid: myOpenid })
-        .get();
-
-      const tripIds = memberships.map(m => m.tripId);
+      const { memberships, trips } = await cloud.getMyTrips();
       const tripMap = {};
 
-      if (tripIds.length > 0) {
-        const { data: trips } = await db.collection('trips')
-          .where({ _id: db.command.in(tripIds) })
-          .get();
+      if (memberships.length > 0) {
+        const tripIds = memberships.map(m => m.tripId);
         trips.forEach(t => { tripMap[t._id] = t.name; });
 
-        const { data: allMoments } = await db.collection('moments')
-          .where({ tripId: db.command.in(tripIds) })
-          .orderBy('createdAt', 'desc')
-          .limit(100)
-          .get();
+        const feed = await cloud.getMomentFeed({ tripIds, authorId: myOpenid, limit: 50 });
+        const allMoments = feed.moments;
 
         allMoments.forEach(m => {
           m.formattedTime = cloud.formatDate(m.createdAt);
           m.tripName = tripMap[m.tripId] || '';
           m.liked = m.likes && m.likes.includes(myOpenid);
           m.favorited = m.favorites && m.favorites.includes(myOpenid);
-          if (m.authorId === myOpenid && userInfo) {
-            if (userInfo.avatarUrl) m.authorAvatar = userInfo.avatarUrl;
-            if (userInfo.nickName) m.authorName = userInfo.nickName;
-          }
         });
+
+        await cloud.resolveMoments(allMoments);
 
         // 我的评论：我评论过的动态
         const commentMoments = allMoments.filter(m => {
@@ -126,9 +122,8 @@ Page({
     const { id } = e.currentTarget.dataset;
     const moment = this.data.myMoments.find(m => m._id === id);
     if (!moment) return;
-    const newVal = !moment.isPrivate;
     try {
-      await cloud.db.collection('moments').doc(id).update({ data: { isPrivate: newVal } });
+      const newVal = await cloud.toggleMomentPrivate(id);
       wx.showToast({ title: newVal ? '已设为私密' : '已设为公开', icon: 'success' });
       this.loadAll();
     } catch (e) {
@@ -140,17 +135,22 @@ Page({
     const { fileId } = e.currentTarget.dataset;
     if (!fileId) return;
     try {
-      const res = await wx.cloud.getTempFileURL({ fileList: [fileId] });
-      const item = res.fileList[0];
-      if (!item.tempFileURL) { wx.showToast({ title: '视频已过期', icon: 'none' }); return; }
-      wx.previewMedia({ sources: [{ url: item.tempFileURL, type: 'video' }] });
+      const url = await cloud.getTempFileUrl(fileId);
+      if (!url) { wx.showToast({ title: '视频已过期', icon: 'none' }); return; }
+      wx.previewMedia({ sources: [{ url, type: 'video' }] });
     } catch (e) {
       console.error('播放视频失败:', e);
       wx.showToast({ title: '播放失败', icon: 'none' });
     }
   },
 
-  onPlayCommentVoice(e) {
+  onPreviewMomentImage(e) {
+    const { url, urls } = e.currentTarget.dataset;
+    const imageUrls = Array.isArray(urls) ? urls.filter(Boolean) : String(urls || url || '').split(',').filter(Boolean);
+    if (url && imageUrls.length) wx.previewImage({ urls: imageUrls, current: url });
+  },
+
+  async onPlayCommentVoice(e) {
     const url = e.currentTarget.dataset.url;
     if (!url) return;
     if (this._currentAudio) { this._currentAudio.stop(); this._currentAudio.destroy(); this._currentAudio = null; }
@@ -169,24 +169,19 @@ Page({
       wx.showToast({ title: '播放失败', icon: 'none' });
       innerAudio.destroy();
     });
-    if (url.startsWith('cloud://')) {
-      wx.cloud.getTempFileURL({ fileList: [url] }).then(res => {
-        const item = res.fileList[0];
-        if (item && item.tempFileURL) {
-          innerAudio.src = item.tempFileURL;
-          innerAudio.play();
-        } else {
-          clearPlaying();
-          wx.showToast({ title: '音频已过期', icon: 'none' });
-        }
-      }).catch(() => {
+    try {
+      const playUrl = await cloud.getTempFileUrl(url);
+      if (!playUrl) {
         clearPlaying();
         innerAudio.destroy();
-        wx.showToast({ title: '播放失败', icon: 'none' });
-      });
-    } else {
-      innerAudio.src = url;
+        return wx.showToast({ title: '音频已过期', icon: 'none' });
+      }
+      innerAudio.src = playUrl;
       innerAudio.play();
+    } catch (e) {
+      clearPlaying();
+      innerAudio.destroy();
+      wx.showToast({ title: '播放失败', icon: 'none' });
     }
   },
 
@@ -199,7 +194,7 @@ Page({
       success: async (res) => {
         if (!res.confirm) return;
         try {
-          await cloud.collection('moments').doc(id).remove();
+          await cloud.deleteMoment(id);
           wx.showToast({ title: '已删除', icon: 'success' });
           this.loadAll();
         } catch (err) {
@@ -212,24 +207,20 @@ Page({
   preventBubble() {},
 
   onAuthorTap(e) {
-    const { openid } = e.currentTarget.dataset;
-    if (openid) wx.navigateTo({ url: `/pages/user-profile/user-profile?openid=${openid}` });
+    const { openid, nickName, avatarUrl } = e.currentTarget.dataset;
+    cloud.navigateToUserProfile(openid, { nickName, avatarUrl });
   },
 
   async onToggleFavorite(e) {
     const { id } = e.currentTarget.dataset;
-    const db = cloud.db;
     const myOpenid = this.data.myOpenid;
+    if (!myOpenid) return wx.showToast({ title: '请先登录', icon: 'none' });
     try {
-      const moment = cloud.getDoc(await db.collection('moments').doc(id).get());
-      const favorites = moment.favorites || [];
-      const idx = favorites.indexOf(myOpenid);
-      if (idx > -1) favorites.splice(idx, 1);
-      else favorites.push(myOpenid);
-      await db.collection('moments').doc(id).update({ data: { favorites } });
+      await cloud.toggleFavoriteMoment(id);
       this.loadAll();
     } catch (e) {
       console.error('收藏失败:', e);
+      wx.showToast({ title: '操作失败，请重试', icon: 'none' });
     }
   },
 

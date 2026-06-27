@@ -7,6 +7,7 @@ Page({
     users: [],
     myOpenid: '',
     myFollowingSet: {},
+    myFollowerSet: {},
     loading: true
   },
 
@@ -29,12 +30,17 @@ Page({
       const userMap = await cloud.batchGetUsers(openids);
       const users = openids.map(id => userMap[id] || { openid: id, nickName: '未知用户', avatarUrl: '' });
 
-      // 查询当前用户的关注列表（用于判断关注状态）
-      const myFollowingIds = await cloud.getFollowList(myOpenid, 'following');
+      // 查询当前用户的关注列表（用于判断关注状态）+ 谁关注了我（互相关注）
+      const [myFollowingIds, myFollowerIds] = await Promise.all([
+        cloud.getFollowList(myOpenid, 'following'),
+        cloud.getFollowList(myOpenid, 'followers')
+      ]);
       const myFollowingSet = {};
       myFollowingIds.forEach(id => { myFollowingSet[id] = true; });
+      const myFollowerSet = {};
+      myFollowerIds.forEach(id => { myFollowerSet[id] = true; });
 
-      this.setData({ users, myFollowingSet, loading: false });
+      this.setData({ users, myFollowingSet, myFollowerSet, loading: false });
     } catch (e) {
       console.error('加载列表失败:', e);
       this.setData({ loading: false });
@@ -43,8 +49,29 @@ Page({
 
   async onToggleFollow(e) {
     const { openid } = e.currentTarget.dataset;
-    const { myOpenid } = this.data;
+    const { myOpenid, myFollowingSet } = this.data;
     if (openid === myOpenid) return;
+    // 取关时需要确认
+    if (myFollowingSet[openid]) {
+      wx.showModal({
+        title: '取消关注',
+        content: '确定要取消关注吗？',
+        confirmColor: '#ef4444',
+        success: async (res) => {
+          if (!res.confirm) return;
+          try {
+            await cloud.toggleFollow(myOpenid, openid);
+            const set = { ...this.data.myFollowingSet };
+            delete set[openid];
+            this.setData({ myFollowingSet: set });
+            wx.showToast({ title: '已取消关注', icon: 'success' });
+          } catch (e) {
+            wx.showToast({ title: '操作失败', icon: 'none' });
+          }
+        }
+      });
+      return;
+    }
     try {
       const followed = await cloud.toggleFollow(myOpenid, openid);
       const set = { ...this.data.myFollowingSet };
@@ -57,7 +84,7 @@ Page({
   },
 
   onUserTap(e) {
-    const { openid } = e.currentTarget.dataset;
-    wx.navigateTo({ url: `/pages/user-profile/user-profile?openid=${openid}` });
+    const { openid, nickName, avatarUrl } = e.currentTarget.dataset;
+    cloud.navigateToUserProfile(openid, { nickName, avatarUrl });
   }
 });

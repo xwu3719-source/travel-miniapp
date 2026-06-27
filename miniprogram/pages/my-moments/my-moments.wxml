@@ -1,38 +1,36 @@
+<message-popup />
 <!-- 个人动态空间 -->
-<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
+<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll" show-scrollbar="{{false}}" enhanced="{{true}}">
   <!-- 头部 -->
   <view class="space-header">
     <view class="space-avatar-wrap">
       <image wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" class="space-avatar" mode="aspectFill"/>
       <view wx:else class="space-avatar-placeholder">{{userInfo.nickName ? userInfo.nickName[0] : '我'}}</view>
     </view>
-    <view class="space-nick">{{userInfo.nickName || '我'}}</view>
-    <view class="space-stats">
-      <view class="space-stat">
-        <view class="space-stat-num">{{myMoments.length}}</view>
-        <view class="space-stat-label">动态</view>
-      </view>
-      <view class="space-stat">
-        <view class="space-stat-num">{{commentMoments.length}}</view>
-        <view class="space-stat-label">评论</view>
-      </view>
-      <view class="space-stat">
-        <view class="space-stat-num">{{favMoments.length}}</view>
-        <view class="space-stat-label">收藏</view>
-      </view>
-      <view class="space-stat">
-        <view class="space-stat-num">{{likedMoments.length}}</view>
-        <view class="space-stat-label">赞过</view>
-      </view>
+    <view class="space-profile">
+      <view class="space-nick">{{userInfo.nickName || '我'}}</view>
+      <view class="space-desc">{{userInfo.signature || '我的旅途动态'}}</view>
     </view>
   </view>
 
   <!-- Tab 切换 -->
   <view class="space-tabs">
-    <view class="space-tab {{currentTab === 'my' ? 'active' : ''}}" data-tab="my" bindtap="onTabTap">我的动态</view>
-    <view class="space-tab {{currentTab === 'comment' ? 'active' : ''}}" data-tab="comment" bindtap="onTabTap">我的评论</view>
-    <view class="space-tab {{currentTab === 'fav' ? 'active' : ''}}" data-tab="fav" bindtap="onTabTap">我的收藏</view>
-    <view class="space-tab {{currentTab === 'liked' ? 'active' : ''}}" data-tab="liked" bindtap="onTabTap">赞过</view>
+    <view class="space-tab {{currentTab === 'my' ? 'active' : ''}}" data-tab="my" bindtap="onTabTap">
+      <text>动态</text>
+      <text class="space-tab-count">{{myMoments.length}}</text>
+    </view>
+    <view class="space-tab {{currentTab === 'comment' ? 'active' : ''}}" data-tab="comment" bindtap="onTabTap">
+      <text>评论</text>
+      <text class="space-tab-count">{{commentMoments.length}}</text>
+    </view>
+    <view class="space-tab {{currentTab === 'fav' ? 'active' : ''}}" data-tab="fav" bindtap="onTabTap">
+      <text>收藏</text>
+      <text class="space-tab-count">{{favMoments.length}}</text>
+    </view>
+    <view class="space-tab {{currentTab === 'liked' ? 'active' : ''}}" data-tab="liked" bindtap="onTabTap">
+      <text>赞过</text>
+      <text class="space-tab-count">{{likedMoments.length}}</text>
+    </view>
   </view>
 
   <!-- 我的动态 -->
@@ -43,12 +41,12 @@
       </view>
       <view class="mc-text" wx:if="{{item.text}}">{{item.text}}</view>
       <view class="mc-images" wx:if="{{item.images && item.images.length > 0}}">
-        <image wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="mc-img"/>
+        <image wx:for="{{item.images}}" wx:for-item="imageUrl" wx:key="*this" src="{{item.imageThumbs[index] || imageUrl}}" mode="aspectFill" lazy-load="{{true}}" class="mc-img" data-url="{{imageUrl}}" data-urls="{{item.images}}" catchtap="onPreviewMomentImage"/>
       </view>
       <view class="mc-videos" wx:if="{{item.videos && item.videos.length > 0}}">
         <view class="mc-video" wx:for="{{item.videos}}" wx:key="fileID" data-file-id="{{item.fileID}}" catchtap="onPlayMomentVideo">
           <text class="mc-video-dur">{{item.duration}}″</text>
-          <view class="mc-video-play">▶</view>
+          <view class="mc-video-play"><image src="/images/icons/play.png" mode="aspectFit"/></view>
         </view>
       </view>
       <view class="mc-location" wx:if="{{item.location}}"><image src="/images/icons/location.png" mode="aspectFit" class="mc-loc-icon"/> <text>{{item.location}}</text></view>
@@ -63,7 +61,7 @@
       </view>
     </view>
     <view wx:if="{{myMoments.length === 0 && !loading}}" class="empty-state">
-      <view class="empty-icon">📝</view>
+      <image class="ui-empty-icon ui-theme-icon" src="/images/icons/edit.png" mode="aspectFit"/>
       <view class="empty-text">还没有发布过动态</view>
     </view>
   </block>
@@ -94,7 +92,7 @@
       </view>
       <!-- 原动态引用 -->
       <view class="cc-ref">
-        <view class="cc-ref-row" data-openid="{{item.authorId}}" catchtap="onAuthorTap">
+        <view class="cc-ref-row" data-openid="{{item.authorId}}" data-nick-name="{{item.authorName}}" data-avatar-url="{{item.authorAvatar}}" catchtap="onAuthorTap">
           <image wx:if="{{item.authorAvatar}}" src="{{item.authorAvatar}}" class="cc-ref-avatar" mode="aspectFill"/>
           <view wx:else class="cc-ref-placeholder">{{item.authorName[0] || '旅'}}</view>
           <text class="cc-ref-name">{{item.authorName}}</text>
@@ -105,7 +103,7 @@
       </view>
     </view>
     <view wx:if="{{commentMoments.length === 0 && !loading}}" class="empty-state">
-      <view class="empty-icon">💬</view>
+      <image class="ui-empty-icon ui-theme-icon" src="/images/icons/comment.png" mode="aspectFit"/>
       <view class="empty-text">还没有评论过动态</view>
     </view>
   </block>
@@ -114,7 +112,7 @@
   <block wx:if="{{currentTab === 'fav'}}">
     <view class="moment-card" wx:for="{{favMoments}}" wx:key="_id" data-id="{{item._id}}" bindtap="onMomentTap">
       <view class="mc-header">
-        <view class="mc-author-row" data-openid="{{item.authorId}}" catchtap="onAuthorTap">
+        <view class="mc-author-row" data-openid="{{item.authorId}}" data-nick-name="{{item.authorName}}" data-avatar-url="{{item.authorAvatar}}" catchtap="onAuthorTap">
           <image wx:if="{{item.authorAvatar}}" src="{{item.authorAvatar}}" class="mc-author-avatar" mode="aspectFill"/>
           <view wx:else class="mc-author-placeholder">{{item.authorName[0] || '旅'}}</view>
           <view class="mc-author-name">{{item.authorName}}</view>
@@ -123,14 +121,14 @@
       <view class="mc-trip-name" wx:if="{{item.tripName}}">{{item.tripName}}</view>
       <view class="mc-text" wx:if="{{item.text}}">{{item.text}}</view>
       <view class="mc-images" wx:if="{{item.images && item.images.length > 0}}">
-        <image wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="mc-img"/>
+        <image wx:for="{{item.images}}" wx:for-item="imageUrl" wx:key="*this" src="{{item.imageThumbs[index] || imageUrl}}" mode="aspectFill" lazy-load="{{true}}" class="mc-img" data-url="{{imageUrl}}" data-urls="{{item.images}}" catchtap="onPreviewMomentImage"/>
       </view>
       <view class="mc-footer">
         <view class="mc-time">{{item.formattedTime}}</view>
       </view>
     </view>
     <view wx:if="{{favMoments.length === 0 && !loading}}" class="empty-state">
-      <view class="empty-icon">⭐</view>
+      <image class="ui-empty-icon ui-theme-icon" src="/images/icons/favorite.png" mode="aspectFit"/>
       <view class="empty-text">还没有收藏过动态</view>
     </view>
   </block>
@@ -139,7 +137,7 @@
   <block wx:if="{{currentTab === 'liked'}}">
     <view class="moment-card" wx:for="{{likedMoments}}" wx:key="_id" data-id="{{item._id}}" bindtap="onMomentTap">
       <view class="mc-header">
-        <view class="mc-author-row" data-openid="{{item.authorId}}" catchtap="onAuthorTap">
+        <view class="mc-author-row" data-openid="{{item.authorId}}" data-nick-name="{{item.authorName}}" data-avatar-url="{{item.authorAvatar}}" catchtap="onAuthorTap">
           <image wx:if="{{item.authorAvatar}}" src="{{item.authorAvatar}}" class="mc-author-avatar" mode="aspectFill"/>
           <view wx:else class="mc-author-placeholder">{{item.authorName[0] || '旅'}}</view>
           <view class="mc-author-name">{{item.authorName}}</view>
@@ -148,14 +146,14 @@
       <view class="mc-trip-name" wx:if="{{item.tripName}}">{{item.tripName}}</view>
       <view class="mc-text" wx:if="{{item.text}}">{{item.text}}</view>
       <view class="mc-images" wx:if="{{item.images && item.images.length > 0}}">
-        <image wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="mc-img"/>
+        <image wx:for="{{item.images}}" wx:for-item="imageUrl" wx:key="*this" src="{{item.imageThumbs[index] || imageUrl}}" mode="aspectFill" lazy-load="{{true}}" class="mc-img" data-url="{{imageUrl}}" data-urls="{{item.images}}" catchtap="onPreviewMomentImage"/>
       </view>
       <view class="mc-footer">
         <view class="mc-time">{{item.formattedTime}}</view>
       </view>
     </view>
     <view wx:if="{{likedMoments.length === 0 && !loading}}" class="empty-state">
-      <view class="empty-icon">❤️</view>
+      <image class="ui-empty-icon ui-theme-icon" src="/images/icons/like.png" mode="aspectFit"/>
       <view class="empty-text">还没有赞过动态</view>
     </view>
   </block>

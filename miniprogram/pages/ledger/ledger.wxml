@@ -1,3 +1,4 @@
+<message-popup />
 <!-- 账本 -->
 <scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
   <!-- 行程选择 -->
@@ -11,25 +12,35 @@
     >{{item.name}}</view>
   </scroll-view>
 
-  <!-- 统计 -->
-  <view class="ledger-stats" wx:if="{{selectedTrip}}">
-    <view class="ledger-stat">
-      <view class="ls-num">¥{{summary.total}}</view>
-      <view class="ls-label">总消费</view>
+  <!-- 账本总览 -->
+  <view class="ledger-hero" wx:if="{{selectedTrip}}">
+    <view class="ledger-hero-top">
+      <view>
+        <view class="ledger-hero-kicker">{{selectedTrip.name}}</view>
+        <view class="ledger-hero-title">旅行账本</view>
+      </view>
+      <image class="ledger-hero-icon" src="/images/icons/wallet.png" mode="aspectFit"/>
     </view>
-    <view class="ledger-stat">
-      <view class="ls-num">¥{{summary.shared}}</view>
-      <view class="ls-label">公共</view>
+    <view class="ledger-hero-amount">¥{{summary.total}}</view>
+    <view class="ledger-hero-meta">
+      <text>公共 ¥{{summary.shared}}</text>
+      <text>私人 ¥{{summary.private}}</text>
     </view>
-    <view class="ledger-stat">
-      <view class="ls-num">¥{{summary.private}}</view>
-      <view class="ls-label">私人</view>
+  </view>
+
+  <view class="ledger-alerts" wx:if="{{budgetAlerts.length}}">
+    <view class="ledger-alert alert-{{item.level}}" wx:for="{{budgetAlerts}}" wx:key="title">
+      <view class="ledger-alert-dot"></view>
+      <view class="ledger-alert-copy">
+        <view class="ledger-alert-title">{{item.title}}</view>
+        <view class="ledger-alert-text">{{item.text}}</view>
+      </view>
     </view>
   </view>
 
   <!-- 预算进度 -->
   <view class="budget-bar" wx:if="{{selectedTrip && selectedTrip.totalBudget}}">
-    <view class="budget-bar-label">💎 预算 ¥{{selectedTrip.totalBudget}}</view>
+      <view class="budget-bar-label"><image class="ui-inline-icon ui-theme-icon" src="/images/icons/wallet.png" mode="aspectFit"/> 预算 ¥{{selectedTrip.totalBudget}}</view>
     <view class="budget-bar-track">
       <view class="budget-bar-fill {{summary.total > selectedTrip.totalBudget ? 'over' : ''}}" style="width: {{summary.total / selectedTrip.totalBudget * 100 > 100 ? 100 : summary.total / selectedTrip.totalBudget * 100}}%"></view>
     </view>
@@ -38,40 +49,23 @@
     </view>
   </view>
 
-  <!-- 分类占比条 -->
-  <view class="category-breakdown" wx:if="{{categoryBreakdown.length > 0}}">
-    <view class="cb-title">分类占比</view>
-    <view class="cb-bar">
-      <view
-        wx:for="{{categoryBreakdown}}"
-        wx:key="key"
-        class="cb-segment cb-{{item.key}}"
-        style="width: {{item.percent}}%"
-      ></view>
-    </view>
-    <view class="cb-legend">
-      <view class="cb-legend-item" wx:for="{{categoryBreakdown}}" wx:key="key">
-        <view class="cb-dot cb-dot-{{item.key}}"></view>
-        <text class="cb-name">{{item.label}}</text>
-        <text class="cb-amount">¥{{item.amount}}</text>
-        <text class="cb-percent">{{item.percent}}%</text>
-      </view>
-    </view>
+  <!-- 预算建议卡片 -->
+  <view class="suggestion-card" wx:if="{{selectedTrip && !selectedTrip.totalBudget && summary.total > 0}}">
+    <view class="sug-text"><image class="ui-inline-icon ui-theme-icon" src="/images/icons/wallet.png" mode="aspectFit"/> 已消费 ¥{{summary.total}}，建议设置预算 <text class="sug-amount">¥{{suggestedBudget}}</text> 以合理控制开销</view>
+    <view class="sug-action" bindtap="onSetBudget">设置预算</view>
   </view>
 
   <!-- 类型筛选 -->
-  <view class="filter-section">
-    <view class="filter-label">类型</view>
+  <view class="filter-section primary-filter">
     <view class="filter-row">
       <view class="filter-chip {{filterType === 'all' ? 'active' : ''}}" data-type="all" bindtap="onTypeFilter">全部</view>
-      <view class="filter-chip {{filterType === 'shared' ? 'active' : ''}}" data-type="shared" bindtap="onTypeFilter">👥 公共</view>
-      <view class="filter-chip {{filterType === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeFilter">👤 私人</view>
+      <view class="filter-chip {{filterType === 'shared' ? 'active' : ''}}" data-type="shared" bindtap="onTypeFilter"><image class="ui-inline-icon" src="/images/icons/expense-shared.png" mode="aspectFit"/>公共</view>
+      <view class="filter-chip {{filterType === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeFilter"><image class="ui-inline-icon" src="/images/icons/expense-private.png" mode="aspectFit"/>私人</view>
     </view>
   </view>
 
   <!-- 分类筛选 -->
   <view class="filter-section">
-    <view class="filter-label">分类</view>
     <view class="filter-row">
       <view
         wx:for="{{categories}}"
@@ -79,35 +73,103 @@
         class="filter-chip cat-chip {{filterCategory === item.key ? 'active' : ''}}"
         data-cat="{{item.key}}"
         bindtap="onCategoryFilter"
-      >{{item.icon}} {{item.label}}</view>
+      >
+        <image class="filter-chip-icon" src="{{item.icon}}" mode="aspectFit"/>
+        <text>{{item.label}}</text>
+      </view>
     </view>
   </view>
 
   <!-- 消费列表 -->
+  <view class="ledger-section-head">
+    <view>
+      <view class="ledger-section-title">账单明细</view>
+      <view class="ledger-section-subtitle">按时间记录这趟旅行的每一笔开销</view>
+    </view>
+    <text>{{filteredExpenses.length}} 笔</text>
+  </view>
+
   <view wx:if="{{filteredExpenses.length === 0}}" class="empty-state">
-    <view class="empty-icon">💎</view>
+      <image class="ui-empty-icon ui-theme-icon" src="/images/icons/wallet.png" mode="aspectFit"/>
     <view class="empty-text">{{expenses.length === 0 ? '还没有消费记录' : '无匹配记录'}}</view>
   </view>
 
-  <view class="expense-item" wx:for="{{filteredExpenses}}" wx:key="_id">
+  <view class="expense-item" wx:for="{{filteredExpenses}}" wx:key="_id" bindtap="onExpenseTap" bindlongpress="onLongPressExpense" data-id="{{item._id}}" data-json="{{item}}">
     <view class="ei-left">
       <view class="ei-cat ei-cat-{{item.category}}">
-        {{item.icon || '💎'}}
+        <image class="ei-cat-icon" src="{{item.icon}}" mode="aspectFit"/>
       </view>
       <view class="ei-info">
         <view class="ei-desc">{{item.description}}</view>
         <view class="ei-meta">
           <text class="ei-payer">由 {{item.paidByName}} 支付</text>
           <text class="ei-type tag-{{item.type}}">{{item.type === 'shared' ? '公共' : '私人'}}</text>
+          <!-- 票据图标 -->
+          <image wx:if="{{item.receiptFileId}}" class="ei-receipt-icon" src="/images/icons/chat-camera.png" mode="aspectFit" data-file-id="{{item.receiptFileId}}" catchtap="onPreviewReceipt"/>
+          <!-- 语音图标 -->
+          <image wx:if="{{item.voiceFileId}}" class="ei-voice-icon" src="/images/icons/chat-voice.png" mode="aspectFit"/>
         </view>
+        <view class="ei-split" wx:if="{{item.splitText}}">{{item.splitText}}</view>
+        <view class="ei-refund" wx:if="{{item.refundText}}">{{item.refundText}}</view>
         <view class="ei-date" wx:if="{{item.createdAt}}">{{item.createdAt}}</view>
       </view>
     </view>
-    <view class="ei-amount">¥{{item.amount}}</view>
+    <view class="ei-amount">¥{{item.netAmount}}</view>
+  </view>
+
+  <!-- 账本分析 -->
+  <view class="ledger-analysis" wx:if="{{selectedTrip && categoryBreakdown.length > 0}}">
+    <view class="ledger-section-head analysis-head">
+      <view>
+        <view class="ledger-section-title">账本分析</view>
+        <view class="ledger-section-subtitle">看钱主要花去了哪里</view>
+      </view>
+    </view>
+
+    <view class="category-breakdown" wx:if="{{categoryBreakdown.length > 0}}">
+      <view class="cb-title">分类占比</view>
+      <view class="cb-bar">
+        <view
+          wx:for="{{categoryBreakdown}}"
+          wx:key="key"
+          class="cb-segment cb-{{item.key}}"
+          style="width: {{item.percent}}%"
+        ></view>
+      </view>
+      <view class="cb-legend">
+        <view class="cb-legend-item" wx:for="{{categoryBreakdown}}" wx:key="key">
+          <view class="cb-dot cb-dot-{{item.key}}"></view>
+          <text class="cb-name">{{item.label}}</text>
+          <text class="cb-amount">¥{{item.amount}}</text>
+          <text class="cb-percent">{{item.percent}}%</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="chart-card" wx:if="{{selectedTrip && categoryBreakdown.length > 0}}">
+      <view class="chart-title">消费类别分布</view>
+      <canvas type="2d" id="pieChart" class="chart-canvas" style="width:300px;height:300px;"></canvas>
+    </view>
+
+    <view class="chart-card" wx:if="{{selectedTrip && dailyTrend.length > 1}}">
+      <view class="chart-title">每日消费趋势</view>
+      <canvas type="2d" id="barChart" class="chart-canvas" style="width:340px;height:200px;"></canvas>
+    </view>
   </view>
 </scroll-view>
 
-<!-- FAB -->
-<view class="detail-fabs">
-  <view class="detail-fab" bindtap="onAddExpense">✦</view>
+<!-- 隐藏导出画布 -->
+<canvas type="2d" id="exportCanvas" class="export-canvas" style="width:375px;height:600px;position:fixed;left:-9999px;top:-9999px;"></canvas>
+
+<!-- 快捷操作 -->
+<view class="ledger-fab-stack">
+  <view class="ledger-fab mini" wx:if="{{selectedTrip && summary.total > 0}}" bindtap="onExportBill">
+    <image class="ui-inline-icon ui-theme-icon" src="/images/icons/share.png" mode="aspectFit"/>
+  </view>
+  <view class="ledger-fab mini" wx:if="{{selectedTrip}}" bindtap="onGoSettlement">
+    <image class="ui-inline-icon ui-theme-icon" src="/images/icons/trip-settlement.png" mode="aspectFit"/>
+  </view>
+  <view class="ledger-fab primary" bindtap="onAddExpense">
+    <image class="ui-inline-icon ui-white-icon" src="/images/icons/create.png" mode="aspectFit"/>
+  </view>
 </view>

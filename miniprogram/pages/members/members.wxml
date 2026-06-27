@@ -1,3 +1,4 @@
+<message-popup />
 <!-- 成员管理 -->
 <scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
   <!-- 邀请码 -->
@@ -8,13 +9,19 @@
   </view>
 
   <!-- 成员列表 -->
-  <view class="section-label">成员 ({{members.length}})</view>
-  <view class="member-card" wx:for="{{members}}" wx:key="_id">
+  <view class="members-heading">
+    <view class="section-label">成员 ({{members.length}})</view>
+    <view class="invite-friends-entry" bindtap="onOpenInviteFriends">
+      <image src="/images/icons/trip-members.png" mode="aspectFit" class="invite-friends-icon"/>
+      <text>邀请好友</text>
+    </view>
+  </view>
+  <view class="member-card" wx:for="{{members}}" wx:key="_id" data-openid="{{item.openid}}" data-nick-name="{{item.nickName}}" data-avatar-url="{{item.avatarUrl}}" bindtap="onAuthorTap">
     <view class="mc-left">
       <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="mc-avatar" mode="aspectFill"/>
-      <view wx:else class="mc-avatar-placeholder">😊</view>
+        <view wx:else class="mc-avatar-placeholder">{{item.nickName ? item.nickName[0] : '旅'}}</view>
       <view class="mc-info">
-        <view class="mc-name">{{item.nickName}} {{item.role === 'creator' ? '👑' : ''}}</view>
+        <view class="mc-name">{{item.nickName}}<text wx:if="{{item.role === 'creator'}}" class="creator-text-badge">创建者</text></view>
         <view class="mc-role">{{item.role === 'creator' ? '创建者' : '成员'}}</view>
       </view>
     </view>
@@ -24,7 +31,54 @@
       style="color:var(--red)"
       data-id="{{item._id}}"
       data-name="{{item.nickName}}"
-      bindtap="onRemoveMember"
+      catchtap="onRemoveMember"
     >移除</view>
   </view>
 </scroll-view>
+
+<!-- 好友多选邀请 -->
+<view wx:if="{{showInvitePanel}}" class="friend-picker-mask" catchtap="onCloseInviteFriends">
+  <view class="friend-picker-sheet" catchtap="preventBubble">
+    <view class="friend-picker-header">
+      <view>
+        <view class="friend-picker-title">邀请好友加入行程</view>
+        <view class="friend-picker-subtitle">可同时选择多位好友</view>
+      </view>
+      <view class="friend-picker-cancel" bindtap="onCloseInviteFriends">取消</view>
+    </view>
+
+    <view wx:if="{{inviteLoading}}" class="friend-picker-empty">正在加载好友...</view>
+    <view wx:elif="{{inviteCandidates.length === 0}}" class="friend-picker-empty">
+      <image src="/images/icons/trip-members.png" mode="aspectFit" class="friend-picker-empty-icon"/>
+      <view class="friend-picker-empty-title">暂无可邀请好友</view>
+      <view class="friend-picker-empty-desc">好友可能已经在行程中，或你还没有添加好友</view>
+      <view class="friend-picker-find" bindtap="onGoFindFriends">去添加好友</view>
+    </view>
+
+    <scroll-view wx:else scroll-y class="friend-picker-list">
+      <view
+        wx:for="{{inviteCandidates}}"
+        wx:key="openid"
+        class="friend-picker-item {{item.selected ? 'selected' : ''}}"
+        data-openid="{{item.openid}}"
+        bindtap="onToggleInviteFriend"
+      >
+        <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" mode="aspectFill" class="friend-picker-avatar"/>
+        <view wx:else class="friend-picker-avatar placeholder">{{item.nickName[0] || '旅'}}</view>
+        <view class="friend-picker-info">
+          <view class="friend-picker-name">{{item.nickName || '未设置昵称'}}</view>
+          <view class="friend-picker-id" wx:if="{{item.publicId}}">ID {{item.publicId}}</view>
+        </view>
+        <checkbox class="friend-picker-checkbox" checked="{{item.selected}}" color="#5b9ff5"/>
+      </view>
+    </scroll-view>
+
+    <view wx:if="{{inviteCandidates.length > 0}}" class="friend-picker-footer">
+      <view class="friend-picker-count">已选择 {{selectedFriendOpenids.length}} 位</view>
+      <view
+        class="friend-picker-submit {{selectedFriendOpenids.length === 0 || inviteSending ? 'disabled' : ''}}"
+        bindtap="onInviteSelectedFriends"
+      >{{inviteSending ? '发送中...' : '发送邀请'}}</view>
+    </view>
+  </view>
+</view>

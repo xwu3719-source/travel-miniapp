@@ -4,11 +4,52 @@
   font-size: 38rpx;
   font-weight: 800;
   margin-bottom: 36rpx;
-  background: var(--gradient-sunset);
+  background: var(--gradient-trip);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+.source-banner {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 28rpx;
+  padding: 20rpx;
+  border: 1rpx solid rgba(91,159,245,0.2);
+  border-radius: 22rpx;
+  background: var(--gradient-trip-soft);
+}
+.source-banner > image { width: 40rpx; height: 40rpx; flex-shrink: 0; }
+.source-banner-copy { flex: 1; min-width: 0; }
+.source-banner-title { color: var(--text-primary); font-size: 25rpx; font-weight: 750; }
+.source-banner-subtitle { margin-top: 5rpx; color: var(--text-hint); font-size: 20rpx; line-height: 1.45; }
+.source-banner-clear { flex-shrink: 0; color: var(--trip-blue-deep); font-size: 22rpx; }
+
+.template-section { margin-bottom: 30rpx; }
+.template-section-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 14rpx; }
+.template-section-title { color: var(--text-primary); font-size: 27rpx; font-weight: 750; }
+.template-section-subtitle { margin-top: 4rpx; color: var(--text-hint); font-size: 21rpx; }
+.template-scroll { width: 100%; white-space: nowrap; }
+.template-card {
+  display: inline-flex;
+  width: 280rpx;
+  min-height: 146rpx;
+  margin-right: 14rpx;
+  padding: 20rpx;
+  flex-direction: column;
+  justify-content: center;
+  vertical-align: top;
+  border: 1rpx solid rgba(91,159,245,0.12);
+  border-radius: 22rpx;
+  background: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+}
+.template-card.active { border-color: rgba(91,159,245,0.52); background: var(--gradient-trip-soft); }
+.template-card > image { width: 34rpx; height: 34rpx; margin-bottom: 10rpx; }
+.template-card-name { overflow: hidden; color: var(--text-primary); font-size: 25rpx; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+.template-card-meta { margin-top: 6rpx; overflow: hidden; color: var(--text-hint); font-size: 20rpx; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ══════ 输入框聚焦 ══════ */
 .form-group input:focus {
@@ -16,8 +57,8 @@
   box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.06);
 }
 
-.form-group:nth-child(2) .form-input:focus { border-color: var(--coral); }
-.form-group:nth-child(3) .form-input:focus { border-color: var(--sky); }
+.form-group:nth-child(2) .form-input:focus,
+.form-group:nth-child(3) .form-input:focus { border-color: var(--trip-blue); }
 
 /* ══════ 日期选择 ══════ */
 .date-row {
@@ -31,6 +72,9 @@
 }
 
 .date-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--card-bg);
   border-radius: var(--radius-sm);
   padding: 24rpx;
@@ -43,9 +87,16 @@
   transition: border 0.2s;
 }
 
+.date-box-icon {
+  width: 26rpx;
+  height: 26rpx;
+  margin-right: 8rpx;
+  flex-shrink: 0;
+}
+
 .date-sep {
   font-size: 32rpx;
-  color: var(--coral);
+  color: var(--trip-blue-deep);
   font-weight: 600;
 }
 
@@ -62,14 +113,14 @@
 }
 
 .budget-input-row:focus-within {
-  border-color: var(--amber);
+  border-color: var(--trip-blue);
   background: var(--card-bg);
 }
 
 .budget-prefix {
   font-size: 36rpx;
   font-weight: 700;
-  background: var(--gradient-sunset);
+  background: var(--gradient-trip);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -118,18 +169,22 @@
   box-shadow: 0 1rpx 4rpx rgba(0,0,0,0.03);
 }
 
-.cat-item:nth-child(1) { border-left-color: #0ea5e9; }
-.cat-item:nth-child(2) { border-left-color: #a855f7; }
-.cat-item:nth-child(3) { border-left-color: #f97316; }
-.cat-item:nth-child(4) { border-left-color: #ec4899; }
-.cat-item:nth-child(5) { border-left-color: #10b981; }
-.cat-item:nth-child(6) { border-left-color: #6b7280; }
+.cat-item { border-left-color: var(--trip-blue); }
 
 .cat-label {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
   font-size: 26rpx;
   font-weight: 500;
   color: var(--text-secondary);
   min-width: 140rpx;
+}
+
+.cat-label-icon {
+  width: 28rpx;
+  height: 28rpx;
+  flex-shrink: 0;
 }
 
 .cat-input {
@@ -141,17 +196,25 @@
 }
 
 .cat-input:focus {
-  border-color: var(--teal) !important;
+  border-color: var(--trip-blue) !important;
   background: var(--card-bg) !important;
 }
 
 /* ══════ 按钮 ══════ */
 .btn-primary {
-  background: var(--gradient-sunset) !important;
-  box-shadow: 0 6rpx 20rpx rgba(255, 107, 107, 0.35) !important;
+  background: var(--gradient-trip) !important;
+  box-shadow: 0 6rpx 20rpx rgba(91, 159, 245, 0.28) !important;
 }
 
 .btn-block {
   margin-top: 48rpx;
   margin-bottom: 40rpx;
+}
+
+.save-action-icon {
+  width: 30rpx;
+  height: 30rpx;
+  margin-right: 8rpx;
+  filter: brightness(0) invert(1);
+  flex-shrink: 0;
 }

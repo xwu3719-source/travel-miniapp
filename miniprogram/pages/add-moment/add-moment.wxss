@@ -45,6 +45,12 @@
   font-size: 22rpx;
 }
 
+.media-remove image,
+.loc-bar-remove image {
+  width: 22rpx;
+  height: 22rpx;
+}
+
 .media-video-preview {
   width: 100%;
   height: 100%;
@@ -66,6 +72,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.media-video-play image {
+  width: 30rpx;
+  height: 30rpx;
+  filter: brightness(0) invert(1);
 }
 
 .media-video-dur {
@@ -96,10 +108,10 @@
   margin-top: 12rpx;
 }
 
-/* 按钮 - 紫色渐变 */
+/* 按钮 - 浅蓝渐变 */
 .btn-primary {
   background: var(--gradient-purple) !important;
-  box-shadow: 0 6rpx 20rpx rgba(168, 85, 247, 0.35) !important;
+  box-shadow: 0 6rpx 20rpx rgba(91, 159, 245, 0.35) !important;
 }
 
 .day-row {
@@ -160,7 +172,52 @@
 }
 
 .loc-bar-remove {
-  font-size: 24rpx;
-  color: var(--text-hint);
   padding: 4rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 原图/压缩 切换 */
+.original-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 18rpx;
+  padding: 16rpx 20rpx;
+  background: var(--bg);
+  border-radius: 10rpx;
+}
+
+.ot-checkbox {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 6rpx;
+  border: 3rpx solid #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ot-checkbox.checked {
+  background: var(--gradient-purple);
+  border-color: transparent;
+}
+
+.ot-check {
+  font-size: 22rpx;
+  color: #fff;
+  font-weight: 700;
+}
+
+.ot-label {
+  font-size: 26rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.ot-hint {
+  font-size: 22rpx;
+  color: var(--text-hint);
 }

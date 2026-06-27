@@ -2,12 +2,13 @@
   <view
     wx:for="{{list}}"
     wx:key="index"
-    class="tab-item tab-{{index}} {{selected === index ? 'active' : ''}}"
+    class="tab-item tab-{{index}} {{item.center ? 'center' : ''}} {{selected === index ? 'active' : ''}}"
     data-index="{{index}}"
     bindtap="switchTab"
   >
     <view class="tab-icon-wrap">
-      <text class="tab-icon">{{item.icon}}</text>
+      <image class="tab-icon-img" src="{{item.iconPath}}" mode="aspectFit" />
+      <view wx:if="{{index === 3 && unreadCount > 0}}" class="tab-badge">{{unreadText}}</view>
     </view>
     <text class="tab-text">{{item.text}}</text>
   </view>

@@ -1,6 +1,39 @@
+<message-popup />
 <!-- 创建/编辑行程 -->
 <scroll-view scroll-y class="container page-scroll">
-  <view class="form-title">{{isEdit ? '编辑行程' : '新建行程'}}</view>
+  <view class="form-title">{{isEdit ? '编辑行程' : (sourceLabel ? '复用行程' : '新建行程')}}</view>
+
+  <view wx:if="{{!isEdit && sourceLabel}}" class="source-banner">
+    <image src="/images/icons/history.png" mode="aspectFit"/>
+    <view class="source-banner-copy">
+      <view class="source-banner-title">{{sourceLabel}}</view>
+      <view class="source-banner-subtitle">将复制日程、地点和备注，不复制成员、账本与动态</view>
+    </view>
+    <view class="source-banner-clear" bindtap="onClearSource">清除</view>
+  </view>
+
+  <view wx:if="{{!isEdit && templates.length}}" class="template-section">
+    <view class="template-section-head">
+      <view>
+        <view class="template-section-title">我的模板</view>
+        <view class="template-section-subtitle">选择一个常用结构快速开始</view>
+      </view>
+    </view>
+    <scroll-view scroll-x enhanced="{{true}}" show-scrollbar="{{false}}" class="template-scroll">
+      <view
+        wx:for="{{templates}}"
+        wx:key="_id"
+        class="template-card {{templateId === item._id ? 'active' : ''}}"
+        data-id="{{item._id}}"
+        bindtap="onTemplateTap"
+        bindlongpress="onTemplateLongPress"
+      >
+        <image src="/images/icons/archive.png" mode="aspectFit"/>
+        <view class="template-card-name">{{item.name}}</view>
+        <view class="template-card-meta">{{item.city || '多目的地'}} · {{item.totalDays}}天 · {{item.activityCount}}项</view>
+      </view>
+    </scroll-view>
+  </view>
 
   <!-- 行程名称 -->
   <view class="form-group">
@@ -20,6 +53,7 @@
     <view class="date-row">
       <picker mode="date" value="{{startDate}}" start="2024-01-01" end="2030-12-31" bindchange="onStartDateChange">
         <view class="date-box">
+          <image class="date-box-icon" src="/images/icons/date.png" mode="aspectFit"/>
           <text wx:if="{{startDate}}">{{startDate}}</text>
           <text wx:else class="placeholder">开始日期</text>
         </view>
@@ -27,6 +61,7 @@
       <text class="date-sep">→</text>
       <picker mode="date" value="{{endDate}}" start="2024-01-01" end="2030-12-31" bindchange="onEndDateChange">
         <view class="date-box">
+          <image class="date-box-icon" src="/images/icons/date.png" mode="aspectFit"/>
           <text wx:if="{{endDate}}">{{endDate}}</text>
           <text wx:else class="placeholder">结束日期</text>
         </view>
@@ -52,7 +87,10 @@
     <block wx:if="{{showCategoryBudget}}">
       <view class="cat-grid">
         <view class="cat-item" wx:for="{{categories}}" wx:key="key">
-          <view class="cat-label">{{item.icon}} {{item.label}}</view>
+          <view class="cat-label">
+            <image class="cat-label-icon" src="{{item.icon}}" mode="aspectFit"/>
+            <text>{{item.label}}</text>
+          </view>
           <input class="form-input cat-input" type="digit" placeholder="0" value="{{categoryBudgets[item.key]}}" data-cat="{{item.key}}" bindinput="onCatBudgetInput"/>
         </view>
       </view>
@@ -61,6 +99,7 @@
 
   <!-- 保存 -->
   <view class="btn btn-primary btn-block" bindtap="onSave">
-    {{saving ? '保存中...' : (isEdit ? '✦ 更新行程' : '✦ 创建行程')}}
+    <image wx:if="{{!saving}}" class="save-action-icon" src="/images/icons/create.png" mode="aspectFit"/>
+    <text>{{saving ? '保存中...' : (isEdit ? '更新行程' : '创建行程')}}</text>
   </view>
 </scroll-view>

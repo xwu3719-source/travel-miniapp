@@ -1,32 +1,62 @@
 {
   "pages": [
+    "pages/splash/splash",
+    "pages/welcome/welcome",
     "pages/index/index",
+    "pages/register/register",
+    "pages/setup-profile/setup-profile",
+    "pages/reset-password/reset-password",
+    "pages/account-security/account-security",
     "pages/trip-detail/trip-detail",
+    "pages/trip-summary/trip-summary",
+    "pages/trip-votes/trip-votes",
     "pages/trip-create/trip-create",
     "pages/join/join",
     "pages/members/members",
     "pages/ledger/ledger",
     "pages/add-expense/add-expense",
+    "pages/expense-detail/expense-detail",
     "pages/settlement/settlement",
     "pages/moments/moments",
+    "pages/ai-assistant/ai-assistant",
+    "pages/ai-search/ai-search",
+    "pages/messages/messages",
     "pages/add-moment/add-moment",
     "pages/profile/profile",
+    "pages/edit-profile/edit-profile",
+    "pages/settings/settings",
     "pages/my-moments/my-moments",
     "pages/moment-detail/moment-detail",
     "pages/user-profile/user-profile",
-    "pages/follow-list/follow-list"
+    "pages/private-chat/private-chat",
+    "pages/group-chat/group-chat",
+    "pages/create-group/create-group",
+    "pages/share-moment/share-moment",
+    "pages/find-friends/find-friends",
+    "pages/follow-list/follow-list",
+    "pages/chat-settings/chat-settings",
+    "pages/message-search/message-search",
+    "pages/global-search/global-search",
+    "pages/chat-media/chat-media",
+    "pages/notification-center/notification-center",
+    "pages/mood-picker/mood-picker",
+    "pages/packing-list/packing-list"
   ],
   "window": {
     "backgroundTextStyle": "dark",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "旅行搭子",
+    "navigationBarTitleText": "拾途 ST",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#f5f5f5"
   },
+  "usingComponents": {
+    "message-popup": "/components/message-popup/message-popup"
+  },
+  "lazyCodeLoading": "requiredComponents",
   "tabBar": {
     "custom": true,
     "color": "#999",
-    "selectedColor": "#10b981",
+    "selectedColor": "#5b9ff5",
     "backgroundColor": "#fff",
     "borderStyle": "black",
     "list": [
@@ -35,12 +65,12 @@
         "text": "行程"
       },
       {
-        "pagePath": "pages/ledger/ledger",
-        "text": "账本"
-      },
-      {
         "pagePath": "pages/moments/moments",
         "text": "动态"
+      },
+      {
+        "pagePath": "pages/messages/messages",
+        "text": "消息"
       },
       {
         "pagePath": "pages/profile/profile",
@@ -50,7 +80,10 @@
   },
   "permission": {
     "scope.userLocation": {
-      "desc": "用于在地图上选择活动地点"
+      "desc": "用于选择动态、评论或消息中的位置"
+    },
+    "scope.record": {
+      "desc": "用于发送语音消息和语音评论"
     }
   },
   "requiredPrivateInfos": ["chooseLocation"],

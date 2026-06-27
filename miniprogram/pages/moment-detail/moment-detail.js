@@ -1,54 +1,30 @@
 const cloud = require('../../utils/cloud');
 
-const recorderManager = wx.getRecorderManager();
-
 Page({
+  behaviors: [require('../../behaviors/voice-recorder')],
   data: {
     momentId: '',
     moment: null,
     myOpenid: '',
     commentInput: '',
     commentImage: '',
-    commentVoice: '',
-    commentVoiceDuration: 0,
     commentLocation: null,
-    commentRecording: false,
-    recordingDuration: 0,
-    _recordingTimer: null,
-    menuOpen: false
+    menuOpen: false,
+    replyTo: null,
+    editingCid: '',
+    commentFocus: false
   },
 
   onLoad(options) {
     this.setData({ momentId: options.momentId });
     this.loadMoment();
     wx.setInnerAudioOption({ obeyMuteSwitch: false });
-
-    recorderManager.onStop((res) => {
-      this.setData({ commentRecording: false, recordingDuration: 0 });
-      this._clearRecordingTimer();
-      if (!res.tempFilePath) return;
-      cloud.uploadFile(res.tempFilePath, 'mp3', 'voices').then(fileID => {
-        this.setData({
-          commentVoice: fileID,
-          commentVoiceDuration: Math.round((res.duration || 0) / 1000)
-        });
-      }).catch(() => {
-        wx.showToast({ title: '语音上传失败', icon: 'none' });
-      });
-    });
-
-    recorderManager.onError(() => {
-      this.setData({ commentRecording: false, recordingDuration: 0 });
-      this._clearRecordingTimer();
-      wx.showToast({ title: '录音失败', icon: 'none' });
-    });
   },
 
   async loadMoment() {
     try {
       const openid = await cloud.getOpenid();
-      const db = cloud.db;
-      const moment = cloud.getDoc(await db.collection('moments').doc(this.data.momentId).get());
+      const moment = await cloud.getMomentById(this.data.momentId);
       if (!moment) {
         wx.showToast({ title: '动态不存在', icon: 'none' });
         return setTimeout(() => wx.navigateBack(), 1200);
@@ -57,15 +33,7 @@ Page({
       moment.liked = moment.likes && moment.likes.includes(openid);
       moment.favorited = moment.favorites && moment.favorites.includes(openid);
       moment.isOwner = moment.authorId === openid;
-      if (moment.isOwner) {
-        const app = getApp();
-        const userInfo = app.globalData.userInfo;
-        if (userInfo) {
-          if (userInfo.avatarUrl) moment.authorAvatar = userInfo.avatarUrl;
-          if (userInfo.nickName) moment.authorName = userInfo.nickName;
-        }
-      }
-      await cloud.resolveCommentVoices([moment]);
+      await cloud.resolveMoments([moment]);
       this.setData({ moment, myOpenid: openid });
     } catch (e) {
       console.error('加载动态失败:', e);
@@ -73,36 +41,59 @@ Page({
     }
   },
 
-  onLike() {
+  async onLike() {
     const { moment, myOpenid } = this.data;
-    const db = cloud.db;
-    const likes = moment.likes || [];
-    const idx = likes.indexOf(myOpenid);
-    if (idx > -1) likes.splice(idx, 1);
-    else likes.push(myOpenid);
-    db.collection('moments').doc(moment._id).update({ data: { likes } }).then(() => {
+    if (!myOpenid) return wx.showToast({ title: '请先登录', icon: 'none' });
+    if (this._likePending) return;
+    const previousLikes = (moment.likes || []).slice();
+    const liked = !previousLikes.includes(myOpenid);
+    const likes = liked ? [...previousLikes, myOpenid] : previousLikes.filter(openid => openid !== myOpenid);
+    this._likePending = true;
+    this.setData({ 'moment.likes': likes, 'moment.liked': liked });
+    try {
+      const result = await cloud.toggleLike(moment._id);
       this.setData({
-        'moment.likes': likes,
-        'moment.liked': idx === -1
+        'moment.likes': result.likes,
+        'moment.liked': result.liked
       });
-    }).catch(() => {});
+    } catch (e) {
+      console.error('点赞失败:', e);
+      this.setData({
+        'moment.likes': previousLikes,
+        'moment.liked': previousLikes.includes(myOpenid)
+      });
+      wx.showToast({ title: '操作失败，请重试', icon: 'none' });
+    } finally {
+      this._likePending = false;
+    }
   },
 
   async onToggleFavorite() {
     const { moment, myOpenid } = this.data;
-    const db = cloud.db;
-    const favorites = moment.favorites || [];
-    const idx = favorites.indexOf(myOpenid);
-    if (idx > -1) favorites.splice(idx, 1);
-    else favorites.push(myOpenid);
+    if (!myOpenid) return wx.showToast({ title: '请先登录', icon: 'none' });
+    if (this._favoritePending) return;
+    const previousFavorites = (moment.favorites || []).slice();
+    const favorited = !previousFavorites.includes(myOpenid);
+    const favorites = favorited
+      ? [...previousFavorites, myOpenid]
+      : previousFavorites.filter(openid => openid !== myOpenid);
+    this._favoritePending = true;
+    this.setData({ 'moment.favorites': favorites, 'moment.favorited': favorited });
     try {
-      await db.collection('moments').doc(moment._id).update({ data: { favorites } });
+      const result = await cloud.toggleFavoriteMoment(moment._id);
       this.setData({
-        'moment.favorites': favorites,
-        'moment.favorited': idx === -1
+        'moment.favorites': result.favorites,
+        'moment.favorited': result.favorited
       });
     } catch (e) {
       console.error('收藏失败:', e);
+      this.setData({
+        'moment.favorites': previousFavorites,
+        'moment.favorited': previousFavorites.includes(myOpenid)
+      });
+      wx.showToast({ title: '操作失败，请重试', icon: 'none' });
+    } finally {
+      this._favoritePending = false;
     }
   },
 
@@ -114,13 +105,23 @@ Page({
     try {
       const res = await wx.chooseImage({
         count: 1,
-        sizeType: ['compressed'],
+        sizeType: ['original'],
         sourceType: ['album', 'camera']
       });
-      const fileID = await cloud.uploadImage(res.tempFilePaths[0], 'comments');
+      const action = await wx.showActionSheet({ itemList: ['发送原图', '压缩发送'] });
+      const useOriginal = action.tapIndex === 0;
+      wx.showLoading({ title: useOriginal ? '上传原图' : '压缩中' });
+      const filePath = useOriginal
+        ? res.tempFilePaths[0]
+        : await cloud.createImageThumbnail(res.tempFilePaths[0], 70);
+      const fileID = await cloud.uploadImage(filePath, 'comments');
       this.setData({ commentImage: fileID });
     } catch (e) {
-      console.warn('选择图片失败:', e);
+      if (!String(e.errMsg || '').includes('cancel')) {
+        console.warn('选择图片失败:', e);
+      }
+    } finally {
+      wx.hideLoading();
     }
   },
 
@@ -152,31 +153,7 @@ Page({
     this.setData({ commentLocation: null });
   },
 
-  onToggleVoice() {
-    if (this.data.commentRecording) {
-      recorderManager.stop();
-      this._clearRecordingTimer();
-    } else {
-      this.setData({ commentRecording: true, recordingDuration: 0 });
-      this._recordingTimer = setInterval(() => {
-        this.setData({ recordingDuration: this.data.recordingDuration + 1 });
-      }, 1000);
-      recorderManager.start({ format: 'mp3' });
-    }
-  },
-
-  _clearRecordingTimer() {
-    if (this._recordingTimer) {
-      clearInterval(this._recordingTimer);
-      this._recordingTimer = null;
-    }
-  },
-
-  onRemoveCommentVoice() {
-    this.setData({ commentVoice: '', commentVoiceDuration: 0 });
-  },
-
-  onPlayCommentVoice(e) {
+  async onPlayCommentVoice(e) {
     const url = e.currentTarget.dataset.url;
     if (!url) return;
     if (this._currentAudio) { this._currentAudio.stop(); this._currentAudio.destroy(); this._currentAudio = null; }
@@ -195,24 +172,19 @@ Page({
       wx.showToast({ title: '播放失败', icon: 'none' });
       innerAudio.destroy();
     });
-    if (url.startsWith('cloud://')) {
-      wx.cloud.getTempFileURL({ fileList: [url] }).then(res => {
-        const item = res.fileList[0];
-        if (item && item.tempFileURL) {
-          innerAudio.src = item.tempFileURL;
-          innerAudio.play();
-        } else {
-          clearPlaying();
-          wx.showToast({ title: '音频已过期', icon: 'none' });
-        }
-      }).catch(() => {
+    try {
+      const playUrl = await cloud.getTempFileUrl(url);
+      if (!playUrl) {
         clearPlaying();
         innerAudio.destroy();
-        wx.showToast({ title: '播放失败', icon: 'none' });
-      });
-    } else {
-      innerAudio.src = url;
+        return wx.showToast({ title: '音频已过期', icon: 'none' });
+      }
+      innerAudio.src = playUrl;
       innerAudio.play();
+    } catch (e) {
+      clearPlaying();
+      innerAudio.destroy();
+      wx.showToast({ title: '播放失败', icon: 'none' });
     }
   },
 
@@ -225,10 +197,9 @@ Page({
     const { fileId } = e.currentTarget.dataset;
     if (!fileId) return;
     try {
-      const res = await wx.cloud.getTempFileURL({ fileList: [fileId] });
-      const item = res.fileList[0];
-      if (!item.tempFileURL) { wx.showToast({ title: '视频已过期', icon: 'none' }); return; }
-      wx.previewMedia({ sources: [{ url: item.tempFileURL, type: 'video' }] });
+      const url = await cloud.getTempFileUrl(fileId);
+      if (!url) { wx.showToast({ title: '视频已过期', icon: 'none' }); return; }
+      wx.previewMedia({ sources: [{ url, type: 'video' }] });
     } catch (e) {
       console.error('播放视频失败:', e);
       wx.showToast({ title: '播放失败', icon: 'none' });
@@ -240,9 +211,87 @@ Page({
     wx.previewImage({ urls: [url], current: url });
   },
 
-  onPreviewImage(e) {
+  async onPreviewImage(e) {
     const { url, urls } = e.currentTarget.dataset;
-    wx.previewImage({ urls: urls.split(','), current: url });
+    const fileIds = Array.isArray(urls) ? urls.filter(Boolean) : String(urls || url || '').split(',').filter(Boolean);
+    // 确保所有图片都转成临时 HTTPS 链接
+    const tempUrls = await Promise.all(fileIds.map(id => cloud.getTempFileUrl(id)));
+    const validUrls = tempUrls.filter(u => u && u.startsWith('https://'));
+    if (validUrls.length === 0) {
+      return wx.showToast({ title: '图片加载失败', icon: 'none' });
+    }
+    // 找到当前图片在列表中的位置
+    const idx = fileIds.indexOf(url);
+    const current = (idx >= 0 && tempUrls[idx]) ? tempUrls[idx] : validUrls[0];
+    wx.previewImage({ urls: validUrls, current });
+  },
+
+  onTapComment(e) {
+    if (this._commentLongPressed) {
+      this._commentLongPressed = false;
+      return;
+    }
+    const index = e.currentTarget.dataset.index;
+    const comment = this.data.moment.comments[index];
+    if (!comment) return;
+    this.setData({ commentFocus: false }, () => {
+      this.setData({
+        replyTo: { index, _cid: comment._cid, openid: comment.openid, nickName: comment.nickName },
+        editingCid: '',
+        commentFocus: true
+      });
+    });
+  },
+
+  onLongPressComment(e) {
+    this._commentLongPressed = true;
+    setTimeout(() => { this._commentLongPressed = false; }, 500);
+    const index = e.currentTarget.dataset.index;
+    const comment = this.data.moment.comments[index];
+    if (!comment) return;
+    const { myOpenid, moment } = this.data;
+    const isMyComment = comment.openid === myOpenid;
+    const isMomentAuthor = moment.authorId === myOpenid;
+
+    const itemList = [];
+    if (isMyComment) itemList.push('编辑', '删除');
+    else if (isMomentAuthor) itemList.push('删除');
+    if (!itemList.length) return;
+
+    wx.showActionSheet({
+      itemList,
+      success: (res) => {
+        const selected = itemList[res.tapIndex];
+        if (selected === '编辑') {
+          this.setData({
+            editingCid: comment._cid,
+            commentInput: comment.text || '',
+            commentImage: '',
+            commentVoice: '',
+            commentVoiceDuration: 0,
+            commentLocation: null,
+            replyTo: null,
+            commentFocus: true
+          });
+        } else if (selected === '删除') {
+          wx.showModal({
+            title: '删除评论',
+            content: '确认删除这条评论？',
+            confirmColor: '#ef4444',
+            success: async (modalRes) => {
+              if (!modalRes.confirm) return;
+              try {
+                const result = await cloud.deleteComment(this.data.momentId, comment._cid);
+                this.setData({ 'moment.comments': result.comments });
+                wx.showToast({ title: '已删除', icon: 'success' });
+              } catch (err) {
+                wx.showToast({ title: err.message || '删除失败', icon: 'none' });
+              }
+            }
+          });
+        }
+      }
+    });
   },
 
   async onPostComment() {
@@ -251,39 +300,118 @@ Page({
     const voice = this.data.commentVoice;
     const voiceDuration = this.data.commentVoiceDuration;
     const location = this.data.commentLocation;
+    const editingCid = this.data.editingCid;
+
+    // 编辑模式
+    if (editingCid) {
+      if (!text) return;
+      if (this._commentPending) return;
+      const previousComments = (this.data.moment.comments || []).slice();
+      this._commentPending = true;
+      this.setData({
+        editingCid: '',
+        commentInput: '',
+        commentImage: '',
+        commentVoice: '',
+        commentVoiceDuration: 0,
+        commentLocation: null,
+        replyTo: null,
+        commentFocus: false
+      });
+      try {
+        const result = await cloud.editComment(this.data.momentId, editingCid, text);
+        this.setData({ 'moment.comments': result.comments });
+        wx.showToast({ title: '已编辑', icon: 'success' });
+      } catch (err) {
+        console.error('编辑评论失败:', err);
+        this.setData({
+          'moment.comments': previousComments,
+          editingCid,
+          commentInput: text,
+          commentFocus: true
+        });
+        wx.showToast({ title: err.message || '编辑失败', icon: 'none' });
+      } finally {
+        this._commentPending = false;
+      }
+      return;
+    }
+
     if (!text && !image && !voice && !location) return;
 
-    const openid = await cloud.getOpenid();
+    if (this._commentPending) return;
+    const previousComments = (this.data.moment.comments || []).slice();
+    const comment = { text };
+    if (image) comment.image = image;
+    if (voice) { comment.voice = voice; comment.voiceDuration = voiceDuration; }
+    if (location) comment.location = location;
+    // 回复某人
+    const replyTo = this.data.replyTo;
+    if (replyTo) {
+      comment.replyTo = { _cid: replyTo._cid, openid: replyTo.openid, nickName: replyTo.nickName };
+    }
     const app = getApp();
-    const userInfo = app.globalData.userInfo || {};
-
+    const userInfo = (app.globalData && app.globalData.userInfo) || {};
+    const optimisticComment = {
+      ...comment,
+      _cid: 'temp_' + Date.now(),
+      openid: this.data.myOpenid,
+      nickName: userInfo.nickName || '我',
+      createdAt: new Date().toISOString()
+    };
+    this._commentPending = true;
+    this.setData({
+      'moment.comments': [...previousComments, optimisticComment],
+      commentInput: '',
+      commentImage: '',
+      commentVoice: '',
+      commentVoiceDuration: 0,
+      commentLocation: null,
+      replyTo: null,
+      commentFocus: false
+    });
     try {
-      const db = cloud.db;
-      const moment = cloud.getDoc(await db.collection('moments').doc(this.data.momentId).get());
-      const comments = moment.comments || [];
-      const comment = {
-        openid,
-        nickName: userInfo.nickName || '我',
-        text,
-        createdAt: new Date().toISOString()
-      };
-      if (image) comment.image = image;
-      if (voice) { comment.voice = voice; comment.voiceDuration = voiceDuration; }
-      if (location) comment.location = location;
-      comments.push(comment);
-
-      await db.collection('moments').doc(this.data.momentId).update({ data: { comments } });
-      this.setData({ commentInput: '', commentImage: '', commentVoice: '', commentVoiceDuration: 0, commentLocation: null, 'moment.comments': comments });
+      const result = await cloud.addComment(this.data.momentId, comment);
+      this.setData({ 'moment.comments': result.comments });
     } catch (err) {
       console.error('评论失败:', err);
+      this.setData({
+        'moment.comments': previousComments,
+        commentInput: text,
+        commentImage: image,
+        commentVoice: voice,
+        commentVoiceDuration: voiceDuration,
+        commentLocation: location,
+        replyTo: replyTo,
+        commentFocus: true
+      });
       wx.showToast({ title: '评论失败', icon: 'none' });
+    } finally {
+      this._commentPending = false;
     }
   },
 
+
+  onCancelEdit() {
+    this.setData({
+      editingCid: '',
+      commentInput: '',
+      commentImage: '',
+      commentVoice: '',
+      commentVoiceDuration: 0,
+      commentLocation: null,
+      replyTo: null,
+      commentFocus: false
+    });
+  },
+
   onPageTap() {
-    if (this.data.menuOpen) {
-      this.setData({ menuOpen: false });
-    }
+    const updates = {};
+    if (this.data.menuOpen) updates.menuOpen = false;
+    if (this.data.replyTo) updates.replyTo = null;
+    if (this.data.commentFocus) updates.commentFocus = false;
+    if (Object.keys(updates).length) this.setData(updates);
+    wx.hideKeyboard();
   },
 
   onToggleMenu() {
@@ -293,8 +421,8 @@ Page({
   preventBubble() {},
 
   onAuthorTap(e) {
-    const { openid } = e.currentTarget.dataset;
-    if (openid) wx.navigateTo({ url: `/pages/user-profile/user-profile?openid=${openid}` });
+    const { openid, nickName, avatarUrl } = e.currentTarget.dataset;
+    cloud.navigateToUserProfile(openid, { nickName, avatarUrl });
   },
 
   onEditMoment() {
@@ -305,11 +433,25 @@ Page({
 
   onTogglePrivate() {
     const { moment } = this.data;
-    const newVal = !moment.isPrivate;
-    cloud.collection('moments').doc(moment._id).update({ data: { isPrivate: newVal } }).then(() => {
+    cloud.toggleMomentPrivate(moment._id).then((newVal) => {
       wx.showToast({ title: newVal ? '已设为私密' : '已设为公开', icon: 'success' });
       this.setData({ 'moment.isPrivate': newVal });
     }).catch(() => wx.showToast({ title: '操作失败', icon: 'none' }));
+  },
+
+  onShareMoment() {
+    const { moment } = this.data;
+    if (!moment || !moment._id) return;
+    wx.navigateTo({
+      url: `/pages/share-moment/share-moment?momentId=${encodeURIComponent(moment._id)}`,
+      success: ({ eventChannel }) => {
+        eventChannel.on('shared', ({ count, shareCount }) => {
+          const current = Number(this.data.moment.shareCount) || 0;
+          const next = Number.isFinite(Number(shareCount)) ? Number(shareCount) : current + (Number(count) || 0);
+          this.setData({ 'moment.shareCount': next });
+        });
+      }
+    });
   },
 
   onDeleteMoment() {
@@ -320,7 +462,7 @@ Page({
       success: async (res) => {
         if (!res.confirm) return;
         try {
-          await cloud.collection('moments').doc(this.data.moment._id).remove();
+          await cloud.deleteMoment(this.data.moment._id);
           wx.showToast({ title: '已删除', icon: 'success' });
           setTimeout(() => wx.navigateBack(), 1000);
         } catch (err) {

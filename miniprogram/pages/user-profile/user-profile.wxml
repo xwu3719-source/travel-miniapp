@@ -1,12 +1,14 @@
+<message-popup />
 <!-- 用户主页 -->
 <scroll-view scroll-y class="container page-scroll" wx:if="{{!loading}}">
   <!-- 头部卡片 -->
   <view class="up-card">
     <view class="up-row">
-      <image wx:if="{{user.avatarUrl}}" src="{{user.avatarUrl}}" class="up-avatar" mode="aspectFill"/>
+      <image wx:if="{{user.avatarUrl}}" src="{{user.avatarThumbUrl || user.avatarUrl}}" class="up-avatar" mode="aspectFill" bindtap="onPreviewAvatar" binderror="onAvatarError"/>
       <view wx:else class="up-avatar-placeholder">{{user.nickName[0] || '?'}}</view>
       <view class="up-info">
         <view class="up-name">{{user.nickName || '未知用户'}}</view>
+        <view wx:if="{{user.signature}}" class="up-signature">{{user.signature}}</view>
         <view class="up-stats">
           <text class="up-stat-num" bindtap="onGoFollowList" data-type="following">{{followStats.following}}</text>
           <text class="up-stat-label">关注</text>
@@ -17,35 +19,70 @@
         </view>
       </view>
     </view>
-    <!-- 关注按钮 -->
-    <view wx:if="{{myOpenid !== targetOpenid}}" class="up-follow-btn {{isFollowing ? 'following' : ''}}" bindtap="onToggleFollow">
-      {{isFollowing ? '已关注' : '+ 关注'}}
+    <view wx:if="{{myOpenid !== targetOpenid}}" class="up-actions">
+      <view class="up-action-btn up-follow-btn {{isFollowing ? (isFollowedBy ? 'mutual' : 'following') : ''}}" bindtap="onToggleFollow">
+        {{isFollowing ? (isFollowedBy ? '互相关注' : '已关注') : '+ 关注'}}
+      </view>
+      <view wx:if="{{canPrivateMessage}}" class="up-action-btn up-message-btn" bindtap="onOpenChat">私信</view>
     </view>
   </view>
 
   <!-- 动态列表 -->
-  <view class="up-moments-title">TA 的动态</view>
+  <view wx:if="{{profileHidden}}" class="empty-state">
+    <view class="empty-text">TA 已关闭主页展示</view>
+  </view>
+  <view wx:else class="up-moments-title">TA 的动态</view>
   <view class="moment-item" wx:for="{{moments}}" wx:key="_id" data-id="{{item._id}}" bindtap="onMomentTap">
+    <view class="mi-header">
+      <view class="mi-author">
+        <image wx:if="{{item.authorAvatar}}" src="{{item.authorAvatar}}" class="mi-avatar" mode="aspectFill"/>
+        <view wx:else class="mi-avatar-placeholder">{{item.authorName[0] || user.nickName[0] || '旅'}}</view>
+        <view>
+          <view class="mi-name-row">
+            <view class="mi-name">{{item.authorName || user.nickName || '未知用户'}}</view>
+            <image wx:if="{{item.authorMoodIcon}}" class="mi-status-icon" src="/images/icons/status/{{item.authorMoodIcon}}.png" mode="aspectFit" />
+          </view>
+          <view class="mi-time">{{item.formattedTime}}</view>
+        </view>
+      </view>
+    </view>
     <view class="mi-text" wx:if="{{item.text}}">{{item.text}}</view>
     <view class="mi-images" wx:if="{{item.images && item.images.length > 0}}">
-      <image wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="mi-img"/>
+        <image wx:for="{{item.images}}" wx:for-item="imageUrl" wx:key="*this" src="{{item.imageThumbs[index] || imageUrl}}" mode="aspectFill" lazy-load="{{true}}" class="mi-img" data-url="{{imageUrl}}" data-urls="{{item.images}}" catchtap="onPreviewMomentImage"/>
     </view>
     <view class="mi-videos" wx:if="{{item.videos && item.videos.length > 0}}">
       <view class="mi-video" wx:for="{{item.videos}}" wx:key="fileID" data-file-id="{{item.fileID}}" catchtap="onPlayMomentVideo">
         <text class="mi-video-dur">{{item.duration}}″</text>
-        <view class="mi-video-play">▶</view>
+        <view class="mi-video-play"><image src="/images/icons/play.png" mode="aspectFit"/></view>
       </view>
     </view>
-    <view class="mi-footer">
-      <text class="mi-time">{{item.formattedTime}}</text>
-      <view class="mi-actions-sm">
-        <text class="mi-as"><image src="/images/icons/like.png" mode="aspectFit" class="mi-as-icon"/> {{item.likes ? item.likes.length : 0}}</text>
-        <text class="mi-as"><image src="/images/icons/comment.png" mode="aspectFit" class="mi-as-icon"/> {{item.comments ? item.comments.length : 0}}</text>
+    <view class="mi-location" wx:if="{{item.location}}">
+      <image src="/images/icons/location.png" mode="aspectFit" class="mi-loc-icon"/>
+      <text>{{item.location}}</text>
+    </view>
+    <view class="mi-actions">
+      <view class="mi-action">
+        <image src="/images/icons/like.png" mode="aspectFit" class="mi-action-icon-img"/>
+        <text class="mi-action-num">{{item.likes ? item.likes.length : 0}}</text>
+      </view>
+      <view class="mi-action">
+        <image src="/images/icons/favorite.png" mode="aspectFit" class="mi-action-icon-img"/>
+        <text class="mi-action-num">{{item.favorites ? item.favorites.length : 0}}</text>
+      </view>
+      <view class="mi-action">
+        <image src="/images/icons/comment.png" mode="aspectFit" class="mi-action-icon-img"/>
+        <text class="mi-action-num">{{item.comments ? item.comments.length : 0}}</text>
+      </view>
+    </view>
+    <view class="mi-comments" wx:if="{{item.comments && item.comments.length > 0}}">
+      <view class="cmt-item" wx:for="{{item.comments}}" wx:for-item="c" wx:key="createdAt">
+        <text class="cmt-author">{{c.nickName}}</text>
+        <text class="cmt-text" wx:if="{{c.text}}">{{c.text}}</text>
       </view>
     </view>
   </view>
 
-  <view wx:if="{{moments.length === 0}}" class="empty-state">
+  <view wx:if="{{!profileHidden && moments.length === 0}}" class="empty-state">
     <view class="empty-text">TA 还没有发布过动态</view>
   </view>
 </scroll-view>

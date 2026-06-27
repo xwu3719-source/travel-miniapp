@@ -1,13 +1,37 @@
+<message-popup />
 <!-- 添加消费 -->
 <scroll-view scroll-y class="container page-scroll">
-  <view class="form-title">记一笔</view>
+  <view class="form-title">{{editMode ? '编辑账单' : '记一笔'}}</view>
 
-  <!-- 类型：公共 / 私人 -->
-  <view class="form-group">
-    <view class="form-label">类型</view>
-    <view class="type-row">
-      <view class="type-btn {{type === 'shared' ? 'active' : ''}}" data-type="shared" bindtap="onTypeTap">👥 公共开销</view>
-      <view class="type-btn {{type === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeTap">👤 私人开销</view>
+  <!-- 预算状态条 -->
+  <view class="budget-bar-mini" wx:if="{{tripBudget > 0}}">
+    <view class="bbm-text">
+      <text>预算已用 {{budgetPercent}}%</text>
+      <text class="bbm-amounts">¥{{currentSpent}} / ¥{{tripBudget}}</text>
+    </view>
+    <view class="bbm-track">
+      <view class="bbm-fill {{budgetPercent > 80 ? (budgetPercent > 100 ? 'over' : 'warn') : ''}}" style="width: {{budgetPercent > 100 ? 100 : budgetPercent}}%"></view>
+    </view>
+  </view>
+
+  <!-- 金额 + 类型 -->
+  <view class="form-group expense-compose-card">
+    <view class="compose-label">这笔花了</view>
+    <view class="amount-row">
+      <text class="amount-prefix">¥</text>
+      <input class="form-input amount-input" type="digit" placeholder="0.00" value="{{amount}}" bindinput="onAmountInput" focus="{{true}}"/>
+    </view>
+    <view class="quick-amounts">
+      <view class="qa-btn" bindtap="onQuickAmount" data-amount="10">+10</view>
+      <view class="qa-btn" bindtap="onQuickAmount" data-amount="50">+50</view>
+      <view class="qa-btn" bindtap="onQuickAmount" data-amount="100">+100</view>
+      <view class="qa-btn" bindtap="onQuickAmount" data-amount="200">+200</view>
+      <view class="qa-btn" bindtap="onQuickAmount" data-amount="500">+500</view>
+      <view class="qa-btn qa-clear" bindtap="onClearAmount">C</view>
+    </view>
+    <view class="type-row compose-type-row">
+      <view class="type-btn {{type === 'shared' ? 'active' : ''}}" data-type="shared" bindtap="onTypeTap"><image src="/images/icons/expense-shared.png" mode="aspectFit" class="type-icon"/>公共开销</view>
+      <view class="type-btn {{type === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeTap"><image src="/images/icons/expense-private.png" mode="aspectFit" class="type-icon"/>私人开销</view>
     </view>
   </view>
 
@@ -21,57 +45,102 @@
         class="cat-btn {{category === item.key ? 'active' : ''}}"
         data-cat="{{item.key}}"
         bindtap="onCategoryTap"
-      >{{item.icon}} {{item.label}}</view>
+      >
+        <image class="cat-icon" src="{{item.icon}}" mode="aspectFit"/>
+        <text>{{item.label}}</text>
+      </view>
     </view>
   </view>
 
-  <!-- 金额 -->
-  <view class="form-group">
-    <view class="form-label">金额</view>
-    <view class="amount-row">
-      <text class="amount-prefix">¥</text>
-      <input class="form-input amount-input" type="digit" placeholder="0.00" value="{{amount}}" bindinput="onAmountInput" focus="{{true}}"/>
-    </view>
-  </view>
-
-  <!-- 描述 -->
+  <!-- 描述 + 语音 -->
   <view class="form-group">
     <view class="form-label">描述</view>
-    <input class="form-input" placeholder="例如：新干线 东京→京都" value="{{description}}" bindinput="onDescInput" maxlength="50"/>
+    <view class="desc-row">
+      <input class="form-input desc-input" placeholder="例如：新干线 东京→京都" value="{{description}}" bindinput="onDescInput" maxlength="50"/>
+      <view class="voice-btn {{recording ? 'recording' : ''}} {{voiceFileId ? 'has-voice' : ''}}" bindtap="onToggleVoice">
+        <image class="voice-icon" src="/images/icons/{{voiceFileId ? 'chat-voice.png' : (recording ? 'chat-voice.png' : 'voice.png')}}" mode="aspectFit"/>
+        <text wx:if="{{recording}}" class="voice-dot">●</text>
+        <text wx:if="{{voiceFileId}}" class="voice-dur">{{voiceDuration}}″</text>
+      </view>
+    </view>
+    <view wx:if="{{voiceFileId}}" class="voice-added">
+      <text>✓ 语音已录制（{{voiceDuration}}秒）</text>
+      <text class="voice-remove" bindtap="onRemoveVoice">删除</text>
+    </view>
+  </view>
+
+  <!-- 票据拍照 -->
+  <view class="form-group">
+    <view class="form-label">凭证照片（可选）</view>
+    <view class="receipt-area" bindtap="onAddReceipt">
+      <image wx:if="{{receiptPhoto}}" src="{{receiptPhoto}}" mode="aspectFill" class="receipt-preview"/>
+      <view wx:else class="receipt-add-btn">
+        <image class="receipt-camera-icon" src="/images/icons/chat-camera.png" mode="aspectFit"/>
+        <text>拍照/选择图片</text>
+      </view>
+    </view>
+    <view wx:if="{{receiptPhoto}}" class="receipt-remove" bindtap="onRemoveReceipt">删除图片</view>
   </view>
 
   <!-- 付款人 -->
   <view class="form-group">
     <view class="form-label">付款人</view>
-    <picker mode="selector" range="{{members}}" range-key="nickName" bindchange="onPaidByChange">
-      <view class="picker-box">
-        <text wx:if="{{members.length > 0}}">{{members[0].nickName || '选择付款人'}}</text>
-        <text wx:else>选择付款人</text>
-      </view>
-    </picker>
+    <view class="picker-box" bindtap="onPickPayer">
+      <text class="picker-text">{{payerDisplayName}}</text>
+      <text class="picker-arrow">▼</text>
+    </view>
   </view>
 
   <!-- 分摊人（仅公共） -->
   <view class="form-group" wx:if="{{type === 'shared'}}">
-    <view class="form-label">分摊人（公共开销由谁分摊）</view>
+    <view class="form-label split-label">
+      <text>分摊人</text>
+      <text class="split-summary">{{splitSummaryText}}{{splitAverageText ? ' · ' + splitAverageText : ''}}</text>
+    </view>
+    <view class="split-actions">
+      <view class="split-action" bindtap="onSelectAllSplit">全选</view>
+      <view class="split-action" bindtap="onSelectSelfSplit">只选我</view>
+      <view class="split-action muted" bindtap="onClearSplit">清空</view>
+    </view>
     <view class="split-list">
       <view
-        wx:for="{{members}}"
+        wx:for="{{splitMembers}}"
         wx:key="openid"
-        class="split-item"
+        class="split-item {{item.selected ? 'selected' : ''}}"
         data-openid="{{item.openid}}"
         bindtap="onSplitToggle"
       >
-        <view class="split-check {{splitAmong.indexOf(item.openid) > -1 ? 'checked' : ''}}">
-          <text wx:if="{{splitAmong.indexOf(item.openid) > -1}}">✓</text>
+        <view class="split-check {{item.selected ? 'checked' : ''}}">
+          <text wx:if="{{item.selected}}">✓</text>
         </view>
         <text>{{item.nickName}}</text>
       </view>
     </view>
   </view>
 
+  <!-- 常用模板（可折叠） -->
+  <view class="form-group template-group">
+    <view class="form-label" bindtap="onToggleTemplates">
+      <text>常用模板</text>
+      <text class="toggle-arrow {{showTemplates ? 'open' : ''}}">›</text>
+    </view>
+    <view class="templates-row" wx:if="{{showTemplates}}">
+      <view
+        wx:for="{{templates}}"
+        wx:key="key"
+        class="template-chip"
+        data-template="{{item}}"
+        bindtap="onApplyTemplate"
+      >
+        <image src="{{item.icon}}" mode="aspectFit" class="template-icon"/>
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
   <!-- 保存 -->
   <view class="btn btn-primary btn-block" bindtap="onSave">
-    {{saving ? '保存中...' : '✦ 记一笔'}}
+    <image wx:if="{{!saving}}" class="ui-inline-icon ui-white-icon" src="/images/icons/create.png" mode="aspectFit"/>
+    <text>{{saving ? '保存中...' : (editMode ? '保存修改' : '记一笔')}}</text>
   </view>
 </scroll-view>

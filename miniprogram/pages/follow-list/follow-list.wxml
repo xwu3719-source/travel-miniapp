@@ -1,11 +1,12 @@
+<message-popup />
 <!-- 关注/粉丝列表 -->
 <scroll-view scroll-y class="container page-scroll">
-  <view class="fl-user" wx:for="{{users}}" wx:key="openid" data-openid="{{item.openid}}" bindtap="onUserTap">
+  <view class="fl-user" wx:for="{{users}}" wx:key="openid" data-openid="{{item.openid}}" data-nick-name="{{item.nickName}}" data-avatar-url="{{item.avatarUrl}}" bindtap="onUserTap">
     <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="fl-avatar" mode="aspectFill"/>
     <view wx:else class="fl-avatar-placeholder">{{item.nickName[0] || '?'}}</view>
     <text class="fl-name">{{item.nickName}}</text>
-    <view wx:if="{{item.openid !== myOpenid}}" class="fl-btn {{myFollowingSet[item.openid] ? 'following' : ''}}" catchtap="onToggleFollow" data-openid="{{item.openid}}">
-      {{myFollowingSet[item.openid] ? '已关注' : '+ 关注'}}
+    <view wx:if="{{item.openid !== myOpenid}}" class="fl-btn {{myFollowingSet[item.openid] ? (myFollowerSet[item.openid] ? 'mutual' : 'following') : ''}}" catchtap="onToggleFollow" data-openid="{{item.openid}}">
+      {{myFollowingSet[item.openid] ? (myFollowerSet[item.openid] ? '互相关注' : '已关注') : '+ 关注'}}
     </view>
   </view>
 

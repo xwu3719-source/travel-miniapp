@@ -1,35 +1,51 @@
+<message-popup />
 <!-- 动态 -->
-<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
-  <!-- 行程选择 -->
-  <scroll-view scroll-x class="trip-selector" wx:if="{{trips.length > 0}}">
-    <view
-      wx:for="{{trips}}"
-      wx:key="_id"
-      class="trip-chip {{selectedTripId === item._id ? 'active' : ''}}"
-      data-id="{{item._id}}"
-      bindtap="onTripSelect"
-    >{{item.name}}</view>
-  </scroll-view>
+<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll" show-scrollbar="{{false}}" enhanced="{{true}}">
+  <view class="moments-topbar">
+    <view class="feed-toggle {{feedMode === 'trip' ? 'active' : ''}}" data-mode="trip" bindtap="onSwitchFeedMode">
+      <text>行程</text>
+    </view>
+    <view class="feed-toggle {{feedMode === 'friends' ? 'active' : ''}}" data-mode="friends" bindtap="onSwitchFeedMode">
+      <text>好友</text>
+    </view>
+    <view class="moments-topbar-spacer"></view>
+    <view class="moment-create-entry" bindtap="onAddMoment">
+      <image src="/images/icons/create.png" mode="aspectFit"/>
+      <text>发布</text>
+    </view>
+    <view class="my-space-entry" bindtap="onGoMySpace">
+      <image wx:if="{{userInfo.avatarUrl}}" src="{{userInfo.avatarUrl}}" class="my-space-avatar" mode="aspectFill"/>
+      <view wx:else class="my-space-avatar placeholder">{{userInfo.nickName[0] || '我'}}</view>
+    </view>
+  </view>
 
-  <view wx:if="{{!selectedTripId}}" class="empty-state">
-    <view class="empty-icon">🌅</view>
-    <view class="empty-text">选择一个行程查看动态</view>
+  <view wx:if="{{trips.length === 0 && feedMode !== 'friends'}}" class="empty-state">
+      <image class="ui-empty-icon ui-theme-icon" src="/images/icons/tab-moments.png" mode="aspectFit"/>
+    <view class="empty-text">加入行程后查看动态</view>
   </view>
 
   <block wx:else>
     <!-- 动态列表 -->
     <view class="moment-item" wx:for="{{moments}}" wx:key="_id" data-id="{{item._id}}" bindtap="onMomentTap">
       <view class="mi-header">
-        <view class="mi-author" data-openid="{{item.authorId}}" catchtap="onAuthorTap">
-          <image wx:if="{{item.authorAvatar}}" src="{{item.authorAvatar}}" class="mi-avatar" mode="aspectFill"/>
+        <view class="mi-author" data-openid="{{item.authorId}}" data-nick-name="{{item.authorName}}" data-avatar-url="{{item.authorAvatar}}" catchtap="onAuthorTap">
+          <image wx:if="{{item.authorAvatar}}" src="{{item.authorAvatarThumb || item.authorAvatar}}" class="mi-avatar" mode="aspectFill"/>
           <view wx:else class="mi-avatar-placeholder">{{item.authorName[0] || '旅'}}</view>
           <view>
-            <view class="mi-name">{{item.authorName}}</view>
-            <view class="mi-time">{{item.formattedTime}}</view>
+            <view class="mi-name-row">
+              <view class="mi-name">{{item.authorName}}</view>
+              <image wx:if="{{item.authorVerified}}" class="mi-verified-icon" src="/images/icons/官方认证.png" mode="aspectFit" />
+              <image wx:if="{{item.authorBadgeIcon}}" class="mi-badge-icon" src="/images/icons/{{item.authorBadgeIcon}}" mode="aspectFit" />
+              <image wx:if="{{item.authorMoodIcon}}" class="mi-status-icon" src="/images/icons/status/{{item.authorMoodIcon}}.png" mode="aspectFit" />
+            </view>
+            <view class="mi-meta-line">
+              <text>{{item.formattedTime}}</text>
+              <text wx:if="{{item.tripName}}" class="mi-trip-badge">{{item.tripName}}</text>
+            </view>
           </view>
         </view>
         <view class="mi-more" wx:if="{{myOpenid && item.authorId === myOpenid}}" data-id="{{item._id}}" catchtap="onToggleMenu">
-          <text class="mi-more-icon">···</text>
+          <image class="mi-more-icon-img" src="/images/icons/more.png" mode="aspectFit"/>
         </view>
       </view>
 
@@ -41,12 +57,12 @@
       </view>
       <view class="mi-text" wx:if="{{item.text}}">{{item.text}}</view>
       <view class="mi-images" wx:if="{{item.images && item.images.length > 0}}">
-        <image wx:for="{{item.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="mi-img"/>
+        <image wx:for="{{item.images}}" wx:for-item="imageUrl" wx:key="*this" src="{{item.imageThumbs[index] || imageUrl}}" mode="aspectFill" lazy-load="{{true}}" class="mi-img" data-url="{{imageUrl}}" data-urls="{{item.images}}" catchtap="onPreviewMomentImage"/>
       </view>
       <view class="mi-videos" wx:if="{{item.videos && item.videos.length > 0}}">
         <view class="mi-video" wx:for="{{item.videos}}" wx:key="fileID" data-file-id="{{item.fileID}}" catchtap="onPlayMomentVideo">
           <text class="mi-video-dur">{{item.duration}}″</text>
-          <view class="mi-video-play">▶</view>
+          <view class="mi-video-play"><image src="/images/icons/play.png" mode="aspectFit"/></view>
         </view>
       </view>
       <view class="mi-location" wx:if="{{item.location}}"><image src="/images/icons/location.png" mode="aspectFit" class="mi-loc-icon"/> <text>{{item.location}}</text></view>
@@ -65,14 +81,22 @@
           <image src="/images/icons/comment.png" mode="aspectFit" class="mi-action-icon-img"/>
           <text class="mi-action-num">{{item.comments ? item.comments.length : 0}}</text>
         </view>
+        <view class="mi-action" data-id="{{item._id}}" catchtap="onShareMoment">
+          <image src="/images/icons/share.png" mode="aspectFit" class="mi-action-icon-img"/>
+          <text class="mi-action-num">{{item.shareCount || 0}}</text>
+        </view>
       </view>
 
       <!-- 评论区 -->
       <view class="mi-comments" wx:if="{{item.comments && item.comments.length > 0}}">
         <view class="cmt-list">
-          <view class="cmt-item" wx:for="{{item.comments}}" wx:for-item="c" wx:key="createdAt">
+          <view class="cmt-item" wx:for="{{item.comments}}" wx:for-item="c" wx:key="createdAt" data-index="{{index}}" data-moment-id="{{item._id}}" catchtap="onTapComment">
             <view class="cmt-body">
               <text class="cmt-author">{{c.nickName}}</text>
+              <block wx:if="{{c.replyTo && c.replyTo.nickName}}">
+                <text class="cmt-reply-mark">回复</text>
+                <text class="cmt-author">{{c.replyTo.nickName}}</text>
+              </block>
               <text class="cmt-text" wx:if="{{c.text}}">{{c.text}}</text>
               <image wx:if="{{c.image}}" src="{{c.image}}" mode="aspectFill" class="cmt-image" catchtap="onPreviewCommentImage" data-url="{{c.image}}"/>
               <view wx:if="{{c.voice}}" class="cmt-voice {{voicePlayingUrl === c.voice ? 'voice-playing' : ''}}" catchtap="onPlayCommentVoice" data-url="{{c.voice}}">
@@ -95,16 +119,16 @@
         <view class="cmt-media-preview" wx:if="{{commentImage || commentVoice || commentLocation}}">
           <view class="cmp-item" wx:if="{{commentImage}}">
             <image src="{{commentImage}}" mode="aspectFill" class="cmp-img"/>
-            <view class="cmp-remove" catchtap="onRemoveCommentImage">✕</view>
+            <view class="cmp-remove" catchtap="onRemoveCommentImage"><image src="/images/icons/close.png" mode="aspectFit"/></view>
           </view>
           <view class="cmp-item cmp-voice-item" wx:if="{{commentVoice}}">
             <image src="/images/icons/voice.png" mode="aspectFit" class="cmp-voice-icon-img"/>
             <text class="cmp-voice-dur">{{commentVoiceDuration}}″</text>
-            <view class="cmp-remove" catchtap="onRemoveCommentVoice">✕</view>
+            <view class="cmp-remove" catchtap="onRemoveCommentVoice"><image src="/images/icons/close.png" mode="aspectFit"/></view>
           </view>
           <view class="cmp-item cmp-loc-item" wx:if="{{commentLocation}}">
             <text><image src="/images/icons/location.png" mode="aspectFit" class="cmt-loc-icon"/> {{commentLocation.name}}</text>
-            <view class="cmp-remove" catchtap="onRemoveCommentLocation">✕</view>
+            <view class="cmp-remove" catchtap="onRemoveCommentLocation"><image src="/images/icons/close.png" mode="aspectFit"/></view>
           </view>
         </view>
         <!-- 录音状态条 -->
@@ -118,14 +142,20 @@
           <view class="cmt-tool-btn {{commentRecording ? 'recording' : ''}}" catchtap="onToggleVoice">
             <image src="/images/icons/voice.png" mode="aspectFit" class="cmt-tool-icon"/>
           </view>
-          <input class="cmt-input" placeholder="写评论..." value="{{commentText}}" bindinput="onCommentInput" confirm-type="send" bindconfirm="onPostComment" data-id="{{item._id}}" focus="{{commentingId === item._id}}"/>
-          <view class="cmt-tool-btn" catchtap="onChooseCommentImage">
-            <image src="/images/icons/image.png" mode="aspectFit" class="cmt-tool-icon"/>
+          <input class="cmt-input" placeholder="{{replyTo ? '回复 @' + replyTo.nickName + '...' : '写评论...'}}" value="{{commentText}}" bindinput="onCommentInput" confirm-type="send" bindconfirm="onPostComment" data-id="{{item._id}}" focus="{{commentingId === item._id}}"/>
+          <view class="cmt-tool-btn {{commentToolsId === item._id ? 'active' : ''}}" data-id="{{item._id}}" catchtap="onToggleCommentTools">
+            <image src="/images/icons/create.png" mode="aspectFit" class="cmt-tool-icon"/>
           </view>
-          <view class="cmt-tool-btn" catchtap="onChooseCommentLocation">
-            <image src="/images/icons/location.png" mode="aspectFit" class="cmt-tool-icon"/>
+        </view>
+        <view wx:if="{{commentToolsId === item._id}}" class="comment-tools-panel">
+          <view class="comment-tool-entry" catchtap="onChooseCommentImage">
+            <image src="/images/icons/image.png" mode="aspectFit"/>
+            <text>图片</text>
           </view>
-          <view class="cmt-send" catchtap="onPostComment" data-id="{{item._id}}">发送</view>
+          <view class="comment-tool-entry" catchtap="onChooseCommentLocation">
+            <image src="/images/icons/location.png" mode="aspectFit"/>
+            <text>位置</text>
+          </view>
         </view>
       </view>
 
@@ -135,13 +165,50 @@
       <text>{{loadingMore ? '加载中...' : '加载更多'}}</text>
     </view>
     <view wx:if="{{moments.length === 0}}" class="empty-state">
-      <view class="empty-icon">🌅</view>
+      <image class="moment-empty-icon" src="/images/icons/tab-moments.png" mode="aspectFit"/>
       <view class="empty-text">还没有旅途动态</view>
     </view>
   </block>
 </scroll-view>
 
-<!-- 发布按钮 -->
-<view class="detail-fabs">
-  <view class="detail-fab" bindtap="onAddMoment">✦</view>
+<!-- 行程筛选 -->
+<view wx:if="{{showTripFilter}}" class="filter-mask" catchtap="onCloseTripFilter">
+  <view class="filter-panel" catchtap="preventBubble">
+    <view class="filter-handle"></view>
+    <view class="filter-header">
+      <view>
+        <view class="filter-title">选择动态范围</view>
+        <view class="filter-subtitle">切换想看的旅途故事</view>
+      </view>
+      <view class="filter-count">{{trips.length}} 个行程</view>
+    </view>
+    <view
+      class="filter-option {{selectedTripId === '' ? 'active' : ''}}"
+      data-id=""
+      bindtap="onTripFilterSelect"
+    >
+      <view class="filter-leading all">全</view>
+      <view class="filter-copy">
+        <view class="filter-name">全部动态</view>
+        <view class="filter-desc">查看所有行程里的动态</view>
+      </view>
+        <radio class="filter-radio" checked="{{selectedTripId === ''}}" color="#5b9ff5"/>
+    </view>
+    <scroll-view scroll-y class="filter-trip-list">
+      <view
+        wx:for="{{trips}}"
+        wx:key="_id"
+        class="filter-option {{selectedTripId === item._id ? 'active' : ''}}"
+        data-id="{{item._id}}"
+        bindtap="onTripFilterSelect"
+      >
+        <view class="filter-leading">{{index + 1}}</view>
+        <view class="filter-copy">
+          <view class="filter-name">{{item.name}}</view>
+          <view class="filter-desc">{{item.city || '行程动态'}}</view>
+        </view>
+          <radio class="filter-radio" checked="{{selectedTripId === item._id}}" color="#5b9ff5"/>
+      </view>
+    </scroll-view>
+  </view>
 </view>

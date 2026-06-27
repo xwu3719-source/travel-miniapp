@@ -1,3 +1,4 @@
+<message-popup />
 <!-- 发布动态 -->
 <scroll-view scroll-y class="container page-scroll">
   <view class="form-title">{{isEditing ? '编辑动态' : '分享旅途瞬间'}}</view>
@@ -10,19 +11,26 @@
   <!-- 媒体（图片+视频统一网格） -->
   <view class="form-group">
     <view class="form-label">照片/视频（最多9个）</view>
+    <view class="original-toggle" bindtap="onToggleOriginal">
+      <view class="ot-checkbox {{sendOriginal ? 'checked' : ''}}">
+        <text wx:if="{{sendOriginal}}" class="ot-check">✓</text>
+      </view>
+      <text class="ot-label">上传原图</text>
+      <text class="ot-hint">默认压缩，勾选后上传原图</text>
+    </view>
     <view class="media-grid">
       <!-- 图片 -->
       <view class="media-item" wx:for="{{images}}" wx:key="*this">
         <image src="{{item}}" mode="aspectFill" class="media-preview"/>
-        <view class="media-remove" data-index="{{index}}" catchtap="onRemoveImage">✕</view>
+        <view class="media-remove" data-index="{{index}}" catchtap="onRemoveImage"><image src="/images/icons/close.png" mode="aspectFit"/></view>
       </view>
       <!-- 视频 -->
       <view class="media-item" wx:for="{{videos}}" wx:key="fileID">
         <view class="media-video-preview">
-          <view class="media-video-play">▶</view>
+        <view class="media-video-play"><image src="/images/icons/play.png" mode="aspectFit"/></view>
           <text class="media-video-dur">{{item.duration}}″</text>
         </view>
-        <view class="media-remove" data-index="{{index}}" catchtap="onRemoveVideo">✕</view>
+        <view class="media-remove" data-index="{{index}}" catchtap="onRemoveVideo"><image src="/images/icons/close.png" mode="aspectFit"/></view>
       </view>
       <!-- 添加按钮 -->
       <view class="media-add" wx:if="{{images.length + videos.length < 9}}" bindtap="onAddMedia">
@@ -38,7 +46,7 @@
       <block wx:if="{{location}}">
         <image src="/images/icons/location.png" mode="aspectFit" class="loc-bar-icon"/>
         <text class="loc-bar-text">{{location}}</text>
-        <view class="loc-bar-remove" catchtap="onRemoveLocation">✕</view>
+      <view class="loc-bar-remove" catchtap="onRemoveLocation"><image src="/images/icons/close.png" mode="aspectFit"/></view>
       </block>
       <block wx:else>
         <image src="/images/icons/location.png" mode="aspectFit" class="loc-bar-icon"/>

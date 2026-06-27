@@ -1,7 +1,8 @@
+<message-popup />
 <!-- 加入行程 -->
 <view class="container join-page">
   <view class="join-header">
-    <view class="join-icon">🔑</view>
+  <image class="join-icon ui-theme-icon" src="/images/icons/trip-members.png" mode="aspectFit"/>
     <view class="join-title">加入行程</view>
     <view class="join-desc">输入朋友分享的邀请码，加入 TA 的旅行</view>
   </view>
@@ -19,6 +20,7 @@
   </view>
 
   <view class="btn btn-primary btn-block" bindtap="onJoin">
-    {{joining ? '加入中...' : '✦ 加入行程'}}
+      <image wx:if="{{!joining}}" class="ui-inline-icon ui-white-icon" src="/images/icons/create.png" mode="aspectFit"/>
+      <text>{{joining ? '加入中...' : '加入行程'}}</text>
   </view>
 </view>

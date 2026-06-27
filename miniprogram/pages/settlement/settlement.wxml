@@ -1,18 +1,36 @@
+<message-popup />
 <!-- 结算 -->
 <scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
   <view wx:if="{{loading}}" class="empty-state">
-    <view class="empty-icon">⏳</view>
+  <image class="ui-empty-icon ui-theme-icon" src="/images/icons/trip-settlement.png" mode="aspectFit"/>
     <view class="empty-text">计算中...</view>
   </view>
 
   <block wx:else>
+    <view class="settlement-hero">
+      <view>
+        <view class="settlement-hero-kicker">本次结算</view>
+        <view class="settlement-hero-title">{{transfers.length === 0 ? '公共账目已平' : transfers.length + ' 笔转账待确认'}}</view>
+      </view>
+      <view class="settlement-hero-metrics">
+        <view class="settlement-hero-metric">
+          <text>{{unsettledShared.length}}</text>
+          <text>待结算</text>
+        </view>
+        <view class="settlement-hero-metric">
+          <text>{{settlements.length}}</text>
+          <text>成员</text>
+        </view>
+      </view>
+    </view>
+
     <!-- 个人消费汇总 -->
     <view class="settle-title">个人消费汇总</view>
 
     <view class="settle-card" wx:for="{{settlements}}" wx:key="openid">
       <view class="sc-header">
         <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" class="sc-avatar" mode="aspectFill"/>
-        <view wx:else class="sc-avatar-placeholder">😊</view>
+      <view wx:else class="sc-avatar-placeholder">{{item.nickName ? item.nickName[0] : '旅'}}</view>
         <view class="sc-name">{{item.nickName}}</view>
         <view class="sc-badge {{item.sharedBalance > 0 ? 'earn' : item.sharedBalance < 0 ? 'owe' : ''}}" wx:if="{{item.sharedBalance !== 0}}">
           {{item.sharedBalance > 0 ? '应收' : '应付'}}
@@ -39,46 +57,117 @@
     </view>
 
     <!-- 转账结算 -->
-    <view class="settle-title" style="margin-top:40rpx">🧾 谁该给谁转账</view>
+  <view class="settle-title" style="margin-top:40rpx"><image class="ui-inline-icon ui-theme-icon" src="/images/icons/trip-settlement.png" mode="aspectFit"/>谁该给谁转账</view>
 
     <view wx:if="{{transfers.length === 0}}" class="empty-state">
-      <view class="empty-icon">✅</view>
+    <image class="ui-empty-icon ui-theme-icon" src="/images/icons/trip-settlement.png" mode="aspectFit"/>
       <view class="empty-text">公共账目已平，无需转账</view>
     </view>
 
     <view class="transfer-card" wx:for="{{transfers}}" wx:key="index">
       <view class="tc-from">
         <image wx:if="{{item.fromAvatar}}" src="{{item.fromAvatar}}" class="tc-avatar" mode="aspectFill"/>
-        <view wx:else class="tc-avatar-placeholder">😊</view>
+        <view wx:else class="tc-avatar-placeholder">{{item.from ? item.from[0] : '旅'}}</view>
         <view class="tc-name">{{item.from}}</view>
       </view>
       <view class="tc-arrow">
         <view class="tc-amount">¥{{item.amount}}</view>
-        <view class="tc-arrow-icon">→</view>
+        <image class="tc-arrow-icon" src="/images/icons/chevron-right.png" mode="aspectFit"/>
       </view>
       <view class="tc-to">
         <image wx:if="{{item.toAvatar}}" src="{{item.toAvatar}}" class="tc-avatar" mode="aspectFill"/>
-        <view wx:else class="tc-avatar-placeholder">😊</view>
+        <view wx:else class="tc-avatar-placeholder">{{item.to ? item.to[0] : '旅'}}</view>
         <view class="tc-name">{{item.to}}</view>
       </view>
     </view>
 
-    <!-- 公共消费明细 -->
-    <view class="settle-title" style="margin-top:40rpx">📋 公共消费明细</view>
+    <view class="voucher-card" wx:if="{{unsettledShared.length > 0}}">
+      <view>
+        <view class="voucher-title">转账清单</view>
+        <view class="voucher-subtitle">按当前勾选的公共消费生成，可直接发给成员确认。</view>
+      </view>
+      <view class="voucher-btn" bindtap="onCopyTransferList">复制清单</view>
+    </view>
 
-    <view wx:if="{{expenses.length === 0}}" class="empty-state">
+    <view class="voucher-card success" wx:if="{{lastSettlementVoucher}}">
+      <view>
+        <view class="voucher-title">结算凭证已生成</view>
+        <view class="voucher-subtitle">{{lastSettlementVoucher.count}} 笔 · 转账 ¥{{lastSettlementVoucher.totalTransfer}}</view>
+      </view>
+      <view class="voucher-btn" bindtap="onCopyLastVoucher">复制凭证</view>
+    </view>
+
+    <!-- 部分结算：公共消费明细 -->
+  <view class="settle-title" style="margin-top:40rpx"><image class="ui-inline-icon ui-theme-icon" src="/images/icons/trip-ledger.png" mode="aspectFit"/>公共消费明细（勾选需结算项）</view>
+    <view class="settlement-toolbar" wx:if="{{unsettledShared.length > 0}}">
+      <view class="settlement-summary">已选 {{selectedSettlementSummary.count}} 笔 · ¥{{selectedSettlementSummary.total}}</view>
+      <view class="settlement-tool" bindtap="onSelectAllSettlement">全选</view>
+      <view class="settlement-tool muted" bindtap="onClearSettlement">清空</view>
+    </view>
+
+    <view wx:if="{{unsettledShared.length === 0 && settledExpenses.length === 0}}" class="empty-state">
       <view class="empty-text">暂无消费记录</view>
     </view>
 
-    <view class="expense-item" wx:for="{{expenses}}" wx:for-item="e" wx:key="_id" wx:if="{{e.type === 'shared'}}">
+    <!-- 待结算 -->
+    <view wx:if="{{unsettledShared.length > 0}}" class="settle-subtitle">待结算</view>
+    <view class="expense-item settle-expense" wx:for="{{unsettledShared}}" wx:for-item="e" wx:key="_id">
+      <view class="settle-check {{settlementSelections[e._id] ? 'checked' : ''}}" data-id="{{e._id}}" bindtap="onToggleSettleItem">
+        <text wx:if="{{settlementSelections[e._id]}}">✓</text>
+      </view>
       <view class="ei-left">
-        <view class="ei-cat">{{e.icon || '💰'}}</view>
+        <view class="ei-cat ei-cat-{{e.category || 'other'}}"><image class="ei-cat-icon" src="{{e.icon}}" mode="aspectFit"/></view>
         <view class="ei-info">
           <view class="ei-desc">{{e.description}}</view>
-          <view class="ei-paid">{{e.paidByName}} 垫付  ·  {{e.splitAmong.length}}人均摊</view>
+          <view class="ei-paid">
+            {{e.paidByName}} 垫付  ·  {{e.splitAmong.length}}人均摊
+            <image wx:if="{{e.receiptFileId}}" class="ei-tag-icon" src="/images/icons/chat-camera.png" mode="aspectFit" data-file-id="{{e.receiptFileId}}" bindtap="onPreviewReceipt"/>
+          </view>
+          <view class="ei-paid refund" wx:if="{{e.refundText}}">{{e.refundText}}</view>
         </view>
       </view>
-      <view class="ei-amount">¥{{e.amount}}</view>
+      <view class="ei-amount">¥{{e.netAmount}}</view>
+    </view>
+
+    <!-- 已结算 -->
+    <view wx:if="{{settledExpenses.length > 0}}" class="settle-subtitle" style="margin-top:24rpx;">已结算</view>
+    <view class="expense-item settled-item" wx:for="{{settledExpenses}}" wx:for-item="e" wx:key="_id" wx:if="{{e.type === 'shared'}}">
+      <view class="settle-check settled-check-done">✓</view>
+      <view class="ei-left">
+        <view class="ei-cat ei-cat-{{e.category || 'other'}}"><image class="ei-cat-icon" src="{{e.icon}}" mode="aspectFit"/></view>
+        <view class="ei-info">
+          <view class="ei-desc">{{e.description}}</view>
+          <view class="ei-paid">{{e.paidByName}} 垫付  ·  已结清</view>
+        </view>
+      </view>
+      <view class="ei-amount settled-amount">¥{{e.netAmount}}</view>
+    </view>
+
+    <!-- 记录结算按钮 -->
+    <view wx:if="{{unsettledShared.length > 0}}" class="btn btn-primary btn-block" bindtap="onRecordSettlement" style="margin-top:24rpx;">
+      <text>记录结算</text>
+    </view>
+
+    <!-- 结算历史 -->
+    <view class="settle-title" style="margin-top:40rpx" bindtap="onToggleHistory">
+      结算历史
+      <text class="toggle-arrow {{showHistory ? 'open' : ''}}">›</text>
+    </view>
+
+    <view wx:if="{{showHistory}}">
+      <view wx:if="{{settlementHistory.length === 0}}" class="empty-state" style="padding:20rpx;">
+        <view class="empty-text">暂无结算记录</view>
+      </view>
+      <view class="history-item" wx:for="{{settlementHistory}}" wx:key="_id">
+        <view class="hi-time">{{item.formattedTime || item.createdAt}}</view>
+        <view class="hi-summary">{{item.settledExpenseIds.length}} 笔 · 结清 ¥{{item.totalSettled}}</view>
+        <view class="hi-transfers" wx:if="{{item.transfers.length > 0}}">
+          <view class="hi-transfer" wx:for="{{item.transfers}}" wx:for-item="t" wx:key="index">
+            {{t.from}} → {{t.to}} ¥{{t.amount}}
+          </view>
+        </view>
+        <view class="hi-copy" data-index="{{index}}" bindtap="onCopyHistoryVoucher">复制凭证</view>
+      </view>
     </view>
   </block>
 </scroll-view>

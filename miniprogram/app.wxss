@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════
-   全局样式 — 旅行搭子 · 彩趣渐变
+   全局样式 — 拾途 ST · 浅蓝玻璃渐变
    ═══════════════════════════════════════ */
 
 page {
@@ -9,7 +9,7 @@ page {
   --gradient-ocean: linear-gradient(135deg, #0ea5e9, #06b6d4, #10b981);
   --gradient-teal: linear-gradient(135deg, #0d9488, #10b981);
   --gradient-forest: linear-gradient(135deg, #22c55e, #10b981, #0d9488);
-  --gradient-purple: linear-gradient(135deg, #a855f7, #ec4899);
+  --gradient-purple: linear-gradient(135deg, #7db9f8, #5b9ff5);
   --gradient-sky: linear-gradient(135deg, #667eea, #764ba2);
   --gradient-rose: linear-gradient(135deg, #ec4899, #f43f5e);
   --gradient-amber: linear-gradient(135deg, #f59e0b, #f97316);
@@ -17,15 +17,26 @@ page {
   --gradient-mint: linear-gradient(135deg, #34d399, #10b981);
   --gradient-lagoon: linear-gradient(135deg, #06b6d4, #3b82f6, #6366f1);
 
+  /* ===== 行程模块主题 ===== */
+  --trip-blue: #5b9ff5;
+  --trip-blue-deep: #357de8;
+  --trip-blue-light: #ecf5ff;
+  --trip-blue-soft: #f5f9ff;
+  --gradient-trip: linear-gradient(135deg, #7db9f8 0%, #5b9ff5 52%, #357de8 100%);
+  --gradient-trip-soft: linear-gradient(135deg, #f3f8ff 0%, #e5f1ff 100%);
+
   /* ===== 强调色 ===== */
   --coral: #ff6b6b;
   --coral-light: #fff0ee;
   --teal: #0d9488;
   --teal-light: #e6faf7;
-  --purple: #a855f7;
-  --purple-light: #f5f0ff;
+  --purple: #5b9ff5;
+  --purple-light: #ecf5ff;
   --amber: #f59e0b;
   --amber-light: #fffbf0;
+  --gold: #b45309;
+  --gold-light: #fffbf0;
+  --gradient-gold: linear-gradient(135deg, #f59e0b, #d97706);
   --sky: #0ea5e9;
   --sky-light: #f0f9ff;
   --rose: #f43f5e;
@@ -64,6 +75,15 @@ page {
   --shadow-md: 0 4rpx 20rpx rgba(0,0,0,0.07);
   --shadow-lg: 0 8rpx 30rpx rgba(0,0,0,0.10);
 
+  /* ===== 图标规范 ===== */
+  --icon-xs: 28rpx;
+  --icon-sm: 36rpx;
+  --icon-md: 40rpx;
+  --icon-lg: 48rpx;
+  --icon-touch: 72rpx;
+  --icon-muted-opacity: 0.62;
+  --icon-active-opacity: 0.94;
+
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   font-size: 28rpx;
   color: var(--text-primary);
@@ -80,6 +100,35 @@ page {
 .page-scroll {
   height: 100vh;
   box-sizing: border-box;
+}
+
+/* ===== 通用图标规格 ===== */
+.ui-inline-icon {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.ui-action-icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  opacity: var(--icon-muted-opacity);
+}
+
+.ui-empty-icon {
+  width: 88rpx;
+  height: 88rpx;
+  margin-bottom: 18rpx;
+  opacity: 0.58;
+}
+
+.ui-theme-icon {
+  filter: brightness(0) saturate(100%) invert(59%) sepia(34%) saturate(1111%) hue-rotate(178deg) brightness(101%) contrast(93%);
+}
+
+.ui-white-icon {
+  filter: brightness(0) invert(1);
 }
 
 /* ===== 卡片 ===== */
@@ -130,9 +179,9 @@ page {
 }
 
 .btn-primary {
-  background: var(--gradient-sunset);
+  background: var(--gradient-trip);
   color: #fff;
-  box-shadow: 0 4rpx 16rpx rgba(255, 107, 107, 0.3);
+  box-shadow: 0 4rpx 16rpx rgba(91, 159, 245, 0.3);
 }
 
 .btn-outline {
