@@ -1,7 +1,7 @@
 {
-  "name": "getOpenid",
+  "name": "dbOps",
   "version": "1.0.0",
-  "description": "Get user openid",
+  "description": "数据库操作：服务端校验用户身份后执行",
   "main": "index.js",
   "dependencies": {
     "wx-server-sdk": "latest"

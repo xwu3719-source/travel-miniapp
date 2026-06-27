@@ -1,7 +1,7 @@
 {
-  "name": "getOpenid",
+  "name": "login",
   "version": "1.0.0",
-  "description": "Get user openid",
+  "description": "登录：获取 openid 并同步 users 表",
   "main": "index.js",
   "dependencies": {
     "wx-server-sdk": "latest"

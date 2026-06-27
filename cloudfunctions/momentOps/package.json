@@ -1,7 +1,7 @@
 {
-  "name": "getOpenid",
+  "name": "momentOps",
   "version": "1.0.0",
-  "description": "Get user openid",
+  "description": "动态操作：点赞/收藏/评论，服务端执行",
   "main": "index.js",
   "dependencies": {
     "wx-server-sdk": "latest"
