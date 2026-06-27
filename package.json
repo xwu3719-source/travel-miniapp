@@ -1,0 +1,7 @@
+{
+  "name": "travel-miniapp",
+  "private": true,
+  "scripts": {
+    "smoke": "node scripts/smoke-check.js"
+  }
+}

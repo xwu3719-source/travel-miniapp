@@ -1,0 +1,12 @@
+{
+  "envId": "cloud1-1ga9pk42512defdc",
+  "functionRoot": "./cloudfunctions",
+  "functions": [
+    {
+      "name": "dbOps",
+      "timeout": 60,
+      "runtime": "Nodejs18.15",
+      "handler": "index.main"
+    }
+  ]
+}
