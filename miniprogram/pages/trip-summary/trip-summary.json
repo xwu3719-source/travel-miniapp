@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "旅行总结",
+  "usingComponents": {
+    "message-popup": "/components/message-popup/message-popup"
+  }
+}

@@ -1,0 +1,129 @@
+<message-popup />
+<!-- 消息 -->
+<view class="messages-page">
+  <!-- 顶部：搜索栏 + 菜单按钮 -->
+  <view class="search-bar-wrap">
+    <view class="search-bar" bindtap="onOpenGlobalSearch">
+      <icon type="search" size="16" color="#9ca3af"/>
+      <view class="search-bar-input search-placeholder">搜索联系人、聊天、AI 或行程</view>
+    </view>
+    <view class="menu-trigger {{showMenu ? 'active' : ''}}" bindtap="onToggleMenu">
+      <image src="/images/icons/friend-menu-add.png" mode="aspectFit"/>
+      <view wx:if="{{friendRequestCount > 0}}" class="friend-request-dot">{{friendRequestText}}</view>
+    </view>
+  </view>
+
+  <view wx:if="{{showMenu}}" class="friend-menu-mask" bindtap="onCloseMenu">
+    <view class="friend-menu" catchtap="preventBubble">
+      <view class="friend-menu-item" bindtap="onCreateGroup">
+        <image src="/images/icons/create-group.png" mode="aspectFit"/>
+        <view class="friend-menu-copy"><view class="friend-menu-title">创建群聊</view><view class="friend-menu-subtitle">邀请好友加入群聊</view></view>
+      </view>
+      <view class="friend-menu-item" data-tab="search" bindtap="onOpenFriendCenter">
+        <image src="/images/icons/friend-add.png" mode="aspectFit"/>
+        <view class="friend-menu-copy"><view class="friend-menu-title">添加好友</view><view class="friend-menu-subtitle">通过 6 位 ID 查找</view></view>
+      </view>
+      <view class="friend-menu-item" data-tab="requests" bindtap="onOpenFriendCenter">
+        <image src="/images/icons/friend-requests.png" mode="aspectFit"/>
+        <view class="friend-menu-copy"><view class="friend-menu-title">好友申请</view><view class="friend-menu-subtitle">处理新的好友请求</view></view>
+        <view wx:if="{{friendRequestCount > 0}}" class="friend-menu-badge">{{friendRequestText}}</view>
+      </view>
+      <view class="friend-menu-item" data-tab="friends" bindtap="onOpenFriendCenter">
+        <image src="/images/icons/friend-list.png" mode="aspectFit"/>
+        <view class="friend-menu-copy"><view class="friend-menu-title">好友列表</view><view class="friend-menu-subtitle">查看好友并发起私信</view></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 互动通知 -->
+  <view wx:if="{{notifications.length > 0}}" class="notif-section">
+    <view class="notif-title-row"><view class="notif-title">互动消息</view><view class="notif-more" bindtap="onOpenNotificationCenter">查看全部</view></view>
+    <view
+      wx:for="{{notifications}}"
+      wx:key="_id"
+      class="notif-item {{item.read ? '' : 'unread'}}"
+      data-index="{{index}}"
+      bindtap="onOpenNotification"
+    >
+      <view class="notif-avatar-wrap">
+        <image wx:if="{{item.fromAvatar}}" src="{{item.fromAvatar}}" class="notif-avatar" mode="aspectFill"/>
+        <view wx:else class="notif-avatar placeholder">{{item.fromNickName[0] || '?'}}</view>
+        <image wx:if="{{item.type === 'like'}}" class="notif-type-icon" src="/images/icons/like2.png" mode="aspectFit"/>
+        <image wx:else class="notif-type-icon" src="/images/icons/comment.png" mode="aspectFit"/>
+      </view>
+      <view class="notif-main">
+        <view class="notif-header">
+          <text class="notif-from">{{item.fromNickName}}</text>
+          <text class="notif-action">{{item.type === 'like' ? '赞了你的动态' : '评论了你的动态'}}</text>
+          <text wx:if="{{!item.read}}" class="notif-dot">●</text>
+        </view>
+        <view wx:if="{{item.text}}" class="notif-text">{{item.text}}</view>
+        <view wx:elif="{{item.momentText}}" class="notif-text notif-moment">{{item.momentText}}</view>
+        <view class="notif-time">{{item.displayTime}}</view>
+      </view>
+      <image wx:if="{{item.momentImage}}" src="{{item.momentImage}}" class="notif-thumb" mode="aspectFill"/>
+    </view>
+  </view>
+
+  <view wx:if="{{searchKeyword && filteredGroupConversations.length === 0 && filteredConversations.length === 0}}" class="empty-state">
+    <view class="empty-title">未找到「{{searchKeyword}}」</view>
+    <view class="empty-subtitle">试试其他关键词</view>
+  </view>
+
+  <view class="conversation-section" wx:if="{{filteredGroupConversations.length > 0}}">
+    <view class="conversation-section-title">群聊</view>
+    <view class="messages-list">
+      <view wx:for="{{filteredGroupConversations}}" wx:key="_id" class="message-row" data-group-id="{{item._id}}" bindtap="onOpenGroupChat">
+        <view class="avatar-wrap group-avatar-wrap" catchtap="onOpenGroupProfile" data-group-id="{{item._id}}">
+          <image class="avatar group-avatar" src="/images/icons/group-chat.png" mode="aspectFit"/>
+        </view>
+        <view class="message-main">
+          <view class="message-top"><view class="message-name">{{item.displayName}}</view><view class="message-time">{{item.displayTime}}</view></view>
+          <view class="message-bottom"><view class="message-preview">{{item.previewText}}</view><view wx:if="{{item.unread > 0}}" class="unread-badge">{{item.unreadText}}</view></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="conversation-section" wx:if="{{filteredConversations.length > 0}}">
+    <view class="conversation-section-title">私信</view>
+    <view class="messages-list">
+    <view
+      wx:for="{{filteredConversations}}"
+      wx:key="conversationId"
+      class="message-row"
+      data-openid="{{item.targetOpenid}}"
+      data-nickname="{{item.nickName}}"
+      data-avatar="{{item.avatarUrl}}"
+      bindtap="onOpenChat"
+    >
+      <view class="avatar-wrap">
+        <image wx:if="{{item.avatarUrl}}" class="avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+        <view wx:else class="avatar placeholder">{{item.initials}}</view>
+        <view wx:if="{{item.isOnline}}" class="online-dot"></view>
+      </view>
+      <view class="message-main">
+        <view class="message-top">
+          <view class="message-name"><text wx:if="{{item.pinned}}" class="pinned-label">置顶</text>{{item.displayName}}</view>
+          <view class="message-time">{{item.displayTime}}</view>
+        </view>
+        <view class="message-bottom">
+          <view class="message-preview">{{item.previewText}}</view>
+          <view wx:if="{{item.unread > 0 && !item.muted}}" class="unread-badge">{{item.unreadText}}</view>
+        </view>
+        <view class="message-status {{item.isOnline && !item.muted ? 'online' : ''}}">{{item.muted ? '消息免打扰' : item.statusText}}</view>
+      </view>
+    </view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty-state">
+    <view class="empty-title">加载中...</view>
+  </view>
+
+  <view wx:elif="{{!searchKeyword && conversations.length === 0 && groupConversations.length === 0}}" class="empty-state">
+    <image class="empty-icon" src="/images/icons/friend-requests.png" mode="aspectFit"/>
+    <view class="empty-title">还没有私信</view>
+    <view class="empty-subtitle">从右上角添加好友，开始聊天</view>
+  </view>
+</view>

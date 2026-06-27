@@ -1,0 +1,42 @@
+<message-popup />
+<view class="nc-page">
+  <view class="inbox-overview">
+    <view class="inbox-card" wx:for="{{inboxCards}}" wx:key="key" data-key="{{item.key}}" bindtap="onInboxCardTap">
+      <image class="inbox-card-icon ui-theme-icon" src="{{item.icon}}" mode="aspectFit"/>
+      <view class="inbox-card-copy">
+        <view class="inbox-card-title">{{item.label}}</view>
+        <view class="inbox-card-desc">{{item.desc}}</view>
+      </view>
+      <view class="inbox-card-count {{item.value ? 'active' : ''}}">{{item.value}}</view>
+    </view>
+  </view>
+
+  <view class="nc-header">
+    <scroll-view scroll-x class="nc-tabs" enhanced show-scrollbar="{{false}}">
+      <view class="nc-tabs-inner">
+        <view wx:for="{{tabs}}" wx:key="key" class="nc-tab {{activeTab === item.key ? 'active' : ''}}" data-key="{{item.key}}" bindtap="onTab">{{item.label}}</view>
+      </view>
+    </scroll-view>
+    <view class="nc-read-all {{unreadCount ? '' : 'disabled'}}" bindtap="onMarkAllRead">全部已读</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="nc-empty">正在加载通知...</view>
+  <view wx:elif="{{!filtered.length}}" class="nc-empty">
+    <image class="nc-empty-icon ui-theme-icon" src="/images/icons/tab-messages.png" mode="aspectFit" />
+    <text>{{activeTab === 'unread' ? '没有未读通知' : '这里还没有通知'}}</text>
+  </view>
+
+  <scroll-view wx:else scroll-y class="nc-list" enhanced show-scrollbar="{{false}}">
+    <view wx:for="{{filtered}}" wx:key="_id" class="nc-item {{item.read ? '' : 'unread'}}" data-index="{{index}}" bindtap="onOpen">
+      <view class="nc-avatar-wrap">
+        <image wx:if="{{item.fromAvatar}}" class="nc-avatar" src="{{item.fromAvatar}}" mode="aspectFill" />
+        <view wx:else class="nc-avatar placeholder">{{item.fromNickName[0] || '?'}}</view>
+        <image class="nc-type ui-theme-icon" src="{{item.type === 'like' ? '/images/icons/like2.png' : '/images/icons/comment.png'}}" mode="aspectFit" />
+      </view>
+      <view class="nc-copy"><text class="nc-title">{{item.title}}</text><text wx:if="{{item.detail}}" class="nc-detail">{{item.detail}}</text><text class="nc-time">{{item.displayTime}}</text></view>
+      <image wx:if="{{item.momentImage}}" class="nc-thumb" src="{{item.momentImage}}" mode="aspectFill" />
+      <view wx:if="{{!item.read}}" class="nc-dot"></view>
+    </view>
+    <view class="nc-safe"></view>
+  </scroll-view>
+</view>

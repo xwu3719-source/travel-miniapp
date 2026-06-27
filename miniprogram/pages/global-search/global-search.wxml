@@ -1,0 +1,69 @@
+<message-popup />
+<view class="gs-page">
+  <view class="gs-search">
+    <icon type="search" size="18" color="#8fa1b5" />
+    <input value="{{keyword}}" placeholder="搜索联系人、聊天、AI 或行程" focus confirm-type="search" bindinput="onInput" bindconfirm="runSearch" />
+    <image wx:if="{{keyword}}" class="gs-clear" src="/images/icons/close.png" mode="aspectFit" bindtap="onClear" />
+  </view>
+
+  <view wx:if="{{searching}}" class="gs-state">正在搜索...</view>
+  <view wx:elif="{{searched && total === 0}}" class="gs-state">
+    <image src="/images/icons/history.png" class="gs-state-icon ui-theme-icon" mode="aspectFit" />
+    <text>没有找到相关内容</text>
+    <text class="gs-state-sub">换个关键词试试</text>
+  </view>
+  <view wx:elif="{{!searched}}" class="gs-state">
+    <image src="/images/icons/tab-messages.png" class="gs-state-icon ui-theme-icon" mode="aspectFit" />
+    <text>一次搜索整个拾途</text>
+    <text class="gs-state-sub">联系人、消息、群聊、AI 对话和行程</text>
+  </view>
+
+  <scroll-view wx:else scroll-y class="gs-results" enhanced show-scrollbar="{{false}}">
+    <view wx:if="{{results.contacts.length}}" class="gs-section">
+      <view class="gs-section-title">联系人</view>
+      <view wx:for="{{results.contacts}}" wx:key="openid" class="gs-row" data-index="{{index}}" bindtap="onOpenContact">
+        <image wx:if="{{item.avatarUrl}}" class="gs-avatar" src="{{item.avatarUrl}}" mode="aspectFill" />
+        <view wx:else class="gs-avatar placeholder">{{item.nickName[0] || '?'}}</view>
+        <view class="gs-copy"><text class="gs-title">{{item.nickName}}</text><text class="gs-sub">ID {{item.publicId}}</text></view>
+        <image class="gs-arrow" src="/images/icons/chevron-right.png" mode="aspectFit" />
+      </view>
+    </view>
+
+    <view wx:if="{{results.chats.length}}" class="gs-section">
+      <view class="gs-section-title">聊天记录</view>
+      <view wx:for="{{results.chats}}" wx:key="id" class="gs-row" data-index="{{index}}" bindtap="onOpenChat">
+        <view class="gs-type-icon"><image class="ui-theme-icon" src="/images/icons/tab-messages.png" mode="aspectFit" /></view>
+        <view class="gs-copy"><text class="gs-title">{{item.title}}</text><text class="gs-sub">{{item.text}}</text></view>
+        <text class="gs-time">{{item.createdAt}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{results.groups.length}}" class="gs-section">
+      <view class="gs-section-title">群聊</view>
+      <view wx:for="{{results.groups}}" wx:key="id" class="gs-row" data-index="{{index}}" bindtap="onOpenGroup">
+        <view class="gs-type-icon"><image class="ui-theme-icon" src="/images/icons/group-chat.png" mode="aspectFit" /></view>
+        <view class="gs-copy"><text class="gs-title">{{item.title}}</text><text class="gs-sub">{{item.senderName ? item.senderName + '：' : ''}}{{item.text}}</text></view>
+        <image class="gs-arrow" src="/images/icons/chevron-right.png" mode="aspectFit" />
+      </view>
+    </view>
+
+    <view wx:if="{{results.ai.length}}" class="gs-section">
+      <view class="gs-section-title">AI 对话</view>
+      <view wx:for="{{results.ai}}" wx:key="id" class="gs-row" data-index="{{index}}" bindtap="onOpenAi">
+        <view class="gs-type-icon"><image class="ui-theme-icon" src="/images/icons/tab-ai.png" mode="aspectFit" /></view>
+        <view class="gs-copy"><text class="gs-title">{{item.title}}</text><text class="gs-sub">{{item.text}}</text></view>
+        <image class="gs-arrow" src="/images/icons/chevron-right.png" mode="aspectFit" />
+      </view>
+    </view>
+
+    <view wx:if="{{results.trips.length}}" class="gs-section">
+      <view class="gs-section-title">行程</view>
+      <view wx:for="{{results.trips}}" wx:key="id" class="gs-row" data-index="{{index}}" bindtap="onOpenTrip">
+        <view class="gs-type-icon"><image class="ui-theme-icon" src="/images/icons/tab-trip.png" mode="aspectFit" /></view>
+        <view class="gs-copy"><text class="gs-title">{{item.title}}</text><text class="gs-sub">{{item.text}}</text></view>
+        <image class="gs-arrow" src="/images/icons/chevron-right.png" mode="aspectFit" />
+      </view>
+    </view>
+    <view class="gs-safe"></view>
+  </scroll-view>
+</view>

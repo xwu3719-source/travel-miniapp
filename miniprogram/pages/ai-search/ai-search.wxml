@@ -1,0 +1,149 @@
+<message-popup />
+<view class="chat-page">
+  <view class="chat-tools">
+    <view class="chat-tool-button" aria-label="历史对话" bindtap="openHistory">
+      <image class="ui-theme-icon" src="/images/icons/history.png" mode="aspectFit" />
+    </view>
+    <view class="chat-tool-button" aria-label="新建对话" bindtap="onNewConversation">
+      <image class="ui-theme-icon" src="/images/icons/create.png" mode="aspectFit" />
+    </view>
+  </view>
+
+  <!-- 消息区 -->
+  <scroll-view
+    class="chat-scroll"
+    scroll-y
+    enhanced="{{true}}"
+    show-scrollbar="{{false}}"
+    scroll-into-view="{{scrollIntoView}}"
+    scroll-with-animation
+    style="bottom: calc({{keyboardHeight}}px + 104rpx + env(safe-area-inset-bottom));"
+  >
+    <!-- 快速提问 -->
+    <view class="quick-prompts" wx:if="{{showPrompts}}">
+      <view
+        wx:for="{{quickPrompts}}" wx:key="text"
+        class="quick-chip"
+        data-text="{{item.text}}"
+        bindtap="onQuickPrompt"
+      >
+        <image class="quick-icon ui-theme-icon" src="{{item.icon}}" mode="aspectFit" />
+        <text>{{item.text}}</text>
+      </view>
+    </view>
+
+    <!-- 消息列表 -->
+    <view wx:for="{{messages}}" wx:key="id" id="{{item.id}}" class="msg-row {{item.role}}">
+      <view class="msg-bubble {{item.role}}">
+        <view wx:if="{{item.role === 'assistant' && item.blocks && item.blocks.length}}" class="message-content">
+          <block wx:for="{{item.blocks}}" wx:key="id" wx:for-item="block">
+            <view wx:if="{{block.type === 'heading'}}" class="message-heading">{{block.text}}</view>
+            <view wx:elif="{{block.type === 'numbered'}}" class="message-list-row numbered">
+              <view class="message-number">{{block.marker}}</view>
+              <text>{{block.text}}</text>
+            </view>
+            <view wx:elif="{{block.type === 'bullet'}}" class="message-list-row">
+              <text class="message-bullet">•</text>
+              <text>{{block.text}}</text>
+            </view>
+            <text wx:else class="message-paragraph">{{block.text}}</text>
+          </block>
+        </view>
+        <text wx:else>{{item.text}}</text>
+        <view wx:if="{{item.actions && item.actions.length}}" class="action-cards">
+          <view wx:for="{{item.actions}}" wx:key="id" wx:for-item="act" class="action-card {{act.status}}">
+            <view class="action-header">
+              <text class="action-title">{{act.title || 'AI 操作'}}</text>
+              <text class="action-state">{{act.status === 'pending' ? '待确认' : (act.status === 'running' ? '执行中' : (act.status === 'done' ? '已完成' : (act.status === 'cancelled' ? '已取消' : '失败')))}}</text>
+            </view>
+            <text class="action-detail">{{act.detail || (act.result && act.result.msg) || ''}}</text>
+            <text wx:if="{{act.status === 'done' || act.status === 'failed'}}" class="action-result">{{act.result && act.result.msg || ''}}</text>
+            <view wx:if="{{act.status === 'pending'}}" class="action-buttons">
+              <view class="action-button cancel" data-message-id="{{item.id}}" data-action-id="{{act.id}}" catchtap="onCancelAction">取消</view>
+              <view class="action-button confirm" data-message-id="{{item.id}}" data-action-id="{{act.id}}" catchtap="onConfirmAction">确认执行</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载动画 -->
+    <view class="msg-row assistant" wx:if="{{sending}}">
+      <view class="msg-bubble assistant typing">
+        <view></view><view></view><view></view>
+      </view>
+    </view>
+
+    <view id="ai-chat-bottom" class="chat-bottom-anchor"></view>
+  </scroll-view>
+
+  <view wx:if="{{conversationLoading && !messages.length}}" class="conversation-loading">
+    <view class="loading-dot"></view>
+    <text>正在加载对话</text>
+  </view>
+
+  <!-- 底部输入栏 -->
+  <view class="chat-bar" style="bottom: {{keyboardHeight}}px;">
+    <input
+      class="chat-input"
+      value="{{inputText}}"
+      bindinput="onInput"
+      bindfocus="onInputFocus"
+      bindconfirm="onSend"
+      confirm-type="send"
+      placeholder="输入你的问题..."
+      maxlength="500"
+      cursor-spacing="{{20}}"
+      adjust-position="{{false}}"
+      bindkeyboardheightchange="onKeyboardHeightChange"
+    />
+    <view class="chat-send {{inputText && !sending ? 'active' : ''}}" bindtap="onSend">
+      <text>发送</text>
+    </view>
+  </view>
+
+  <view wx:if="{{historyVisible}}" class="history-mask" bindtap="closeHistory">
+    <view class="history-sheet" catchtap="stopPropagation">
+      <view class="history-handle"></view>
+      <view class="history-header">
+        <view>
+          <view class="history-title">历史对话</view>
+          <view class="history-subtitle">继续之前的话题，或开启一段新对话</view>
+        </view>
+        <view class="history-new" bindtap="onNewConversation">
+          <image class="ui-theme-icon" src="/images/icons/create.png" mode="aspectFit" />
+          <text>新对话</text>
+        </view>
+      </view>
+
+      <view class="history-search">
+        <icon type="search" size="16" color="#91a0b2" />
+        <input value="{{historyKeyword}}" placeholder="搜索历史对话" bindinput="onHistorySearch" />
+      </view>
+
+      <scroll-view class="history-list" scroll-y enhanced="{{true}}" show-scrollbar="{{false}}">
+        <view wx:if="{{historyLoading}}" class="history-empty">正在加载...</view>
+        <view wx:elif="{{!filteredConversations.length}}" class="history-empty">{{historyKeyword ? '没有匹配的对话' : '还没有历史对话'}}</view>
+        <view
+          wx:for="{{filteredConversations}}"
+          wx:key="_id"
+          class="history-item {{item._id === conversationId ? 'active' : ''}}"
+          data-id="{{item._id}}"
+          bindtap="onOpenConversation"
+        >
+          <view class="history-item-main">
+            <view class="history-item-top">
+              <text class="history-item-title">{{item.pinned ? '置顶 · ' : ''}}{{item.title}}</text>
+              <text class="history-item-time">{{item.displayTime}}</text>
+            </view>
+            <text class="history-item-preview">{{item.preview || '暂无内容'}}</text>
+          </view>
+          <view class="history-delete" aria-label="管理对话" data-id="{{item._id}}" catchtap="onManageConversation">
+            <image src="/images/icons/more.png" mode="aspectFit" />
+          </view>
+        </view>
+        <view class="history-safe-space"></view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

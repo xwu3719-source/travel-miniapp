@@ -1,0 +1,221 @@
+<message-popup />
+<view class="packing-page">
+  <view class="top-toolbar">
+    <view class="search-box">
+      <icon type="search" size="16" color="#94a3b8" />
+      <input
+        class="search-input"
+        placeholder="搜索清单物品"
+        placeholder-class="search-placeholder"
+        value="{{searchText}}"
+        bindinput="onSearchInput"
+        confirm-type="search"
+      />
+      <icon wx:if="{{searchText}}" type="clear" size="16" color="#b8c1cf" bindtap="onClearSearch" />
+    </view>
+    <view class="history-entry" bindtap="onOpenHistory">
+      <image class="history-entry-icon ui-theme-icon" src="/images/icons/history.png" mode="aspectFit" />
+      <text>历史清单</text>
+    </view>
+  </view>
+
+  <scroll-view scroll-x enhanced show-scrollbar="{{false}}" class="category-scroll">
+    <view class="category-tabs">
+      <view
+        wx:for="{{categories}}"
+        wx:key="id"
+        class="category-tab {{activeCategory === item.id ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onSelectCategory"
+      >
+        <text class="category-tab-label">{{item.label}}</text>
+        <text wx:if="{{item.count > 0}}" class="category-tab-count">{{item.count}}</text>
+        <view wx:if="{{activeCategory === item.id}}" class="category-tab-line"></view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="progress-strip">
+    <view class="progress-copy">
+      <text class="progress-title">{{activeCategoryLabel}}清单</text>
+      <text class="progress-meta">{{currentTripName ? currentTripName + ' · ' : ''}}已打包 {{packingChecked}} / {{allItems.length}}</text>
+    </view>
+    <view class="progress-track">
+      <view class="progress-fill" style="width: {{packingPercent}}%;"></view>
+    </view>
+    <text class="progress-value">{{packingPercentText}}</text>
+  </view>
+
+  <view wx:if="{{requiresCurrentTrip}}" class="current-trip-notice" bindtap="onGoSetCurrentTrip">
+    <view>
+      <text class="current-trip-notice-title">请先设置当前行程</text>
+      <text class="current-trip-notice-copy">每个行程会保存独立的行李清单</text>
+    </view>
+    <image class="current-trip-notice-arrow" src="/images/icons/chevron-right.png" mode="aspectFit" />
+  </view>
+
+  <view class="packing-workspace">
+    <scroll-view scroll-y enhanced show-scrollbar="{{false}}" class="sub-sidebar">
+      <view
+        wx:for="{{currentSubs}}"
+        wx:key="id"
+        class="sub-item {{activeSub === item.id ? 'active' : ''}}"
+        data-sub="{{item.id}}"
+        bindtap="onSelectSub"
+      >
+        <text class="sub-item-text">{{item.label}}</text>
+        <text wx:if="{{item.count > 0}}" class="sub-item-count">{{item.count}}</text>
+      </view>
+    </scroll-view>
+
+    <view class="list-panel">
+      <view class="list-header">
+        <text class="list-title">{{searchText ? '搜索结果' : activeSubLabel}}</text>
+        <text class="list-count">{{displayItems.length}} 件</text>
+      </view>
+
+      <scroll-view scroll-y enhanced show-scrollbar="{{false}}" class="item-scroll">
+        <view wx:if="{{displayItems.length}}" class="item-list">
+          <view
+            wx:for="{{displayItems}}"
+            wx:key="_id"
+            class="packing-item {{item.checked ? 'checked' : ''}} {{swipedItemId === item._id ? 'swiped' : ''}}"
+            data-id="{{item._id}}"
+            bindtouchstart="onPackingTouchStart"
+            bindtouchend="onPackingTouchEnd"
+          >
+            <view class="packing-item-swipe-bg">
+              <view class="packing-swipe-del" data-id="{{item._id}}" catchtap="onRemovePackingItem">删除</view>
+            </view>
+            <view class="packing-item-front" data-id="{{item._id}}" bindtap="onPackingRowTap">
+              <text class="packing-name">{{item.name}}</text>
+              <checkbox
+                class="item-checkbox"
+                checked="{{item.checked}}"
+                color="#5b9ff5"
+                data-id="{{item._id}}"
+                catchtap="onPackingCheckTap"
+              />
+            </view>
+          </view>
+        </view>
+
+        <view wx:else class="empty-block">
+          <image class="empty-icon ui-theme-icon" src="/images/icons/packing.png" mode="aspectFit" />
+          <text class="empty-title">{{searchText ? '没有找到相关物品' : '这里还没有物品'}}</text>
+          <text class="empty-hint">{{searchText ? '换个关键词试试' : (requiresCurrentTrip ? '设置当前行程后即可添加物品' : '在下方输入物品名称进行添加')}}</text>
+        </view>
+
+        <view wx:if="{{packingChecked > 0}}" class="reset-row">
+          <view class="reset-btn" bindtap="onResetPacking">重置勾选状态</view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <view class="add-bar">
+    <input
+      class="packing-input"
+      placeholder="添加一件物品"
+      placeholder-class="packing-placeholder"
+      value="{{packingText}}"
+      disabled="{{requiresCurrentTrip}}"
+      bindinput="onPackingInput"
+      confirm-type="done"
+      bindconfirm="onAddPackingItem"
+      maxlength="50"
+    />
+    <view class="add-btn {{requiresCurrentTrip ? 'disabled' : (packingText ? 'ready' : '')}}" bindtap="onAddPackingItem">添加</view>
+  </view>
+
+  <view wx:if="{{historyVisible}}" class="sheet-mask" catchtouchmove="noop" bindtap="onCloseHistory">
+    <view class="history-sheet" catchtap="noop">
+      <view class="sheet-handle"></view>
+      <view class="sheet-header">
+        <view>
+          <view class="sheet-title">{{aiPreviewVisible ? '智能清单' : '历史清单'}}</view>
+          <view class="sheet-subtitle">
+            {{aiPreviewVisible ? currentTripName + ' · 勾选需要加入的物品' : '保存常用组合，下次直接添加'}}
+          </view>
+        </view>
+        <image class="sheet-close" src="/images/icons/close.png" mode="aspectFit" bindtap="onCloseHistory" />
+      </view>
+
+      <block wx:if="{{aiPreviewVisible}}">
+        <view class="ai-preview-toolbar">
+          <view class="ai-preview-back" bindtap="onBackToHistories">返回历史清单</view>
+          <view class="ai-select-all" bindtap="onToggleAllSuggestions">
+            {{selectedSuggestionCount === packingSuggestions.length ? '取消全选' : '全选'}}
+          </view>
+        </view>
+
+        <scroll-view scroll-y enhanced show-scrollbar="{{false}}" class="ai-preview-list">
+          <view
+            wx:for="{{packingSuggestions}}"
+            wx:key="id"
+            class="ai-suggestion {{item.selected ? 'selected' : ''}}"
+            data-index="{{index}}"
+            bindtap="onSuggestionToggle"
+          >
+            <view class="ai-suggestion-copy">
+              <view class="ai-suggestion-title-row">
+                <text class="ai-suggestion-name">{{item.name}}</text>
+                <text class="ai-suggestion-category">{{item.categoryLabel}}</text>
+              </view>
+              <text wx:if="{{item.reason}}" class="ai-suggestion-reason">{{item.reason}}</text>
+            </view>
+            <checkbox
+              class="ai-suggestion-check"
+              checked="{{item.selected}}"
+              color="#5b9ff5"
+              data-index="{{index}}"
+              catchtap="onSuggestionToggle"
+            />
+          </view>
+        </scroll-view>
+
+        <view class="ai-confirm-btn {{selectedSuggestionCount ? '' : 'disabled'}}" bindtap="onConfirmSuggestions">
+          加入已选的 {{selectedSuggestionCount}} 件物品
+        </view>
+      </block>
+
+      <block wx:else>
+        <view class="ai-generate-card {{requiresCurrentTrip ? 'disabled' : ''}}" bindtap="onGeneratePacking">
+          <image class="ai-generate-icon" src="/images/icons/tab-ai.png" mode="aspectFit" />
+          <view class="ai-generate-copy">
+            <text class="ai-generate-title">AI 生成专属清单</text>
+            <text class="ai-generate-subtitle">
+              {{currentTripName ? currentTripName + (currentTripCity ? ' · ' + currentTripCity : '') : '设置当前行程后使用'}}
+            </text>
+          </view>
+          <text class="ai-generate-action">{{aiGenerating ? '生成中' : '生成'}}</text>
+        </view>
+
+        <view class="save-history-btn {{allItems.length && !requiresCurrentTrip ? '' : 'disabled'}}" bindtap="onSaveHistory">
+          保存当前清单
+        </view>
+
+        <scroll-view scroll-y enhanced show-scrollbar="{{false}}" class="history-list">
+          <view wx:if="{{historyLoading}}" class="history-state">正在加载…</view>
+          <view wx:elif="{{!histories.length}}" class="history-empty">
+            <image class="history-empty-icon ui-theme-icon" src="/images/icons/history.png" mode="aspectFit" />
+            <text class="history-empty-title">还没有历史清单</text>
+            <text class="history-empty-hint">保存当前清单后，会显示在这里</text>
+          </view>
+          <view wx:else>
+            <view wx:for="{{histories}}" wx:key="_id" class="history-card">
+              <view class="history-card-copy">
+                <text class="history-card-title">{{item.name}}</text>
+                <text class="history-card-meta">
+                  {{item.itemCount}} 件{{item.sourceTripName ? ' · ' + item.sourceTripName : ''}} · {{item.createdLabel}}
+                </text>
+              </view>
+              <view class="history-apply" data-id="{{item._id}}" bindtap="onApplyHistory">添加到当前</view>
+              <image class="history-delete" src="/images/icons/delete.png" mode="aspectFit" data-id="{{item._id}}" bindtap="onDeleteHistory" />
+            </view>
+          </view>
+        </scroll-view>
+      </block>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,92 @@
+<message-popup />
+<scroll-view scroll-y class="friend-page page-scroll">
+  <view class="friend-tabs">
+    <view class="friend-tab {{activeTab === 'search' ? 'active' : ''}}" data-tab="search" bindtap="onTabSelect">
+      <image src="/images/icons/friend-add.png" mode="aspectFit"/>
+      <text>添加好友</text>
+    </view>
+    <view class="friend-tab {{activeTab === 'requests' ? 'active' : ''}}" data-tab="requests" bindtap="onTabSelect">
+      <view class="friend-tab-icon">
+        <image src="/images/icons/friend-requests.png" mode="aspectFit"/>
+        <view wx:if="{{incoming.length > 0}}" class="tab-badge">{{incoming.length > 99 ? '99+' : incoming.length}}</view>
+      </view>
+      <text>好友申请</text>
+    </view>
+    <view class="friend-tab {{activeTab === 'friends' ? 'active' : ''}}" data-tab="friends" bindtap="onTabSelect">
+      <image src="/images/icons/friend-list.png" mode="aspectFit"/>
+      <text>好友列表</text>
+    </view>
+  </view>
+
+  <block wx:if="{{activeTab === 'search'}}">
+    <view class="id-panel" bindtap="onCopyMyId">
+      <view class="id-copy">
+        <view class="id-label">我的 ID</view>
+        <view class="id-value">{{myPublicId || '生成中...'}}</view>
+      </view>
+      <view class="copy-action">复制</view>
+    </view>
+
+    <view class="search-row">
+      <view class="search-box">
+        <icon type="search" size="18" color="#9ca3af"/>
+        <input value="{{query}}" placeholder="输入 6 位数字 ID" type="number" maxlength="6" confirm-type="search" bindinput="onInput" bindconfirm="onSearch"/>
+      </view>
+      <view class="search-action" bindtap="onSearch">{{searching ? '搜索中' : '搜索'}}</view>
+    </view>
+
+    <view wx:if="{{result}}" class="result-card">
+      <view class="user-main" data-openid="{{result.openid}}" data-nickname="{{result.nickName}}" data-avatar="{{result.avatarUrl}}" bindtap="onOpenProfile">
+        <image wx:if="{{result.avatarUrl}}" class="user-avatar" src="{{result.avatarUrl}}" mode="aspectFill"/>
+        <view wx:else class="user-avatar placeholder">{{result.nickName[0] || '?'}}</view>
+        <view class="user-copy">
+          <view class="user-name">{{result.nickName}}</view>
+          <view class="user-id">{{result.publicId}}</view>
+          <view wx:if="{{result.signature}}" class="user-signature">{{result.signature}}</view>
+        </view>
+      </view>
+      <view wx:if="{{resultFriend.status === 'none' || resultFriend.status === 'incoming'}}" class="friend-action primary" bindtap="onAddResult">
+        {{resultFriend.status === 'incoming' ? '同意好友' : '添加好友'}}
+      </view>
+      <view wx:elif="{{resultFriend.status === 'outgoing'}}" class="friend-action disabled">等待通过</view>
+      <view wx:elif="{{resultFriend.status === 'friends'}}" class="friend-action disabled">已是好友</view>
+      <view wx:else class="friend-action disabled">这是你自己</view>
+    </view>
+  </block>
+
+  <block wx:elif="{{activeTab === 'requests'}}">
+    <view class="section-head"><view class="section-title">好友申请</view><view class="section-count">{{incoming.length}} 条</view></view>
+    <view wx:if="{{incoming.length > 0}}" class="list-card">
+      <view class="request-row" wx:for="{{incoming}}" wx:key="requestId">
+        <view class="user-main" data-openid="{{item.user.openid}}" data-nickname="{{item.user.nickName}}" data-avatar="{{item.user.avatarUrl}}" bindtap="onOpenProfile">
+          <image wx:if="{{item.user.avatarUrl}}" class="user-avatar small" src="{{item.user.avatarUrl}}" mode="aspectFill"/>
+          <view wx:else class="user-avatar small placeholder">{{item.user.nickName[0] || '?'}}</view>
+          <view class="user-copy"><view class="user-name">{{item.user.nickName}}</view><view class="user-id">ID {{item.user.publicId}}</view></view>
+        </view>
+        <view class="request-actions">
+          <view class="mini-action muted" data-request-id="{{item.requestId}}" data-accept="{{false}}" catchtap="onRespond">拒绝</view>
+          <view class="mini-action primary" data-request-id="{{item.requestId}}" data-accept="{{true}}" catchtap="onRespond">同意</view>
+        </view>
+      </view>
+    </view>
+    <view wx:else class="empty-friend-state"><image src="/images/icons/friend-requests.png" mode="aspectFit"/><view>暂时没有新的好友申请</view></view>
+  </block>
+
+  <block wx:else>
+    <view class="section-head"><view class="section-title">好友列表</view><view class="section-count">{{friends.length}} 位</view></view>
+    <view wx:if="{{friends.length > 0}}" class="list-card">
+      <view class="friend-row" wx:for="{{friends}}" wx:key="openid">
+        <view class="user-main" data-openid="{{item.openid}}" data-nickname="{{item.nickName}}" data-avatar="{{item.avatarUrl}}" bindtap="onOpenProfile">
+          <image wx:if="{{item.avatarUrl}}" class="user-avatar small" src="{{item.avatarUrl}}" mode="aspectFill"/>
+          <view wx:else class="user-avatar small placeholder">{{item.nickName[0] || '?'}}</view>
+          <view class="user-copy">
+            <view class="user-name">{{item.nickName}}</view>
+            <view class="user-id">ID {{item.publicId}}</view>
+          </view>
+        </view>
+        <view class="mini-action message" data-openid="{{item.openid}}" data-nickname="{{item.nickName}}" data-avatar="{{item.avatarUrl}}" catchtap="onOpenChat">私信</view>
+      </view>
+    </view>
+    <view wx:else class="empty-friend-state" data-tab="search" bindtap="onTabSelect"><image src="/images/icons/friend-list.png" mode="aspectFit"/><view>还没有好友，去添加一个吧</view></view>
+  </block>
+</scroll-view>

@@ -1,0 +1,54 @@
+<message-popup />
+<view class="register-page">
+  <view class="register-body">
+    <view class="brand-section">
+      <text class="app-title">拾途 ST</text>
+      <text class="app-slogan">创建你的旅行身份</text>
+    </view>
+
+    <view class="form-card">
+      <view class="form-item">
+        <view class="form-label">用户名</view>
+        <input
+          class="form-input"
+          placeholder="3-20位，字母数字下划线或中文"
+          value="{{username}}"
+          bindinput="onUsernameInput"
+          maxlength="20"
+        />
+      </view>
+      <view class="form-item">
+        <view class="form-label">密码</view>
+        <input
+          class="form-input"
+          type="password"
+          placeholder="至少6位"
+          value="{{password}}"
+          bindinput="onPasswordInput"
+          maxlength="30"
+        />
+      </view>
+      <view class="form-item">
+        <view class="form-label">确认密码</view>
+        <input
+          class="form-input"
+          type="password"
+          placeholder="再次输入密码"
+          value="{{confirmPassword}}"
+          bindinput="onConfirmPasswordInput"
+          maxlength="30"
+        />
+      </view>
+    </view>
+
+    <view class="action-section">
+      <button
+        class="register-btn"
+        bindtap="onRegister"
+        loading="{{loading}}"
+        disabled="{{loading}}"
+      >注册</button>
+      <text class="link-text" bindtap="onGoLogin">已有账号？去登录</text>
+    </view>
+  </view>
+</view>

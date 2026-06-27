@@ -1,0 +1,179 @@
+/* 启动缓冲页 */
+
+.splash-page {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(160deg, #eef4ff 0%, #f5f8ff 40%, #fff 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 9999;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.splash-page.fade-out {
+  opacity: 0;
+  transform: scale(1.04);
+}
+
+/* ── 背景装饰圆 ── */
+.splash-bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.c1 {
+  width: 480rpx;
+  height: 480rpx;
+  background: radial-gradient(circle, rgba(91,159,245,0.10) 0%, transparent 70%);
+  top: -160rpx;
+  right: -140rpx;
+  animation: splashFloat 6s ease-in-out infinite;
+}
+
+.c2 {
+  width: 360rpx;
+  height: 360rpx;
+  background: radial-gradient(circle, rgba(125,185,248,0.08) 0%, transparent 70%);
+  bottom: -80rpx;
+  left: -100rpx;
+  animation: splashFloat 5s ease-in-out 1s infinite;
+}
+
+.c3 {
+  width: 260rpx;
+  height: 260rpx;
+  background: radial-gradient(circle, rgba(53,125,232,0.06) 0%, transparent 70%);
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: splashPulse 4s ease-in-out infinite;
+}
+
+/* ── 主体 ── */
+.splash-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Logo ── */
+.splash-logo-wrap {
+  animation: logoEnter 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.splash-logo-ring {
+  width: 240rpx;
+  height: 240rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(91,159,245,0.18), rgba(125,185,248,0.08));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: logoGlow 3s ease-in-out infinite;
+}
+
+.splash-logo-inner {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12rpx 36rpx rgba(91,159,245,0.22);
+}
+
+.splash-logo-img {
+  width: 130rpx;
+  height: 130rpx;
+}
+
+/* ── 文字 ── */
+.splash-title {
+  margin-top: 44rpx;
+  font-size: 68rpx;
+  font-weight: 900;
+  background: linear-gradient(135deg, #7db9f8 0%, #5b9ff5 52%, #357de8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 12rpx;
+  animation: titleUp 0.6s 0.15s both;
+}
+
+.splash-sub {
+  margin-top: 18rpx;
+  font-size: 29rpx;
+  color: #a0b8d4;
+  font-weight: 500;
+  letter-spacing: 8rpx;
+  animation: titleUp 0.6s 0.25s both;
+}
+
+/* ── 加载点 ── */
+.splash-dots {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 60rpx;
+  animation: titleUp 0.5s 0.35s both;
+}
+
+.splash-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #c4d5ed;
+  animation: dotBounce 1.4s ease-in-out infinite;
+}
+
+.splash-dot:nth-child(1) { animation-delay: 0s; }
+.splash-dot:nth-child(2) { animation-delay: 0.2s; }
+.splash-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* ── 底部 ── */
+.splash-footer {
+  position: absolute;
+  bottom: 100rpx;
+  font-size: 24rpx;
+  color: #c4d5ed;
+  letter-spacing: 3rpx;
+  animation: titleUp 0.5s 0.45s both;
+}
+
+/* ── 动画 ── */
+@keyframes splashFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(14rpx, -16rpx) scale(1.03); }
+  66%  { transform: translate(-10rpx, 10rpx) scale(0.98); }
+}
+
+@keyframes splashPulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50%  { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+}
+
+@keyframes logoGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(91,159,245,0.15); }
+  50%  { box-shadow: 0 0 0 24rpx rgba(91,159,245,0.06); }
+}
+
+@keyframes logoEnter {
+  0%   { opacity: 0; transform: scale(0.7) translateY(-20rpx); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes titleUp {
+  0%   { opacity: 0; transform: translateY(14rpx); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dotBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.35; }
+  50%  { transform: translateY(-14rpx); opacity: 1; }
+}

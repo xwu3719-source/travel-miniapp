@@ -1,0 +1,19 @@
+<message-popup />
+<view class="create-group-page">
+  <view class="group-name-card">
+    <image src="/images/icons/create-group.png" mode="aspectFit"/>
+    <input value="{{name}}" maxlength="30" placeholder="给群聊起个名字" bindinput="onNameInput"/>
+  </view>
+  <view class="member-heading"><text>选择好友</text><text>{{selectedCount}} 人</text></view>
+  <view wx:if="{{loading}}" class="group-empty">正在加载好友...</view>
+  <view wx:elif="{{friends.length === 0}}" class="group-empty">还没有好友，先去添加好友吧</view>
+  <view wx:else class="member-list">
+    <view wx:for="{{friends}}" wx:key="openid" class="member-option {{item.selected ? 'selected' : ''}}" data-index="{{index}}" bindtap="onToggleFriend">
+      <image wx:if="{{item.avatarUrl}}" class="member-avatar" src="{{item.avatarUrl}}" mode="aspectFill"/>
+      <view wx:else class="member-avatar placeholder">{{item.nickName[0] || '?'}}</view>
+      <view class="member-name">{{item.nickName || '好友'}}</view>
+      <checkbox color="#5b9ff5" checked="{{item.selected}}" data-index="{{index}}" catchtap="onToggleFriend"/>
+    </view>
+  </view>
+  <view class="create-footer"><button disabled="{{!name || !selectedCount || creating}}" loading="{{creating}}" bindtap="onCreate">创建群聊{{selectedCount ? '（' + selectedCount + '）' : ''}}</button></view>
+</view>

@@ -1,0 +1,13 @@
+<message-popup />
+<view class="search-page">
+  <view class="search-box"><input value="{{query}}" placeholder="搜索文字、文件名或位置" focus bindinput="onInput"/></view>
+  <view class="search-summary">{{query ? '找到 ' + results.length + ' 条记录' : '共 ' + results.length + ' 条聊天记录'}}</view>
+  <view wx:if="{{loading}}" class="search-empty">正在加载聊天记录...</view>
+  <view wx:elif="{{results.length === 0}}" class="search-empty">没有找到相关记录</view>
+  <view wx:else class="result-list">
+    <view wx:for="{{results}}" wx:key="_id" class="result-row" data-id="{{item._id}}" bindtap="onOpenResult">
+      <view class="result-top"><text class="result-sender">{{item.senderName}}</text><text class="result-time">{{item.displayTime}}</text></view>
+      <view class="result-text">{{item.previewText}}</view>
+    </view>
+  </view>
+</view>

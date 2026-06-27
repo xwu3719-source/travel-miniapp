@@ -1,0 +1,187 @@
+<message-popup />
+<!-- 私信 -->
+<view class="chat-page">
+    <!-- 名片栏：点击锁定视角查看对方主页，··· 在名片最右边 -->
+  <view class="chat-name-card">
+    <image
+      wx:if="{{targetUser.avatarUrl}}"
+      src="{{targetUser.avatarUrl}}"
+      class="name-card-avatar"
+      mode="aspectFill"
+      bindtap="onOpenTargetProfile"
+    />
+    <view wx:else class="name-card-avatar-placeholder" bindtap="onOpenTargetProfile">{{targetUser.nickName[0] || '?'}}</view>
+    <view class="name-card-info">
+      <view class="name-card-name">
+        <text>{{targetUser.nickName || '用户'}}</text>
+        <image wx:if="{{targetVerified}}" class="name-card-verified" src="/images/icons/官方认证.png" mode="aspectFit" />
+        <image wx:if="{{targetBadgeIcon}}" class="name-card-badge" src="/images/icons/{{targetBadgeIcon}}" mode="aspectFit" />
+        <view wx:if="{{statusIcon || (targetMood && targetMood.text)}}" class="name-card-mood">
+          <image wx:if="{{statusIcon}}" src="/images/icons/status/{{statusIcon}}.png" class="name-card-mood-icon" mode="aspectFit"/>
+          <text wx:if="{{targetMood && targetMood.text}}" class="name-card-mood-text">{{targetMood.text}}</text>
+        </view>
+      </view>
+      <view wx:if="{{targetIsTyping}}" class="name-card-typing">正在输入...</view>
+    </view>
+    <view class="name-card-more" catchtap="onOpenManage">
+      <text class="name-card-more-icon">···</text>
+    </view>
+  </view>
+
+  <scroll-view scroll-y class="chat-list {{showTools || showEmoji ? 'panel-open' : ''}} {{replyingTo ? 'reply-open' : ''}}" style="{{chatListPaddingStyle}}" scroll-into-view="{{scrollIntoView}}" scroll-top="{{scrollTop}}" show-scrollbar="{{false}}" enhanced="{{true}}">
+    <view wx:if="{{loading}}" class="chat-empty">加载中...</view>
+    <view wx:elif="{{messages.length === 0}}" class="chat-empty">还没有消息</view>
+
+    <view
+      wx:for="{{messages}}"
+      wx:key="_id"
+      id="msg-{{index}}"
+      class="chat-row {{item.isMine ? 'mine' : 'theirs'}}"
+    >
+      <image
+        wx:if="{{!item.isMine && targetUser.avatarUrl}}"
+        src="{{targetUser.avatarUrl}}"
+        class="chat-avatar"
+        mode="aspectFill"
+        bindtap="onOpenTargetProfile"
+      />
+      <view wx:elif="{{!item.isMine}}" class="chat-avatar-placeholder" bindtap="onOpenTargetProfile">{{targetUser.nickName[0] || '?'}}</view>
+      <view class="chat-bubble-wrap" data-index="{{index}}" bindlongpress="onMessageLongPress">
+        <view class="chat-time">{{item.formattedTime}}</view>
+        <view
+          wx:if="{{item.quoteMessageId && item.type !== 'revoked'}}"
+          class="message-quote"
+          data-message-id="{{item.quoteMessageId}}"
+          catchtap="onOpenQuotedMessage"
+        >
+          <view class="message-quote-name">{{item.quoteDisplayName}}</view>
+          <view class="message-quote-text">{{item.quoteText}}</view>
+        </view>
+        <view wx:if="{{item.type === 'revoked'}}" class="message-revoked">{{item.isMine ? '你撤回了一条消息' : '对方撤回了一条消息'}}</view>
+        <view wx:elif="{{item.type === 'trip_invite'}}" class="trip-invite-card">
+          <view class="invite-kicker">行程邀请</view>
+          <view class="invite-name">{{item.tripName}}</view>
+          <view wx:if="{{item.tripCity}}" class="invite-meta">{{item.tripCity}}</view>
+          <view wx:if="{{item.tripStartDate}}" class="invite-meta">{{item.tripStartDate}} → {{item.tripEndDate}}</view>
+          <view wx:if="{{!item.isMine && item.invitationStatus === 'pending'}}" class="invite-actions">
+            <view class="invite-action reject" data-message-id="{{item._id}}" data-accept="{{false}}" catchtap="onRespondTripInvite">拒绝</view>
+            <view class="invite-action accept" data-message-id="{{item._id}}" data-accept="{{true}}" catchtap="onRespondTripInvite">接受邀请</view>
+          </view>
+          <view wx:else class="invite-status {{item.invitationStatus}}">{{item.invitationText}}</view>
+        </view>
+        <image wx:elif="{{item.type === 'image'}}" class="chat-image-message" src="{{item.imageFileId}}" mode="aspectFill" lazy-load="{{true}}" data-url="{{item.imageFileId}}" bindtap="onOpenMessageImage"/>
+        <view
+          wx:elif="{{item.type === 'voice'}}"
+          class="voice-message {{voicePlayingId === item._id ? 'playing' : ''}}"
+          style="width: {{item.voiceBubbleWidth || 176}}rpx"
+          data-message-id="{{item._id}}"
+          data-url="{{item.voiceFileId}}"
+          catchtap="onPlayVoiceMessage"
+        >
+          <image class="voice-message-icon" src="/images/icons/chat-voice.png" mode="aspectFit"/>
+          <view wx:if="{{voicePlayingId === item._id}}" class="voice-wave"><view></view><view></view><view></view></view>
+          <text class="voice-duration">{{item.voiceDuration || 1}}″</text>
+        </view>
+        <view wx:elif="{{item.type === 'location'}}" class="rich-card location-card" data-latitude="{{item.latitude}}" data-longitude="{{item.longitude}}" data-name="{{item.locationName}}" bindtap="onOpenMessageLocation">
+          <image class="rich-card-icon" src="/images/icons/location.png" mode="aspectFit"/>
+          <view class="rich-card-copy"><view class="rich-card-title">{{item.locationName}}</view><view class="rich-card-subtitle">{{item.locationAddress || '点击查看位置'}}</view></view>
+        </view>
+        <view wx:elif="{{item.type === 'file'}}" class="rich-card" data-file-id="{{item.fileId}}" data-file-name="{{item.fileName}}" data-file-type="{{item.fileType}}" bindtap="onOpenMessageFile">
+          <image class="rich-card-icon" src="/images/icons/profile-archive.png" mode="aspectFit"/>
+          <view class="rich-card-copy"><view class="rich-card-title">{{item.fileName}}</view><view class="rich-card-subtitle">点击打开文件</view></view>
+        </view>
+        <view wx:elif="{{item.type === 'user_card'}}" class="rich-card" data-openid="{{item.cardOpenid}}" bindtap="onOpenUserCard">
+          <image wx:if="{{item.cardAvatar}}" class="card-avatar" src="{{item.cardAvatar}}" mode="aspectFill"/>
+          <view wx:else class="card-avatar placeholder">{{item.cardName[0] || '?'}}</view>
+          <view class="rich-card-copy"><view class="rich-card-title">{{item.cardName}}</view><view class="rich-card-subtitle">ID {{item.cardPublicId}}</view></view>
+        </view>
+        <view wx:elif="{{item.type === 'moment_share'}}" class="moment-share-card" data-moment-id="{{item.momentId}}" bindtap="onOpenSharedMoment">
+          <image wx:if="{{item.momentImage}}" class="moment-share-image" src="{{item.momentImage}}" mode="aspectFill"/>
+          <view wx:else class="moment-share-placeholder"><image src="/images/icons/tab-moments.png" mode="aspectFit"/></view>
+          <view class="moment-share-copy">
+            <view class="moment-share-kicker">动态分享</view>
+            <view class="moment-share-title">{{item.momentText || '分享了一条旅行动态'}}</view>
+            <view class="moment-share-author">来自 {{item.momentAuthorName || '旅友'}}</view>
+          </view>
+        </view>
+        <view wx:else class="chat-bubble">{{item.text}}</view>
+        <view wx:if="{{item.isMine && item.type !== 'revoked'}}" class="chat-read-state">{{item.readText}}</view>
+      </view>
+      <!-- 我的头像（右侧） -->
+      <image
+        wx:if="{{item.isMine && myAvatarUrl}}"
+        src="{{myAvatarUrl}}"
+        class="chat-avatar mine-avatar"
+        mode="aspectFill"
+      />
+      <view wx:elif="{{item.isMine}}" class="chat-avatar-placeholder mine-avatar">{{myNickName[0] || '我'}}</view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{recording}}" class="recording-overlay {{recordCanceling ? 'canceling' : ''}}">
+    <image src="/images/icons/chat-voice.png" mode="aspectFit"/>
+    <view class="recording-time">{{recordingDuration}}″</view>
+    <view class="recording-tip">{{recordCanceling ? '松开取消发送' : '松开发送，上滑取消'}}</view>
+  </view>
+
+  <view class="chat-input-bar" style="bottom: {{keyboardHeight}}px;">
+    <view wx:if="{{replyingTo}}" class="reply-composer">
+      <view class="reply-composer-copy">
+        <view class="reply-composer-name">回复 {{replyingTo.senderName}}</view>
+        <view class="reply-composer-text">{{replyingTo.text}}</view>
+      </view>
+      <view class="reply-composer-cancel" bindtap="onCancelReply">取消</view>
+    </view>
+    <view class="chat-input-row">
+      <view class="chat-icon-button {{voiceMode ? 'active' : ''}}" bindtap="onToggleVoiceMode">
+        <image src="/images/icons/chat-voice.png" mode="aspectFit"/>
+      </view>
+      <input
+        wx:if="{{!voiceMode}}"
+        class="chat-input"
+        value="{{inputText}}"
+        placeholder="{{blocked ? '已屏蔽对方' : (limited && sentCount >= 3 ? '已达上限，加好友或互关后可继续聊天' : (limited ? '非好友/互关仅限3条私信' : '发一条私信'))}}"
+        disabled="{{blocked || (limited && sentCount >= 3)}}"
+        maxlength="500"
+        confirm-type="send"
+        adjust-position="{{false}}"
+        bindkeyboardheightchange="onKeyboardHeightChange"
+        bindinput="onInput"
+        bindconfirm="onSend"
+      />
+      <view
+        wx:else
+        class="hold-to-talk {{recording ? 'recording' : ''}} {{recordCanceling ? 'canceling' : ''}}"
+        bindtouchstart="onVoiceTouchStart"
+        bindtouchmove="onVoiceTouchMove"
+        bindtouchend="onVoiceTouchEnd"
+        bindtouchcancel="onVoiceTouchCancel"
+      >{{recording ? (recordCanceling ? '松开取消' : '松开发送') : '按住 说话'}}</view>
+      <view class="chat-icon-button {{showEmoji ? 'active' : ''}}" bindtap="onToggleEmoji">
+        <image src="/images/icons/chat-emoji.png" mode="aspectFit"/>
+      </view>
+      <view class="chat-invite {{showTools ? 'active' : ''}}" bindtap="onToggleTools">+</view>
+    </view>
+
+    <!-- 工具面板（向下弹出） -->
+    <view wx:if="{{showTools}}" class="chat-tools">
+      <view class="chat-tool" bindtap="onInviteTrip"><image src="/images/icons/trip-plan.png" mode="aspectFit"/><text>邀请</text></view>
+      <view class="chat-tool" bindtap="onSendImage"><image src="/images/icons/image.png" mode="aspectFit"/><text>图片</text></view>
+      <view class="chat-tool" bindtap="onCameraCapture"><image src="/images/icons/chat-camera.png" mode="aspectFit"/><text>拍摄</text></view>
+      <view class="chat-tool" bindtap="onSendLocation"><image src="/images/icons/location.png" mode="aspectFit"/><text>位置</text></view>
+      <view class="chat-tool" bindtap="onSendFile"><image src="/images/icons/profile-archive.png" mode="aspectFit"/><text>文件</text></view>
+      <view class="chat-tool" bindtap="onSendCard"><image src="/images/icons/trip-members.png" mode="aspectFit"/><text>名片</text></view>
+    </view>
+
+    <!-- 表情面板（向下弹出） -->
+    <view wx:if="{{showEmoji}}" class="emoji-panel">
+      <view
+        wx:for="{{emojiList}}"
+        wx:key="*this"
+        class="emoji-item"
+        data-emoji="{{item}}"
+        bindtap="onSelectEmoji"
+      >{{item}}</view>
+    </view>
+  </view>
+</view>

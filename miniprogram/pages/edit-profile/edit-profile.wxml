@@ -1,0 +1,54 @@
+<message-popup />
+<!-- 编辑资料 -->
+<form class="edit-profile-form" bindsubmit="onSaveSubmit">
+  <scroll-view scroll-y class="edit-profile-page page-scroll">
+    <view class="edit-card profile-editor-card">
+      <view class="avatar-editor" bindtap="onAvatarTap">
+        <image wx:if="{{avatarUrl}}" src="{{avatarUrl}}" class="avatar-preview" mode="aspectFill"/>
+        <view wx:else class="avatar-placeholder">{{nickName ? nickName[0] : '我'}}</view>
+        <view class="avatar-edit-badge">更换</view>
+      </view>
+      <view class="avatar-tip">头像会显示在动态、主页和同行人列表</view>
+    </view>
+
+    <view class="edit-card">
+      <view class="field-row">
+        <view class="field-label">昵称</view>
+        <input
+          class="field-input"
+          name="nickName"
+          value="{{nickName}}"
+          placeholder="请输入昵称"
+          maxlength="20"
+          bindinput="onNickInput"
+        />
+        <view class="field-count">{{nickName.length}}/20</view>
+      </view>
+
+      <view class="field-row field-row-textarea">
+        <view class="field-label">个性签名</view>
+        <textarea
+          class="field-textarea"
+          name="signature"
+          value="{{signature}}"
+          placeholder="写一句你的旅行状态"
+          maxlength="60"
+          bindinput="onSignatureInput"
+        />
+        <view class="field-count">{{signature.length}}/60</view>
+      </view>
+    </view>
+
+  </scroll-view>
+
+  <view class="save-bar">
+    <button
+      class="save-btn {{saving || avatarUploading ? 'disabled' : ''}}"
+      form-type="submit"
+      disabled="{{saving || avatarUploading}}"
+      hover-class="save-btn-hover"
+    >
+    {{saving ? '保存中...' : '保存'}}
+    </button>
+  </view>
+</form>

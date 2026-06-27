@@ -1,0 +1,26 @@
+.cs-page { height: 100vh; padding: 24rpx 24rpx 80rpx; background: var(--bg); box-sizing: border-box; }
+.cs-card { margin-bottom: 22rpx; border-radius: 26rpx; background: #fff; box-shadow: var(--shadow-sm); overflow: hidden; }
+.cs-profile-row { min-height: 122rpx; padding: 20rpx 24rpx; display: flex; align-items: center; gap: 18rpx; box-sizing: border-box; }
+.cs-avatar { width: 82rpx; height: 82rpx; border-radius: 50%; flex-shrink: 0; }
+.cs-avatar.placeholder { background: var(--purple-light); color: var(--purple); display: flex; align-items: center; justify-content: center; font-size: 31rpx; font-weight: 900; }
+.cs-profile-copy { flex: 1; min-width: 0; }
+.cs-name { color: var(--text-primary); font-size: 30rpx; font-weight: 900; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cs-meta { margin-top: 5rpx; color: var(--text-hint); font-size: 21rpx; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cs-divider { height: 1rpx; margin: 0 24rpx; background: var(--border); }
+.cs-divider.inset { margin-left: 24rpx; margin-right: 24rpx; }
+.cs-group-row { min-height: 104rpx; padding: 16rpx 24rpx; display: flex; align-items: center; gap: 17rpx; color: var(--text-primary); font-size: 28rpx; font-weight: 800; box-sizing: border-box; }
+.cs-icon-box { width: 66rpx; height: 66rpx; border-radius: 20rpx; background: var(--purple-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cs-icon-box image { width: 38rpx; height: 38rpx; }
+.cs-arrow { width: 28rpx; height: 28rpx; opacity: .38; flex-shrink: 0; }
+.cs-group-row .cs-arrow { margin-left: auto; }
+.cs-setting-row { min-height: 102rpx; padding: 0 24rpx; display: flex; align-items: center; justify-content: space-between; gap: 18rpx; color: var(--text-primary); font-size: 28rpx; box-sizing: border-box; }
+.cs-setting-row:active, .cs-profile-row:active, .cs-group-row:active { background: var(--purple-light); }
+.cs-setting-row switch { transform: scale(.82); transform-origin: right center; }
+.cs-setting-desc { margin-top: 5rpx; color: var(--text-hint); font-size: 20rpx; }
+.cs-row-right { min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 10rpx; color: var(--text-hint); font-size: 22rpx; }
+.cs-row-right text { max-width: 280rpx; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cs-setting-row.danger { color: #ef4444; }
+.cs-setting-row.danger:active { background: #fef2f2; }
+.cs-setting-row.centered { justify-content: center; font-weight: 800; }
+.cs-bottom-note { padding: 4rpx 24rpx 30rpx; color: var(--text-hint); font-size: 21rpx; text-align: center; }
+.cs-loading { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 18rpx 26rpx; border-radius: 20rpx; background: rgba(31, 41, 55, .82); color: #fff; font-size: 23rpx; }

@@ -1,0 +1,146 @@
+/* 心情选择器 */
+.mood-page {
+  width: 100%;
+  height: 100vh;
+  padding: 24rpx 36rpx 160rpx;
+  box-sizing: border-box;
+  background: var(--bg);
+}
+
+/* 预览区 */
+.mood-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx 0 36rpx;
+}
+
+.mood-preview-icon-wrap {
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 36rpx;
+  background: linear-gradient(135deg, #dbeafe, #c7d9f7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12rpx 30rpx rgba(91, 159, 245, 0.16);
+}
+
+.mood-preview-icon {
+  width: 68rpx;
+  height: 68rpx;
+}
+
+.mood-preview-text {
+  margin-top: 12rpx;
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* 分区 */
+.mood-section {
+  margin-top: 32rpx;
+}
+
+.mood-section-title {
+  font-size: 26rpx;
+  color: var(--text-hint);
+  margin-bottom: 20rpx;
+  font-weight: 600;
+}
+
+/* 心情网格 */
+.mood-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
+}
+
+.mood-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  padding: 24rpx 10rpx 20rpx;
+  border-radius: 20rpx;
+  background: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s;
+}
+
+.mood-item.selected {
+  background: linear-gradient(135deg, #edf6ff, #dcecff);
+  box-shadow: 0 0 0 3rpx var(--purple);
+}
+
+.mood-item:active {
+  transform: scale(0.95);
+}
+
+.mood-item-icon-wrap {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 24rpx;
+  background: #f2f7fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mood-item-icon {
+  width: 44rpx;
+  height: 44rpx;
+}
+
+.mood-item-label {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* 文字输入 */
+.mood-text-input {
+  width: 100%;
+  height: 88rpx;
+  padding: 0 28rpx;
+  border-radius: 20rpx;
+  background: var(--card-bg);
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+/* 按钮区 */
+.mood-actions {
+  margin-top: 48rpx;
+  display: flex;
+  gap: 20rpx;
+}
+
+.mood-action-btn {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.mood-action-btn.save {
+  background: var(--gradient-purple);
+  color: #fff;
+  box-shadow: 0 8rpx 24rpx rgba(91, 159, 245, 0.26);
+}
+
+.mood-action-btn.save:active {
+  opacity: 0.85;
+}
+
+.mood-action-btn.clear {
+  background: var(--card-bg);
+  color: var(--red);
+  border: 2rpx solid #fecaca;
+}

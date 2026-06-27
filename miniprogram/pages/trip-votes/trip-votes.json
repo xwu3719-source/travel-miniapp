@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "行程投票",
+  "usingComponents": {
+    "message-popup": "/components/message-popup/message-popup"
+  }
+}

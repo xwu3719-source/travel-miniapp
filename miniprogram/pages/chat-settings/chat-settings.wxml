@@ -1,0 +1,55 @@
+<message-popup />
+<scroll-view scroll-y class="cs-page" show-scrollbar="{{false}}">
+  <view class="cs-card cs-people-card">
+    <view class="cs-profile-row" bindtap="onOpenProfile">
+      <image wx:if="{{profile.avatarUrl}}" src="{{profile.avatarUrl}}" class="cs-avatar" mode="aspectFill"/>
+      <view wx:else class="cs-avatar placeholder">{{profile.nickName[0] || '?'}}</view>
+      <view class="cs-profile-copy">
+        <view class="cs-name">{{profile.nickName || '用户'}}</view>
+        <view class="cs-meta">{{friendStatusText}}{{profile.publicId ? ' · ID ' + profile.publicId : ''}}</view>
+      </view>
+      <image class="cs-arrow" src="/images/icons/chevron-right.png" mode="aspectFit"/>
+    </view>
+    <view class="cs-divider"></view>
+    <view class="cs-group-row" bindtap="onStartGroup">
+      <view class="cs-icon-box"><image src="/images/icons/create-group.png" mode="aspectFit"/></view>
+      <text>发起群聊</text>
+      <image class="cs-arrow" src="/images/icons/chevron-right.png" mode="aspectFit"/>
+    </view>
+  </view>
+
+  <view class="cs-card">
+    <view class="cs-setting-row" bindtap="onSearchHistory">
+      <text>查找聊天记录</text><view class="cs-row-right"><text>文字和文件名</text><image class="cs-arrow" src="/images/icons/chevron-right.png" mode="aspectFit"/></view>
+    </view>
+    <view class="cs-divider inset"></view>
+    <view class="cs-setting-row" bindtap="onOpenMedia">
+      <text>聊天文件</text><view class="cs-row-right"><text>图片、语音、文件和位置</text><image class="cs-arrow" src="/images/icons/chevron-right.png" mode="aspectFit"/></view>
+    </view>
+  </view>
+
+  <view class="cs-card">
+    <view class="cs-setting-row"><text>设为置顶</text><switch checked="{{pinned}}" bindchange="onPinnedChange" color="#5b9ff5"/></view>
+    <view class="cs-divider inset"></view>
+    <view class="cs-setting-row"><text>消息免打扰</text><switch checked="{{muted}}" bindchange="onMutedChange" color="#5b9ff5"/></view>
+    <view class="cs-divider inset"></view>
+    <view class="cs-setting-row"><view><view>显示已读状态</view><view class="cs-setting-desc">允许对方看到你是否已读消息</view></view><switch checked="{{showReadReceipts}}" bindchange="onReadReceiptsChange" color="#5b9ff5"/></view>
+  </view>
+
+  <view class="cs-card">
+    <view class="cs-setting-row"><text>不看 TA 的动态</text><switch checked="{{hiddenMoments}}" bindchange="onHiddenMomentsChange" color="#5b9ff5"/></view>
+    <view class="cs-divider inset"></view>
+    <view class="cs-setting-row"><text>屏蔽好友</text><switch checked="{{blocked}}" bindchange="onBlockedChange" color="#5b9ff5"/></view>
+  </view>
+
+  <view class="cs-card">
+    <view class="cs-setting-row" bindtap="onToggleFollow"><text>{{following ? '取消关注' : '关注 TA'}}</text><view class="cs-row-right"><text>{{following ? '已关注' : ''}}</text><image class="cs-arrow" src="/images/icons/chevron-right.png" mode="aspectFit"/></view></view>
+    <view wx:if="{{friendStatus !== 'friends' && !blocked}}" class="cs-divider inset"></view>
+    <view wx:if="{{friendStatus !== 'friends' && !blocked}}" class="cs-setting-row" bindtap="onFriendAction"><text>{{friendStatus === 'incoming' ? '同意好友申请' : (friendStatus === 'outgoing' ? '等待对方通过' : '添加好友')}}</text><image class="cs-arrow" src="/images/icons/chevron-right.png" mode="aspectFit"/></view>
+  </view>
+
+  <view class="cs-card"><view class="cs-setting-row danger" bindtap="onClearHistory"><text>{{clearing ? '正在清空...' : '清空聊天记录'}}</text></view></view>
+  <view wx:if="{{friendStatus === 'friends'}}" class="cs-card"><view class="cs-setting-row danger centered" bindtap="onDeleteFriend"><text>删除好友</text></view></view>
+  <view class="cs-bottom-note">屏蔽好友后，双方将无法继续发送私信</view>
+  <view wx:if="{{loading}}" class="cs-loading">正在加载设置...</view>
+</scroll-view>

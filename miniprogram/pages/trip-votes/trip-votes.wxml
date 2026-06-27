@@ -1,0 +1,78 @@
+<message-popup />
+<view class="votes-page">
+  <view class="votes-hero">
+    <view>
+      <view class="votes-kicker">协作决策</view>
+      <view class="votes-title">{{trip ? trip.name : '行程投票'}}</view>
+      <view class="votes-subtitle">餐厅、景点、集合时间，都可以先投一轮再决定</view>
+    </view>
+    <view class="create-vote-btn" bindtap="onOpenCreate">发起</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty-state">
+    <image class="ui-empty-icon ui-theme-icon" src="/images/icons/trip-plan.png" mode="aspectFit"/>
+    <view class="empty-text">正在加载投票…</view>
+  </view>
+
+  <view wx:elif="{{!votes.length}}" class="empty-panel">
+    <image src="/images/icons/trip-members.png" mode="aspectFit"/>
+    <view class="empty-title">还没有投票</view>
+    <view class="empty-copy">遇到选择困难时，就把选项丢给大家一起勾。</view>
+    <view class="empty-action" bindtap="onOpenCreate">发起第一个投票</view>
+  </view>
+
+  <view wx:else class="vote-list">
+    <view wx:for="{{votes}}" wx:key="_id" wx:for-item="vote" class="vote-card {{vote.status === 'closed' ? 'closed' : ''}}">
+      <view class="vote-head">
+        <view class="vote-main">
+          <view class="vote-type">{{vote.type === 'spot' ? '景点' : (vote.type === 'food' ? '餐厅' : (vote.type === 'hotel' ? '住宿' : (vote.type === 'time' ? '时间' : '其他')))}}</view>
+          <view class="vote-title">{{vote.title}}</view>
+          <view class="vote-meta">{{vote.createdByName || '成员'}} 发起 · {{vote.totalVotes}} 票</view>
+        </view>
+        <view class="vote-status {{vote.status}}">{{vote.status === 'closed' ? '已结束' : '进行中'}}</view>
+      </view>
+
+      <view class="option-list">
+        <view wx:for="{{vote.options}}" wx:key="text" wx:for-item="option" class="option-row {{option.selected ? 'selected' : ''}}" data-id="{{vote._id}}" data-index="{{index}}" bindtap="onVoteOption">
+          <view class="option-check">
+            <view wx:if="{{option.selected}}" class="option-check-inner"></view>
+          </view>
+          <view class="option-content">
+            <view class="option-top">
+              <text class="option-text">{{option.text}}</text>
+              <text class="option-count">{{option.count}}票 · {{option.percent}}%</text>
+            </view>
+            <view class="option-bar"><view class="option-fill" style="width: {{option.percent}}%;"></view></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="vote-foot">
+        <text>{{vote.myChoice >= 0 ? '你已选择，可重新选择' : '点选项即可投票'}}</text>
+        <view wx:if="{{vote.status !== 'closed'}}" class="close-vote" data-id="{{vote._id}}" catchtap="onCloseVote">结束</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="create-mask" wx:if="{{showCreate}}" catchtap="onCloseCreate"></view>
+  <view class="create-sheet safe-bottom" wx:if="{{showCreate}}">
+    <view class="sheet-handle"></view>
+    <view class="sheet-title">发起投票</view>
+    <view class="sheet-label">投票主题</view>
+    <input class="sheet-input" value="{{form.title}}" bindinput="onTitleInput" maxlength="80" placeholder="比如：明晚吃哪家？"/>
+
+    <view class="sheet-label">类型</view>
+    <view class="type-row">
+      <view wx:for="{{voteTypes}}" wx:key="id" class="type-chip {{form.type === item.id ? 'active' : ''}}" data-type="{{item.id}}" bindtap="onTypeTap">{{item.label}}</view>
+    </view>
+
+    <view class="sheet-label">选项</view>
+    <textarea class="sheet-textarea" value="{{form.optionText}}" bindinput="onOptionsInput" maxlength="300" placeholder="一行一个选项，也可以用逗号隔开&#10;黄鹤楼&#10;东湖&#10;江汉路"/>
+    <view class="sheet-tip">最多 8 个选项，成员可以重新选择。</view>
+
+    <view class="sheet-actions">
+      <view class="sheet-btn secondary" bindtap="onCloseCreate">取消</view>
+      <view class="sheet-btn primary {{saving ? 'disabled' : ''}}" bindtap="onCreateVote">{{saving ? '发起中' : '发起投票'}}</view>
+    </view>
+  </view>
+</view>

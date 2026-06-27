@@ -1,0 +1,31 @@
+<message-popup />
+<view class="cm-page">
+  <scroll-view scroll-x class="cm-tabs" enhanced show-scrollbar="{{false}}">
+    <view class="cm-tabs-inner">
+      <view wx:for="{{tabs}}" wx:key="key" class="cm-tab {{activeTab === item.key ? 'active' : ''}}" data-key="{{item.key}}" bindtap="onTab">{{item.label}}</view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{loading}}" class="cm-empty">正在整理聊天文件...</view>
+  <view wx:elif="{{!filtered.length}}" class="cm-empty">
+    <image class="cm-empty-icon ui-theme-icon" src="/images/icons/profile-archive.png" mode="aspectFit" />
+    <text>这里还没有相关内容</text>
+  </view>
+
+  <scroll-view wx:else scroll-y class="cm-list" enhanced show-scrollbar="{{false}}">
+    <view wx:for="{{filtered}}" wx:key="_id" class="cm-item">
+      <image wx:if="{{item.type === 'image'}}" class="cm-image" src="{{item.imageFileId}}" mode="aspectFill" data-url="{{item.imageFileId}}" bindtap="onOpenImage" />
+      <view wx:else class="cm-icon-box">
+        <image wx:if="{{item.type === 'file'}}" class="ui-theme-icon" src="/images/icons/profile-archive.png" mode="aspectFit" />
+        <image wx:elif="{{item.type === 'voice'}}" class="ui-theme-icon" src="/images/icons/voice.png" mode="aspectFit" />
+        <image wx:elif="{{item.type === 'location'}}" class="ui-theme-icon" src="/images/icons/location.png" mode="aspectFit" />
+        <image wx:else class="ui-theme-icon" src="/images/icons/share.png" mode="aspectFit" />
+      </view>
+      <view class="cm-copy"><text class="cm-title">{{item.displayTitle}}</text><text class="cm-sub">{{item.fileSizeText ? item.fileSizeText + ' · ' : ''}}{{item.displayTime}}</text></view>
+      <view wx:if="{{item.type === 'file'}}" class="cm-action" data-index="{{index}}" bindtap="onOpenFile">打开</view>
+      <view wx:elif="{{item.type === 'voice'}}" class="cm-action" data-index="{{index}}" bindtap="onPlayVoice">{{voicePlayingId === item._id ? '停止' : '播放'}}</view>
+      <view wx:elif="{{item.type === 'location'}}" class="cm-action" data-index="{{index}}" bindtap="onOpenLocation">查看</view>
+    </view>
+    <view class="cm-safe"></view>
+  </scroll-view>
+</view>

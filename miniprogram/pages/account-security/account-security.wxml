@@ -1,0 +1,94 @@
+<message-popup />
+<view class="page">
+  <!-- 账号信息 -->
+  <view class="section">
+    <view class="section-title">账号信息</view>
+    <view class="card">
+      <view class="info-row">
+        <text class="info-label">我的ID</text>
+        <view class="info-value-row">
+          <text class="info-value">{{userInfo.publicId || '-'}}</text>
+          <text class="info-copy" bindtap="onCopyId">复制</text>
+        </view>
+      </view>
+      <view class="info-row">
+        <text class="info-label">用户名</text>
+        <text class="info-value">{{userInfo.username || '未设置'}}</text>
+      </view>
+      <view class="info-row last">
+        <text class="info-label">账号类型</text>
+        <view class="info-tag {{isPasswordUser ? 'tag-pwd' : 'tag-wx'}}">
+          {{isPasswordUser ? '账号密码' : '微信登录'}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{sessions.length || sessionsLoading}}" class="section">
+    <view class="section-title-row"><view class="section-title">登录设备</view><view wx:if="{{sessions.length > 1}}" class="section-action" bindtap="onRevokeOthers">退出其他设备</view></view>
+    <view class="card session-card">
+      <view wx:if="{{sessionsLoading}}" class="session-loading">正在加载...</view>
+      <view wx:for="{{sessions}}" wx:key="_id" class="session-row">
+        <view class="session-icon"><image class="ui-theme-icon" src="/images/icons/settings-privacy.png" mode="aspectFit" /></view>
+        <view class="session-copy"><view class="session-name">{{item.displayName}}<text wx:if="{{item.current}}" class="current-tag">当前设备</text></view><view class="session-meta">{{item.displayMeta || '登录信息暂不可用'}}</view></view>
+        <view wx:if="{{!item.current}}" class="session-exit" data-id="{{item._id}}" bindtap="onRevokeSession">退出</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 修改密码（仅密码用户可见） -->
+  <view wx:if="{{isPasswordUser}}" class="section">
+    <view class="section-title">修改密码</view>
+    <view class="card">
+      <view class="input-group">
+        <view class="input-label">旧密码</view>
+        <input
+          class="form-input"
+          type="password"
+          placeholder="输入当前密码"
+          value="{{oldPassword}}"
+          bindinput="onOldPasswordInput"
+          maxlength="30"
+        />
+      </view>
+      <view class="input-group">
+        <view class="input-label">新密码</view>
+        <input
+          class="form-input"
+          type="password"
+          placeholder="6-30位新密码"
+          value="{{newPassword}}"
+          bindinput="onNewPasswordInput"
+          maxlength="30"
+        />
+      </view>
+      <view class="input-group">
+        <view class="input-label">确认新密码</view>
+        <input
+          class="form-input"
+          type="password"
+          placeholder="再次输入新密码"
+          value="{{confirmPassword}}"
+          bindinput="onConfirmPasswordInput"
+          maxlength="30"
+        />
+      </view>
+
+      <button
+        class="primary-btn"
+        bindtap="onChangePassword"
+        loading="{{saving}}"
+        disabled="{{saving}}"
+      >保存修改</button>
+    </view>
+  </view>
+
+  <!-- 微信用户提示 -->
+  <view wx:else class="section">
+    <view class="card wx-tip-card">
+        <image class="wx-tip-icon ui-theme-icon" src="/images/icons/settings-privacy.png" mode="aspectFit"/>
+      <text class="wx-tip-text">你使用微信一键登录，无需密码。</text>
+      <text class="wx-tip-text">如需设置密码，可在注册时选择账号密码注册。</text>
+    </view>
+  </view>
+</view>

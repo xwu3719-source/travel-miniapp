@@ -1,0 +1,34 @@
+<message-popup />
+<!-- 启动缓冲页 -->
+<view class="splash-page {{ready ? 'fade-out' : ''}}">
+  <!-- 背景装饰 -->
+  <view class="splash-bg-circle c1"></view>
+  <view class="splash-bg-circle c2"></view>
+  <view class="splash-bg-circle c3"></view>
+
+  <!-- 主体 -->
+  <view class="splash-body">
+    <!-- Logo -->
+    <view class="splash-logo-wrap">
+      <view class="splash-logo-ring">
+        <view class="splash-logo-inner">
+          <image src="/images/icons/app-logo.png" mode="aspectFit" class="splash-logo-img"/>
+        </view>
+      </view>
+    </view>
+
+    <!-- 品牌 -->
+    <text class="splash-title">拾途 ST</text>
+    <text class="splash-sub">记录旅途 · 遇见同好</text>
+
+    <!-- 加载点 -->
+    <view class="splash-dots">
+      <view class="splash-dot"></view>
+      <view class="splash-dot"></view>
+      <view class="splash-dot"></view>
+    </view>
+  </view>
+
+  <!-- 底部文案 -->
+  <text class="splash-footer">正在为你准备旅行装备...</text>
+</view>

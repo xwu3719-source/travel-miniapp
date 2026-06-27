@@ -1,0 +1,31 @@
+<message-popup />
+<view class="select-page">
+  <view class="select-summary">
+    <view>
+      <view class="select-title">分享给</view>
+      <view class="select-subtitle">选择一位或多位好友</view>
+    </view>
+    <view wx:if="{{friends.length > 0}}" class="select-all" bindtap="onToggleAll">{{selectedCount === friends.length ? '取消全选' : '全选'}}</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="select-empty">正在加载好友...</view>
+  <view wx:elif="{{friends.length === 0}}" class="select-empty">
+    <image src="/images/icons/friend-list.png" mode="aspectFit"/>
+    <text>还没有可以分享的好友</text>
+  </view>
+  <view wx:else class="friend-list">
+    <view wx:for="{{friends}}" wx:key="openid" class="friend-option {{item.selected ? 'selected' : ''}}" data-index="{{index}}" bindtap="onToggleFriend">
+      <image wx:if="{{item.avatarUrl}}" class="friend-avatar" src="{{item.avatarUrl}}" mode="aspectFill"/>
+      <view wx:else class="friend-avatar placeholder">{{item.nickName[0] || '?'}}</view>
+      <view class="friend-copy"><view class="friend-name">{{item.nickName || '好友'}}</view><view class="friend-id">ID {{item.publicId}}</view></view>
+      <checkbox color="#5b9ff5" checked="{{item.selected}}" data-index="{{index}}" catchtap="onToggleFriend"/>
+    </view>
+  </view>
+
+  <view class="select-footer">
+    <view class="selected-copy">{{selectedCount ? '已选择 ' + selectedCount + ' 位好友' : '请选择好友'}}</view>
+    <button class="confirm-button" disabled="{{!selectedCount || sending}}" loading="{{sending}}" bindtap="onConfirm">
+      <image src="/images/icons/share.png" mode="aspectFit"/><text>发送</text>
+    </button>
+  </view>
+</view>

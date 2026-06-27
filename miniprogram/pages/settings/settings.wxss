@@ -1,0 +1,125 @@
+.settings-page {
+  min-height: 100vh;
+  background: var(--bg);
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.settings-section {
+  margin-bottom: 28rpx;
+}
+
+.settings-section-title {
+  color: var(--text-hint);
+  font-size: 24rpx;
+  font-weight: 800;
+  margin: 0 6rpx 12rpx;
+}
+
+.settings-section-title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.settings-section-icon {
+  width: 28rpx;
+  height: 28rpx;
+  flex-shrink: 0;
+}
+
+.settings-card {
+  background: #fff;
+  border-radius: 22rpx;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.settings-row {
+  min-height: 104rpx;
+  padding: 22rpx 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22rpx;
+  border-bottom: 1rpx solid var(--border);
+  box-sizing: border-box;
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-title {
+  color: var(--text-primary);
+  font-size: 28rpx;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.settings-subtitle {
+  margin-top: 8rpx;
+  color: var(--text-hint);
+  font-size: 22rpx;
+  line-height: 1.35;
+}
+
+.settings-title-danger {
+  color: var(--red);
+}
+
+.settings-arrow {
+  color: var(--text-hint);
+  font-size: 36rpx;
+  font-weight: 300;
+  flex-shrink: 0;
+}
+
+/* ===== 退出账号 ===== */
+.logout-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 0;
+  margin-top: 16rpx;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  width: 100%;
+  max-width: 400rpx;
+  height: 88rpx;
+  background: transparent;
+  border: 2rpx solid var(--red);
+  border-radius: 44rpx;
+  color: var(--red);
+  font-size: 28rpx;
+  font-weight: 600;
+  padding: 0;
+  line-height: 88rpx;
+}
+
+.logout-btn::after {
+  border: none;
+}
+
+.logout-icon {
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+  filter: brightness(0) saturate(100%) invert(35%) sepia(87%) saturate(2666%) hue-rotate(340deg) brightness(102%) contrast(88%);
+}
+
+.logout-hint {
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: var(--text-hint);
+}

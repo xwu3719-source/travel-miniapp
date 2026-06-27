@@ -1,0 +1,21 @@
+.select-page { min-height: 100vh; padding: 24rpx 24rpx 180rpx; background: var(--bg); box-sizing: border-box; }
+.select-summary { padding: 24rpx 26rpx; margin-bottom: 18rpx; border-radius: 26rpx; background: #fff; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: space-between; }
+.select-title { font-size: 34rpx; font-weight: 900; color: var(--text-primary); }
+.select-subtitle { margin-top: 6rpx; font-size: 23rpx; color: var(--text-hint); }
+.select-all { padding: 12rpx 18rpx; border-radius: 18rpx; background: var(--purple-light); color: var(--purple); font-size: 23rpx; font-weight: 800; }
+.friend-list { display: flex; flex-direction: column; gap: 14rpx; }
+.friend-option { min-height: 116rpx; padding: 16rpx 20rpx; border: 2rpx solid transparent; border-radius: 24rpx; background: #fff; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 18rpx; box-sizing: border-box; }
+.friend-option.selected { border-color: rgba(91,159,245,.34); background: #f0f7ff; }
+.friend-avatar { width: 82rpx; height: 82rpx; border-radius: 50%; flex-shrink: 0; }
+.friend-avatar.placeholder { background: var(--purple-light); color: var(--purple); display: flex; align-items: center; justify-content: center; font-size: 30rpx; font-weight: 900; }
+.friend-copy { flex: 1; min-width: 0; }
+.friend-name { font-size: 28rpx; font-weight: 800; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.friend-id { margin-top: 5rpx; color: var(--text-hint); font-size: 21rpx; }
+.select-empty { min-height: 55vh; color: var(--text-hint); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18rpx; }
+.select-empty image { width: 100rpx; height: 100rpx; opacity: .65; }
+.select-footer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 18rpx 24rpx calc(18rpx + env(safe-area-inset-bottom)); border-top: 1rpx solid var(--border); background: rgba(255,255,255,.96); display: flex; align-items: center; gap: 18rpx; box-sizing: border-box; }
+.selected-copy { flex: 1; color: var(--text-secondary); font-size: 24rpx; }
+.confirm-button { width: 230rpx; height: 78rpx; margin: 0; border: 0; border-radius: 24rpx; background: var(--gradient-purple); color: #fff; font-size: 27rpx; font-weight: 900; display: flex; align-items: center; justify-content: center; gap: 10rpx; }
+.confirm-button::after { border: 0; }
+.confirm-button[disabled] { background: #e5e7eb; color: #9ca3af; }
+.confirm-button image { width: 34rpx; height: 34rpx; filter: brightness(0) invert(1); }

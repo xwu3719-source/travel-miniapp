@@ -1,0 +1,89 @@
+<message-popup />
+<view class="welcome-page">
+  <view class="bg-blob bg-blob-1"></view>
+  <view class="bg-blob bg-blob-2"></view>
+  <view class="bg-blob bg-blob-3"></view>
+
+  <view class="welcome-body">
+    <!-- 品牌区域 -->
+    <view class="brand-section">
+      <view class="logo-ring">
+        <view class="logo-circle">
+          <image src="/images/icons/welcome-logo.png" mode="aspectFit" class="logo-emoji"/>
+        </view>
+      </view>
+      <text class="app-title">拾途 ST</text>
+      <text class="app-slogan">记录旅途 · 遇见同好</text>
+    </view>
+
+    <!-- Tab 切换 -->
+    <view class="tab-bar">
+      <view
+        class="tab-item {{activeTab === 'account' ? 'active' : ''}}"
+        bindtap="onSwitchTab"
+        data-tab="account"
+      >账号登录</view>
+      <view
+        class="tab-item {{activeTab === 'wechat' ? 'active' : ''}}"
+        bindtap="onSwitchTab"
+        data-tab="wechat"
+      >微信登录</view>
+    </view>
+
+    <!-- 账号登录面板 -->
+    <view wx:if="{{activeTab === 'account'}}" class="login-panel">
+      <view class="form-card">
+        <view class="form-item">
+          <input
+            class="form-input"
+            type="number"
+            placeholder="输入你的ID"
+            value="{{publicId}}"
+            bindinput="onPublicIdInput"
+            maxlength="6"
+          />
+        </view>
+        <view class="form-item">
+          <input
+            class="form-input"
+            type="password"
+            placeholder="密码"
+            value="{{password}}"
+            bindinput="onPasswordInput"
+            maxlength="30"
+          />
+        </view>
+      </view>
+      <view class="action-section">
+        <button
+          class="login-btn"
+          bindtap="onAccountLogin"
+          loading="{{loading}}"
+          disabled="{{loading}}"
+        >登录</button>
+        <text class="link-text" bindtap="onGoRegister">没有账号？去注册</text>
+        <text class="link-text link-forgot" bindtap="onForgotPassword">忘记密码？</text>
+      </view>
+    </view>
+
+    <!-- 微信登录面板 -->
+    <view wx:if="{{activeTab === 'wechat'}}" class="login-panel wechat-panel">
+      <view class="wechat-profile">
+        <view class="wechat-avatar-wrap">
+          <image wx:if="{{wechatAvatarUrl}}" src="{{wechatAvatarUrl}}" mode="aspectFill" class="wechat-avatar-img"/>
+          <view wx:else class="wechat-avatar-placeholder">
+          <image class="wechat-avatar-placeholder-icon" src="/images/icons/tab-profile.png" mode="aspectFit"/>
+          </view>
+        </view>
+        <text class="wechat-nickname">{{wechatNickName || '微信用户'}}</text>
+      </view>
+      <view class="wechat-hint">授权登录后使用你的微信身份</view>
+      <button
+        class="login-btn wechat-auth-btn"
+        bindtap="onWechatLogin"
+        loading="{{wechatLoading}}"
+        disabled="{{wechatLoading}}"
+      >授权登录</button>
+    </view>
+  </view>
+</view>

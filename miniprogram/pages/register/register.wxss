@@ -1,0 +1,132 @@
+/* ═══════════════════════════════════════
+   注册页 · 浅蓝渐变
+   ═══════════════════════════════════════ */
+
+.register-page {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #f0f7ff 0%, #e0f0ff 35%, #f5faff 70%, #ecf5ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx 48rpx env(safe-area-inset-bottom);
+  box-sizing: border-box;
+}
+
+.register-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 品牌区域 */
+.brand-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 48rpx;
+}
+
+.app-title {
+  font-size: 44rpx;
+  font-weight: 800;
+  background: linear-gradient(135deg, #5b9ff5, #7db9f8, #a8d4fa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 12rpx;
+  letter-spacing: 4rpx;
+}
+
+.app-slogan {
+  font-size: 26rpx;
+  color: #7db9f8;
+  letter-spacing: 4rpx;
+}
+
+/* 表单卡片 */
+.form-card {
+  width: 100%;
+  max-width: 520rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 24rpx rgba(91,159,245,0.08), 0 1rpx 4rpx rgba(0,0,0,0.04);
+  padding: 36rpx;
+  box-sizing: border-box;
+  margin-bottom: 48rpx;
+}
+
+.form-item {
+  margin-bottom: 28rpx;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-bottom: 12rpx;
+  font-weight: 600;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  font-size: 30rpx;
+  color: var(--text-primary);
+  background: var(--bg);
+  border-radius: 16rpx;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+}
+
+.form-input::placeholder {
+  color: #cfe0f8;
+  font-size: 26rpx;
+}
+
+/* 按钮 */
+.action-section {
+  width: 100%;
+  max-width: 520rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.register-btn {
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  border-radius: 48rpx;
+  background: linear-gradient(135deg, #7db9f8, #5b9ff5);
+  color: #fff;
+  box-shadow: 0 12rpx 32rpx rgba(91,159,245,0.3);
+  padding: 0;
+  margin-bottom: 24rpx;
+  border: none;
+  letter-spacing: 6rpx;
+}
+
+.register-btn::after {
+  border: none;
+}
+
+.register-btn:active {
+  transform: scale(0.97);
+}
+
+.register-btn[disabled] {
+  opacity: 0.6;
+}
+
+.link-text {
+  font-size: 26rpx;
+  color: #b8cfeb;
+  padding: 20rpx;
+  letter-spacing: 2rpx;
+}

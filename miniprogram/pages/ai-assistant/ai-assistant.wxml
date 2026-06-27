@@ -1,0 +1,59 @@
+<message-popup />
+<view class="ai-page">
+  <view class="ai-hero">
+    <image class="ai-logo" src="/images/icons/welcome-logo.png" mode="aspectFit"/>
+    <view class="ai-hero-copy"><view class="ai-title">旅行 AI</view><view class="ai-subtitle">规划、记账、分摊和出行建议</view></view>
+  </view>
+  <scroll-view class="context-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="context-row">
+      <view class="context-chip {{selectedTripId === '' ? 'active' : ''}}" data-id="" bindtap="onTripContextTap">自由咨询</view>
+      <view wx:for="{{trips}}" wx:key="_id" class="context-chip {{selectedTripId === item._id ? 'active' : ''}}" data-id="{{item._id}}" bindtap="onTripContextTap">{{item.name}}</view>
+    </view>
+  </scroll-view>
+  <scroll-view class="chat-scroll" scroll-y enhanced show-scrollbar="{{false}}" scroll-into-view="{{scrollIntoView}}">
+    <view class="quick-grid" wx:if="{{messages.length <= 1}}">
+      <view wx:for="{{quickActions}}" wx:key="id" class="quick-card" data-id="{{item.id}}" bindtap="onQuickAction"><image src="{{item.icon}}" mode="aspectFit"/><text>{{item.label}}</text></view>
+    </view>
+    <view wx:for="{{messages}}" wx:key="id" id="{{item.id}}" class="message-row {{item.role}}"><view class="message-bubble">{{item.text}}</view></view>
+    <view class="message-row assistant" wx:if="{{sending}}"><view class="message-bubble loading"><view></view><view></view><view></view></view></view>
+    <view class="confirm-card" wx:if="{{pendingCard}}">
+      <block wx:if="{{pendingCard.type === 'trip_draft'}}">
+        <view class="confirm-label">创建行程</view><view class="confirm-title">{{pendingCard.name}}</view>
+        <view class="confirm-row"><text>目的地</text><text>{{pendingCard.city}}</text></view><view class="confirm-row"><text>天数</text><text>{{pendingCard.days}} 天</text></view>
+        <picker mode="date" value="{{pendingCard.startDate}}" bindchange="onTripStartDateChange"><view class="confirm-row"><text>出发日期</text><text>{{pendingCard.startDate}}</text></view></picker>
+      </block>
+      <block wx:elif="{{pendingCard.type === 'expense_draft'}}">
+        <view class="confirm-label">确认记账</view><view class="confirm-amount">¥{{pendingCard.amount}}</view>
+        <view class="confirm-row"><text>用途</text><text>{{pendingCard.description}}</text></view><view class="confirm-row"><text>分类</text><text>{{pendingCard.categoryLabel}}</text></view>
+        <view class="confirm-row"><text>付款人</text><text>{{pendingCard.paidByName}}</text></view><view class="confirm-row"><text>分摊</text><text>{{pendingCard.splitNames}}</text></view>
+      </block>
+      <block wx:elif="{{pendingCard.type === 'plan_draft'}}">
+        <view class="confirm-label">行程草案</view><view class="confirm-title">{{pendingCard.trip.name}}</view>
+        <view class="plan-preview" wx:for="{{pendingCard.plan.days}}" wx:key="dayIndex"><text>Day {{item.dayIndex}}</text><text>{{item.items.length}} 个安排</text></view>
+      </block>
+      <block wx:elif="{{pendingCard.type === 'packing_draft'}}">
+        <view class="confirm-label">行李建议</view>
+        <view class="confirm-title">{{pendingCard.trip ? pendingCard.trip.name : '当前行程'}}</view>
+        <view class="packing-preview">
+          <view wx:for="{{pendingCard.suggestions}}" wx:key="key" class="packing-suggestion {{item.selected ? 'selected' : ''}}" data-index="{{index}}" bindtap="onTogglePackingItem">
+            <view class="packing-check">{{item.selected ? '✓' : ''}}</view>
+            <view class="packing-info">
+              <view class="packing-name">{{item.name}}</view>
+              <view class="packing-reason">{{item.categoryLabel}}{{item.reason ? ' · ' + item.reason : ''}}</view>
+            </view>
+          </view>
+        </view>
+      </block>
+      <block wx:elif="{{pendingCard.type === 'summary_link'}}">
+        <view class="confirm-label">旅行总结</view>
+        <view class="confirm-title">{{pendingCard.trip.name}}</view>
+        <view class="confirm-row"><text>内容</text><text>日程 · 动态 · 图片 · 账本</text></view>
+        <view class="confirm-row"><text>操作</text><text>打开总结页</text></view>
+      </block>
+      <view class="confirm-note">{{pendingCard.type === 'summary_link' ? '确认后打开总结页' : '确认后才会修改数据'}}</view>
+      <view class="confirm-actions"><view class="confirm-btn secondary" bindtap="onCancelCard">取消</view><view class="confirm-btn primary {{cardSaving ? 'disabled' : ''}}" bindtap="onConfirmCard">{{cardSaving ? '处理中...' : '确认'}}</view></view>
+    </view>
+    <view class="chat-bottom-space"></view>
+  </scroll-view>
+  <view class="composer safe-bottom"><input class="composer-input" value="{{inputText}}" bindinput="onInput" bindconfirm="onSend" confirm-type="send" placeholder="说说你想去哪里，或者快速记一笔..." maxlength="500"/><view class="composer-send {{inputText && !sending ? 'active' : ''}}" bindtap="onSend">发送</view></view>
+</view>

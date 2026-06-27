@@ -1,0 +1,92 @@
+<message-popup />
+<scroll-view scroll-y class="container page-scroll" wx:if="{{!loading && expense}}">
+  <view class="detail-hero">
+    <view class="detail-icon">
+      <image src="{{expense.icon}}" mode="aspectFit"/>
+    </view>
+    <view class="detail-desc">{{expense.description}}</view>
+    <view class="detail-amount">¥{{expense.amount}}</view>
+    <view class="detail-refund" wx:if="{{refundedText}}">{{refundedText}} · 净额 ¥{{netAmount}}</view>
+    <view class="detail-tags">
+      <text>{{expense.categoryLabel}}</text>
+      <text>{{expense.typeLabel}}</text>
+      <text wx:if="{{expense.settled}}">已结清</text>
+    </view>
+  </view>
+
+  <view class="section-card">
+    <view class="info-row">
+      <text>付款人</text>
+      <text>{{expense.paidByName}}</text>
+    </view>
+    <view class="info-row">
+      <text>创建时间</text>
+      <text>{{expense.createdAtText}}</text>
+    </view>
+    <view class="info-row" wx:if="{{expense.updatedAtText}}">
+      <text>最近修改</text>
+      <text>{{expense.updatedAtText}}</text>
+    </view>
+  </view>
+
+  <view class="section-card" wx:if="{{expense.type === 'shared'}}">
+    <view class="section-title">分摊人</view>
+    <view class="split-summary">共 {{expense.splitCount}} 人 · 人均 ¥{{expense.perPersonAmount}}</view>
+    <view class="split-member" wx:for="{{splitMembers}}" wx:key="openid">
+      <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" mode="aspectFill" class="split-avatar"/>
+      <view wx:else class="split-avatar placeholder">{{item.nickName ? item.nickName[0] : '旅'}}</view>
+      <view class="split-name">{{item.nickName}}</view>
+      <view class="split-share">¥{{item.share}}</view>
+    </view>
+  </view>
+
+  <view class="section-card" wx:if="{{expense.receiptFileId || expense.voiceFileId}}">
+    <view class="section-title">附件</view>
+    <view class="attach-row" wx:if="{{expense.receiptFileId}}" bindtap="onPreviewReceipt">
+      <image src="/images/icons/chat-camera.png" mode="aspectFit"/>
+      <text>查看凭证照片</text>
+      <text class="attach-arrow">›</text>
+    </view>
+    <view class="attach-row" wx:if="{{expense.voiceFileId}}" bindtap="onPlayVoice">
+      <image src="/images/icons/chat-voice.png" mode="aspectFit"/>
+      <text>{{voicePlaying ? '停止播放' : '播放语音备注'}} {{expense.voiceDuration ? expense.voiceDuration + '″' : ''}}</text>
+      <text class="attach-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="section-card" wx:if="{{refundHistory.length}}">
+    <view class="section-title">退款 / 抵扣记录</view>
+    <view class="refund-item" wx:for="{{refundHistory}}" wx:key="createdAt">
+      <view>
+        <view class="refund-desc">{{item.description || '退款'}}</view>
+        <view class="refund-time">{{item.createdAtText}}</view>
+      </view>
+      <view class="refund-amount">-¥{{item.amount}}</view>
+    </view>
+  </view>
+
+  <view wx:if="{{canManage}}" class="action-grid">
+    <view class="action-btn primary" bindtap="onEdit">编辑账单</view>
+    <view class="action-btn" bindtap="onShowRefund">退款/抵扣</view>
+    <view class="action-btn danger" bindtap="onDelete">删除</view>
+  </view>
+  <view wx:else class="readonly-tip">这笔账单已结算，不能再编辑或删除。</view>
+</scroll-view>
+
+<view wx:if="{{loading}}" class="empty-state">
+  <image class="ui-empty-icon ui-theme-icon" src="/images/icons/trip-ledger.png" mode="aspectFit"/>
+  <view class="empty-text">加载账单中...</view>
+</view>
+
+<view wx:if="{{showRefundModal}}" class="modal-mask" catchtap="onCloseRefund">
+  <view class="refund-modal" catchtap="preventBubble">
+    <view class="modal-title">退款 / 抵扣</view>
+    <view class="modal-subtitle">不会删除原账单，只记录抵扣金额。</view>
+    <input class="modal-input" type="digit" value="{{refundAmount}}" placeholder="金额" bindinput="onRefundAmountInput"/>
+    <input class="modal-input" value="{{refundDesc}}" placeholder="说明，例如：酒店押金退回" bindinput="onRefundDescInput" maxlength="50"/>
+    <view class="modal-actions">
+      <view class="modal-btn secondary" bindtap="onCloseRefund">取消</view>
+      <view class="modal-btn primary" bindtap="onConfirmRefund">确认</view>
+    </view>
+  </view>
+</view>

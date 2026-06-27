@@ -1,0 +1,103 @@
+<message-popup />
+<!-- 设置 -->
+<scroll-view scroll-y class="settings-page page-scroll">
+  <view class="settings-section">
+    <view class="settings-section-title">账号</view>
+    <view class="settings-card">
+      <view class="settings-row" bindtap="onGoEditProfile">
+        <view>
+          <view class="settings-title">个人资料</view>
+          <view class="settings-subtitle">头像、昵称、个性签名</view>
+        </view>
+        <view class="settings-arrow">›</view>
+      </view>
+      <view class="settings-row" bindtap="onGoAccountSecurity">
+        <view>
+          <view class="settings-title">账号安全</view>
+          <view class="settings-subtitle">修改密码</view>
+        </view>
+        <view class="settings-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="settings-section">
+    <view class="settings-section-title settings-section-title-with-icon">
+      <image class="settings-section-icon" src="/images/icons/settings-privacy.png" mode="aspectFit"/>
+      <text>隐私</text>
+    </view>
+    <view class="settings-card">
+      <view class="settings-row">
+        <view class="settings-copy">
+          <view class="settings-title">允许别人查看主页</view>
+          <view class="settings-subtitle">关闭后，其他人无法查看你的动态主页</view>
+        </view>
+          <switch checked="{{privacySettings.allowProfileView}}" data-key="allowProfileView" bindchange="onPrivacySwitch" color="#5b9ff5"/>
+      </view>
+      <view class="settings-row">
+        <view class="settings-copy">
+          <view class="settings-title">允许别人给我发私信</view>
+          <view class="settings-subtitle">关闭后，别人主页里不会显示私信入口</view>
+        </view>
+          <switch checked="{{privacySettings.allowPrivateMessage}}" data-key="allowPrivateMessage" bindchange="onPrivacySwitch" color="#5b9ff5"/>
+      </view>
+      <view class="settings-row">
+        <view class="settings-copy">
+          <view class="settings-title">新动态默认私密</view>
+          <view class="settings-subtitle">发布新动态时自动设为仅自己可见</view>
+        </view>
+          <switch checked="{{privacySettings.defaultMomentPrivate}}" data-key="defaultMomentPrivate" bindchange="onPrivacySwitch" color="#5b9ff5"/>
+      </view>
+      <view class="settings-row">
+        <view class="settings-copy">
+          <view class="settings-title">向对方显示已读状态</view>
+          <view class="settings-subtitle">关闭后，对方无法看到你是否已读消息</view>
+        </view>
+          <switch checked="{{!privacySettings.hideReadReceipts}}" data-key="hideReadReceipts" data-invert="{{true}}" bindchange="onPrivacySwitch" color="#5b9ff5"/>
+      </view>
+      <view class="settings-row">
+        <view class="settings-copy">
+          <view class="settings-title">向他人展示状态</view>
+          <view class="settings-subtitle">关闭后，聊天和动态中不显示你的当前状态</view>
+        </view>
+          <switch checked="{{privacySettings.showMoodStatus}}" data-key="showMoodStatus" bindchange="onPrivacySwitch" color="#5b9ff5"/>
+      </view>
+      <view class="settings-row">
+        <view class="settings-copy">
+          <view class="settings-title">显示徽章</view>
+          <view class="settings-subtitle">关闭后，聊天和动态中不显示你佩戴的徽章</view>
+        </view>
+          <switch checked="{{showBadge}}" bindchange="onShowBadgeSwitch" color="#5b9ff5"/>
+      </view>
+    </view>
+  </view>
+
+  <view class="settings-section">
+    <view class="settings-section-title">其他</view>
+    <view class="settings-card">
+      <view class="settings-row" bindtap="onTips">
+        <view>
+          <view class="settings-title">旅行小贴士</view>
+          <view class="settings-subtitle">查看使用建议</view>
+        </view>
+        <view class="settings-arrow">›</view>
+      </view>
+      <view class="settings-row" bindtap="onAbout">
+        <view>
+          <view class="settings-title">关于我们</view>
+          <view class="settings-subtitle">拾途 ST</view>
+        </view>
+        <view class="settings-arrow">›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 退出账号 -->
+  <view class="logout-section">
+    <button class="logout-btn" bindtap="onLogout">
+      <image class="logout-icon" src="/images/icons/logout.png" mode="aspectFit" />
+      <text>退出账号</text>
+    </button>
+    <text class="logout-hint">退出后返回欢迎页，可重新设置资料</text>
+  </view>
+</scroll-view>

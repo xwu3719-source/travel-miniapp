@@ -1,0 +1,12 @@
+.search-page { min-height: 100vh; padding: 22rpx 24rpx 60rpx; background: var(--bg); box-sizing: border-box; }
+.search-box { height: 78rpx; padding: 0 22rpx; border-radius: 24rpx; background: #fff; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 13rpx; }
+.search-box input { flex: 1; height: 70rpx; font-size: 27rpx; }
+.search-summary { margin: 22rpx 5rpx 12rpx; color: var(--text-hint); font-size: 22rpx; }
+.result-list { display: flex; flex-direction: column; gap: 13rpx; }
+.result-row { padding: 20rpx 22rpx; border-radius: 22rpx; background: #fff; box-shadow: var(--shadow-sm); }
+.result-row:active { background: var(--purple-light); }
+.result-top { display: flex; align-items: center; justify-content: space-between; gap: 16rpx; }
+.result-sender { color: var(--purple); font-size: 22rpx; font-weight: 800; }
+.result-time { color: var(--text-hint); font-size: 19rpx; }
+.result-text { margin-top: 9rpx; color: var(--text-primary); font-size: 27rpx; line-height: 1.45; word-break: break-all; }
+.search-empty { min-height: 55vh; display: flex; align-items: center; justify-content: center; color: var(--text-hint); font-size: 25rpx; }

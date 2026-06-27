@@ -1,0 +1,123 @@
+<message-popup />
+<scroll-view scroll-y class="summary-page page-scroll">
+  <view wx:if="{{loading}}" class="empty-state">
+    <image class="ui-empty-icon ui-theme-icon" src="/images/icons/archive.png" mode="aspectFit"/>
+    <view class="empty-text">正在整理这趟旅行…</view>
+  </view>
+
+  <block wx:else>
+    <view class="summary-hero">
+      <view class="hero-kicker">旅行归档</view>
+      <view class="hero-title">{{trip.name}}</view>
+      <view class="hero-meta">{{trip.city}} · {{trip.startDate}} → {{trip.endDate}}</view>
+      <view class="hero-pills">
+        <text>{{metrics.days}} 天</text>
+        <text>{{metrics.members}} 位成员</text>
+        <text>{{metrics.planItems}} 个安排</text>
+      </view>
+    </view>
+
+    <view class="metric-grid">
+      <view class="metric-card">
+        <view class="metric-value">¥{{metrics.total}}</view>
+        <view class="metric-label">总消费</view>
+      </view>
+      <view class="metric-card">
+        <view class="metric-value">¥{{metrics.shared}}</view>
+        <view class="metric-label">公共</view>
+      </view>
+      <view class="metric-card">
+        <view class="metric-value">{{metrics.moments}}</view>
+        <view class="metric-label">动态</view>
+      </view>
+      <view class="metric-card">
+        <view class="metric-value">{{metrics.images}}</view>
+        <view class="metric-label">图片</view>
+      </view>
+    </view>
+
+    <view class="section-card" wx:if="{{insights.length}}">
+      <view class="section-title">这趟的小结</view>
+      <view class="insight-item" wx:for="{{insights}}" wx:key="*this">
+        <view class="insight-dot"></view>
+        <text>{{item}}</text>
+      </view>
+    </view>
+
+    <view class="section-card ai-recap-card">
+      <view class="section-head">
+        <view>
+          <view class="section-title no-margin">AI 旅行复盘</view>
+          <view class="section-subtitle">把账本、日程和动态整理成一段能发给朋友看的回忆</view>
+        </view>
+        <view class="mini-action {{recapLoading ? 'disabled' : ''}}" bindtap="onGenerateRecap">{{recapLoading ? '生成中' : (recapText ? '重写' : '生成')}}</view>
+      </view>
+      <view class="recap-text" wx:if="{{recapText}}">{{recapText}}</view>
+      <view class="recap-empty" wx:else>点一下生成，拾途 AI 会根据这趟旅行自动写一版复盘。</view>
+      <view class="recap-copy" wx:if="{{recapText}}" bindtap="onCopyRecap">复制复盘</view>
+    </view>
+
+    <view class="section-card two-col">
+      <view class="summary-block">
+        <view class="block-label">最大分类</view>
+        <view class="block-main">{{topCategory ? topCategory.label : '暂无'}}</view>
+        <view class="block-sub">{{topCategory ? '¥' + topCategory.amount + ' · ' + topCategory.percent + '%' : '还没有账本数据'}}</view>
+      </view>
+      <view class="summary-block">
+        <view class="block-label">最贵一笔</view>
+        <view class="block-main">{{topExpense ? topExpense.description : '暂无'}}</view>
+        <view class="block-sub">{{topExpense ? '¥' + topExpense.amountText + ' · ' + topExpense.paidByName : '还没有账本数据'}}</view>
+      </view>
+    </view>
+
+    <view class="section-card" wx:if="{{planHighlights.length}}">
+      <view class="section-title">行程回顾</view>
+      <view class="plan-line" wx:for="{{planHighlights}}" wx:key="summaryKey">
+        <view class="plan-day">D{{item.dayIndex}}</view>
+        <view class="plan-copy">
+          <view class="plan-title">{{item.title}}</view>
+          <view class="plan-meta">{{item.time || '时间待定'}} {{item.location ? '· ' + item.location : ''}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-card" wx:if="{{timeline.length}}">
+      <view class="section-title">旅行时间线</view>
+      <view class="timeline-list">
+        <view class="timeline-item timeline-{{item.type}}" wx:for="{{timeline}}" wx:key="id" data-moment-id="{{item.momentId}}" bindtap="onTimelineTap">
+          <view class="timeline-rail">
+            <view class="timeline-dot"><image src="{{item.icon}}" mode="aspectFit"/></view>
+          </view>
+          <view class="timeline-copy">
+            <view class="timeline-top">
+              <text class="timeline-date">{{item.displayDate}}</text>
+              <text class="timeline-type">{{item.type === 'plan' ? '行程' : (item.type === 'moment' ? '动态' : '账本')}}</text>
+            </view>
+            <view class="timeline-title">{{item.title}}</view>
+            <view class="timeline-meta">{{item.meta}}</view>
+            <image wx:if="{{item.image}}" class="timeline-image" src="{{item.image}}" mode="aspectFill"/>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-card" wx:if="{{momentHighlights.length}}">
+      <view class="section-title">旅行相册</view>
+      <scroll-view scroll-x class="moment-strip" show-scrollbar="{{false}}">
+        <view wx:for="{{momentHighlights}}" wx:key="id" class="moment-card" data-id="{{item.id}}" bindtap="onMomentTap">
+          <image wx:if="{{item.image}}" class="moment-cover" src="{{item.image}}" mode="aspectFill"/>
+          <view wx:else class="moment-cover empty-cover">
+            <image src="/images/icons/trip-moments.png" mode="aspectFit"/>
+          </view>
+          <view class="moment-text">{{item.text}}</view>
+          <view class="moment-meta">{{item.authorName}} · {{item.time}}</view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="summary-actions safe-bottom">
+      <view class="summary-action secondary" bindtap="onCopySummary">复制总结</view>
+      <view class="summary-action primary" bindtap="onGoLedger">查看账本</view>
+    </view>
+  </block>
+</scroll-view>

@@ -1,0 +1,68 @@
+<message-popup />
+<view class="setup-page">
+  <view class="bg-blob bg-blob-1"></view>
+  <view class="bg-blob bg-blob-2"></view>
+
+  <view class="setup-body">
+    <view class="brand-section">
+      <text class="step-badge">SETUP</text>
+      <text class="app-title">完善你的资料</text>
+      <text class="app-slogan">让大家认识你</text>
+    </view>
+
+    <view class="form-card">
+      <!-- 头像 — 用 image 显示（正圆），button 透明覆盖 -->
+      <view class="avatar-section">
+        <view class="avatar-wrap">
+          <image
+            wx:if="{{avatarUrl}}"
+            class="avatar-img"
+            src="{{avatarUrl}}"
+            mode="aspectFill"
+          />
+          <view wx:else class="avatar-placeholder">
+            <image
+              class="avatar-placeholder-icon"
+              src="/images/icons/tab-profile.png"
+              mode="aspectFit"
+            />
+          </view>
+          <button
+            class="avatar-picker"
+            bindtap="onAvatarPickerTap"
+          ></button>
+        </view>
+        <view class="avatar-label-row">
+          <text class="avatar-label">点击设置头像</text>
+        </view>
+      </view>
+
+      <!-- 分割线 -->
+      <view class="divider"></view>
+
+      <!-- 昵称 -->
+      <view class="nick-section">
+        <view class="form-label">
+        <image class="label-icon ui-theme-icon" src="/images/icons/edit.png" mode="aspectFit"/>
+          <text>昵称</text>
+        </view>
+        <input
+          class="nick-input"
+          type="nickname"
+          placeholder="取一个好听的名字"
+          value="{{nickName}}"
+          bindinput="onNickInput"
+          maxlength="20"
+        />
+        <view class="nick-counter">{{nickName.length}}/20</view>
+      </view>
+    </view>
+
+    <view class="action-section">
+      <button class="confirm-btn" bindtap="onConfirm" loading="{{saving}}" disabled="{{saving}}">
+        完成
+      </button>
+      <text class="skip-link" bindtap="onSkip">稍后设置</text>
+    </view>
+  </view>
+</view>

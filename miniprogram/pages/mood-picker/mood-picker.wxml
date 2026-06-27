@@ -1,0 +1,49 @@
+<message-popup />
+<!-- 心情状态选择器 -->
+<scroll-view scroll-y class="container mood-page">
+  <!-- 当前选中的心情预览 -->
+  <view class="mood-preview" wx:if="{{selectedEmoji}}">
+    <view class="mood-preview-icon-wrap">
+      <image class="mood-preview-icon" src="/images/icons/status/{{selectedEmoji}}.png" mode="aspectFit" />
+    </view>
+    <view class="mood-preview-text">{{selectedLabel || '自定义'}}</view>
+  </view>
+
+  <!-- 预设心情网格 -->
+  <view class="mood-section">
+    <view class="mood-section-title">选择一个心情</view>
+    <view class="mood-grid">
+      <view
+        wx:for="{{moodPresets}}"
+        wx:key="emoji"
+        class="mood-item {{selectedEmoji === item.emoji ? 'selected' : ''}}"
+        data-emoji="{{item.emoji}}"
+        data-label="{{item.label}}"
+        bindtap="onSelectMood"
+      >
+        <view class="mood-item-icon-wrap">
+          <image class="mood-item-icon" src="/images/icons/status/{{item.emoji}}.png" mode="aspectFit" />
+        </view>
+        <view class="mood-item-label">{{item.label}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 自定义文字 -->
+  <view class="mood-section">
+    <view class="mood-section-title">说点什么</view>
+    <input
+      class="mood-text-input"
+      value="{{moodText}}"
+      placeholder="输入心情文字（选填）"
+      maxlength="30"
+      bindinput="onTextInput"
+    />
+  </view>
+
+  <!-- 按钮 -->
+  <view class="mood-actions">
+    <view class="mood-action-btn clear" bindtap="onClearMood" wx:if="{{hasCurrentMood}}">清除状态</view>
+    <view class="mood-action-btn save" bindtap="onSave">完成</view>
+  </view>
+</scroll-view>
