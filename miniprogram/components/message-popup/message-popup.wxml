@@ -1,0 +1,19 @@
+<view wx:if="{{message}}" class="message-popup-safe {{visible ? 'is-visible' : ''}}">
+  <view class="message-popup" bindtap="onOpen">
+    <view class="message-avatar-wrap">
+      <image wx:if="{{message.fromAvatarUrl}}" class="message-avatar" src="{{message.fromAvatarUrl}}" mode="aspectFill" />
+      <view wx:else class="message-avatar-fallback">{{message.initials}}</view>
+      <view wx:if="{{message.kind === 'group'}}" class="message-kind-dot">群</view>
+    </view>
+    <view class="message-copy">
+      <view class="message-heading">
+        <text class="message-title">{{message.title}}</text>
+        <text class="message-time">刚刚</text>
+      </view>
+      <text class="message-preview">{{message.previewText || '收到一条新消息'}}</text>
+    </view>
+    <view class="message-close" catchtap="onClose">
+      <image src="/images/icons/close.png" mode="aspectFit" />
+    </view>
+  </view>
+</view>
