@@ -7,12 +7,12 @@ Page({
     themeClass: 'theme-blue', name: '', friends: [], selectedCount: 0, loading: true, creating: false, presetOpenid: '' },
 
   onLoad(options) {
-    this.setData({ presetOpenid: decodeURIComponent(options.memberOpenid || '') }
+    this.setData({ presetOpenid: decodeURIComponent(options.memberOpenid || '') });
+    this.loadFriends();
+  },
 
   onShow() {
     theme.applyToPage(this);
-  },);
-    this.loadFriends();
   },
 
   async loadFriends() {

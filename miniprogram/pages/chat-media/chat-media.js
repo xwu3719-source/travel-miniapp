@@ -31,12 +31,12 @@ Page({
   },
 
   onLoad(options) {
-    this.setData({ targetOpenid: options.openid || '', groupId: options.groupId || '' }
+    this.setData({ targetOpenid: options.openid || '', groupId: options.groupId || '' });
+    this.loadMedia();
+  },
 
   onShow() {
     theme.applyToPage(this);
-  },);
-    this.loadMedia();
   },
 
   onUnload() {

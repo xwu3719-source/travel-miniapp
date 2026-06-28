@@ -39,11 +39,7 @@ Page({
     // 如果有当前心情，预填
     const currentEmoji = normalizeMoodIcon(decodeURIComponent(options.emoji || ''));
     const currentText = decodeURIComponent(options.text || '');
-    wx.setNavigationBarTitle({ title: currentEmoji || currentText ? '修改心情状态' : '设置心情状态' }
-
-  onShow() {
-    theme.applyToPage(this);
-  },);
+    wx.setNavigationBarTitle({ title: currentEmoji || currentText ? '修改心情状态' : '设置心情状态' });
     if (currentEmoji || currentText) {
       this.setData({ hasCurrentMood: true });
     }
@@ -55,6 +51,10 @@ Page({
         moodText: currentText
       });
     }
+  },
+
+  onShow() {
+    theme.applyToPage(this);
   },
 
   onSelectMood(e) {

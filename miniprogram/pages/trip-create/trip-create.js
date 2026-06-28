@@ -50,17 +50,17 @@ Page({
 
   onLoad(options) {
     if (options.tripId) {
-      this.setData({ isEdit: true, tripId: options.tripId }
-
-  onShow() {
-    theme.applyToPage(this);
-  },);
+      this.setData({ isEdit: true, tripId: options.tripId });
       this.loadTrip(options.tripId);
       return;
     }
     this.loadTemplates();
     if (options.copyFromTripId) this.loadHistorySource(options.copyFromTripId);
     else if (options.templateId) this.applyTemplate(options.templateId);
+  },
+
+  onShow() {
+    theme.applyToPage(this);
   },
 
   async loadTemplates() {

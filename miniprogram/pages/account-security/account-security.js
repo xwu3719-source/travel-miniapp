@@ -17,16 +17,16 @@ Page({
 
   onLoad() {
     const app = getApp();
-    const userInfo = (app && app.globalData && app.globalData.userInfo) || {}
-
-  onShow() {
-    theme.applyToPage(this);
-  },;
+    const userInfo = (app && app.globalData && app.globalData.userInfo) || {};
     const accountType = (app && app.globalData && app.globalData.accountType) || 'wechat';
     // 有 username 即为密码用户（无论是本次用密码登录还是微信登录）
     const isPasswordUser = !!(userInfo.username) || accountType === 'password';
     this.setData({ userInfo, isPasswordUser });
     if (cloud.getSessionToken()) this.loadSessions();
+  },
+
+  onShow() {
+    theme.applyToPage(this);
   },
 
   async loadSessions() {

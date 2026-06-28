@@ -69,11 +69,7 @@ Page({
     const tripId = options.tripId;
     const expenseId = options.expenseId || '';
     const members = options.members ? JSON.parse(decodeURIComponent(options.members)) : [];
-    this.setData({ expenseId, editMode: !!expenseId }
-
-  onShow() {
-    theme.applyToPage(this);
-  },);
+    this.setData({ expenseId, editMode: !!expenseId });
     this.initMembers(tripId, members);
     this.loadMembers(tripId).then(() => {
       if (expenseId) this.loadExpenseForEdit(tripId, expenseId);
@@ -81,6 +77,10 @@ Page({
     this.loadBudget(tripId);
     this.loadRecentTemplates();
     this.setupRecorder();
+  },
+
+  onShow() {
+    theme.applyToPage(this);
   },
 
   initMembers(tripId, rawMembers = [], openid = '') {

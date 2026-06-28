@@ -17,13 +17,13 @@ Page({
   onLoad(options) {
     const type = options.type || 'following';
     const targetOpenid = options.openid || '';
-    wx.setNavigationBarTitle({ title: type === 'following' ? '关注列表' : '粉丝列表' }
+    wx.setNavigationBarTitle({ title: type === 'following' ? '关注列表' : '粉丝列表' });
+    this.setData({ type, targetOpenid });
+    this.loadList();
+  },
 
   onShow() {
     theme.applyToPage(this);
-  },);
-    this.setData({ type, targetOpenid });
-    this.loadList();
   },
 
   async loadList() {

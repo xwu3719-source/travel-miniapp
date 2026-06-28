@@ -13,12 +13,12 @@ Page({
   },
 
   onLoad(options) {
-    this.setData({ momentId: decodeURIComponent(options.momentId || '') }
+    this.setData({ momentId: decodeURIComponent(options.momentId || '') });
+    this.loadFriends();
+  },
 
   onShow() {
     theme.applyToPage(this);
-  },);
-    this.loadFriends();
   },
 
   async loadFriends() {

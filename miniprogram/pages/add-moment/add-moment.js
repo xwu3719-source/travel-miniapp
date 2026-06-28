@@ -25,11 +25,7 @@ Page({
   onLoad(options) {
     const tripId = options.tripId || '';
     const momentId = options.momentId || '';
-    this.setData({ tripId, momentId, isEditing: !!momentId }
-
-  onShow() {
-    theme.applyToPage(this);
-  },);
+    this.setData({ tripId, momentId, isEditing: !!momentId });
     if (!momentId) {
       const draft = drafts.getDraft('moment', tripId || 'general');
       if (draft) this.setData({
@@ -45,6 +41,10 @@ Page({
     if (tripId) this.loadTripDays(tripId);
     this.loadPrivacySettings();
     if (momentId) this.loadMoment(momentId);
+  },
+
+  onShow() {
+    theme.applyToPage(this);
   },
 
   async loadPrivacySettings() {

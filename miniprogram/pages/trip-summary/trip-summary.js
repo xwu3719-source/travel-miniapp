@@ -63,12 +63,12 @@ Page({
   },
 
   onLoad(options) {
-    this.setData({ tripId: options.tripId || '' }
+    this.setData({ tripId: options.tripId || '' });
+    this.loadSummary();
+  },
 
   onShow() {
     theme.applyToPage(this);
-  },);
-    this.loadSummary();
   },
 
   async loadSummary() {

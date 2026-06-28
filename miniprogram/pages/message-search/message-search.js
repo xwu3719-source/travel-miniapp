@@ -22,12 +22,12 @@ Page({
     this.setData({
       targetOpenid: decodeURIComponent(options.openid || ''),
       targetName: decodeURIComponent(options.nickName || '')
-    }
+    });
+    this.loadMessages();
+  },
 
   onShow() {
     theme.applyToPage(this);
-  },);
-    this.loadMessages();
   },
 
   async loadMessages() {

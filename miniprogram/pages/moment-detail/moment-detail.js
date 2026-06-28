@@ -19,13 +19,13 @@ Page({
   },
 
   onLoad(options) {
-    this.setData({ momentId: options.momentId }
+    this.setData({ momentId: options.momentId });
+    this.loadMoment();
+    wx.setInnerAudioOption({ obeyMuteSwitch: false });
+  },
 
   onShow() {
     theme.applyToPage(this);
-  },);
-    this.loadMoment();
-    wx.setInnerAudioOption({ obeyMuteSwitch: false });
   },
 
   async loadMoment() {

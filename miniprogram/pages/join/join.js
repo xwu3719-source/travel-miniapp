@@ -13,13 +13,13 @@ Page({
   onLoad(options = {}) {
     const code = String(options.code || '').trim().toUpperCase().slice(0, 12);
     if (code) {
-      this.setData({ code }
+      this.setData({ code });
+      if (options.auto === '1') setTimeout(() => this.onJoin(), 260);
+    }
+  },
 
   onShow() {
     theme.applyToPage(this);
-  },);
-      if (options.auto === '1') setTimeout(() => this.onJoin(), 260);
-    }
   },
 
   onCodeInput(e) {
