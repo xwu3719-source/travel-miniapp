@@ -204,6 +204,10 @@ function buildThemeStyle(config = loadThemeConfig()) {
     `--theme-deep:${theme.deep}`,
     `--theme-icon-filter:${theme.iconFilter}`,
     `--theme-shadow:${rgba(theme.primary, 0.24)}`,
+    `--theme-shadow-sm:${rgba(theme.primary, 0.12)}`,
+    `--theme-shadow-lg:${rgba(theme.primary, 0.32)}`,
+    `--theme-primary-rgb:${hexToRgb(theme.primary).r},${hexToRgb(theme.primary).g},${hexToRgb(theme.primary).b}`,
+    `--theme-deep-rgb:${hexToRgb(theme.deep).r},${hexToRgb(theme.deep).g},${hexToRgb(theme.deep).b}`,
     `--theme-nav-bar-bg:${theme.navBarBg}`,
     `--theme-tab-bar-bg:${theme.tabBarBg}`
   ].join(';');
