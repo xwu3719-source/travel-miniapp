@@ -23,11 +23,7 @@ Page({
 
   onLoad(options) {
     const safeDecode = value => {
-      try { return decodeURIComponent(value || ''); }
-
-  onShow() {
-    theme.applyToPage(this);
-  }, catch (_) { return value || ''; }
+      try { return decodeURIComponent(value || ''); } catch (_) { return value || ''; }
     };
     const targetOpenid = safeDecode(options.openid);
     const local = (wx.getStorageSync(STORAGE_KEY) || {})[targetOpenid] || {};
@@ -51,6 +47,10 @@ Page({
         showReadReceipts: this.data.showReadReceipts
       });
     }
+  },
+
+  onShow() {
+    theme.applyToPage(this);
   },
 
   async loadAll() {

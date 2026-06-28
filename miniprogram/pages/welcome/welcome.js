@@ -19,10 +19,10 @@ Page({
     if (this.data.activeTab === 'wechat' && !this.data.wechatAvatarUrl) {
       this._fetchWechatProfile();
     }
+  },
 
   onShow() {
     theme.applyToPage(this);
-  },
   },
 
   onSwitchTab(e) {

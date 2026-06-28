@@ -17,11 +17,11 @@ Page({
 
   onLoad() {
     this.loadProfile();
-  }
+  },
 
   onShow() {
     theme.applyToPage(this);
-  },,
+  },
 
   async loadProfile() {
     try {

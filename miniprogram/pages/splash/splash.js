@@ -9,11 +9,11 @@ Page({
 
   onLoad() {
     this._waitAndGo();
-  }
+  },
 
   onShow() {
     theme.applyToPage(this);
-  },,
+  },
 
   async _waitAndGo() {
     const app = getApp();

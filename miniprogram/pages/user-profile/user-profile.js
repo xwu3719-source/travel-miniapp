@@ -21,11 +21,7 @@ Page({
 
   onLoad(options) {
     const safeDecode = (value) => {
-      try { return decodeURIComponent(value || ''); }
-
-  onShow() {
-    theme.applyToPage(this);
-  }, catch (_) { return value || ''; }
+      try { return decodeURIComponent(value || ''); } catch (_) { return value || ''; }
     };
     const initialUser = {
       openid: options.openid || '',
@@ -38,6 +34,10 @@ Page({
       user: (initialUser.nickName || initialUser.avatarUrl) ? initialUser : null
     });
     this.loadAll();
+  },
+
+  onShow() {
+    theme.applyToPage(this);
   },
 
   async loadAll() {
