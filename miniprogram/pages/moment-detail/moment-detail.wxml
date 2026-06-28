@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 动态详情 -->
-<view class="container" wx:if="{{moment}}">
+<view class="container {{themeClass}}" wx:if="{{moment}}">
 <scroll-view scroll-y class="page-scroll content-scroll" bindtap="onPageTap" show-scrollbar="{{false}}" enhanced="{{true}}">
   <!-- 作者头部 -->
   <view class="md-header">

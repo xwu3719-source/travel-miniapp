@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<view class="gs-page">
+<view class="gs-page {{themeClass}}">
   <view class="gs-search">
     <icon type="search" size="18" color="#8fa1b5" />
     <input value="{{keyword}}" placeholder="搜索联系人、聊天、AI 或行程" focus confirm-type="search" bindinput="onInput" bindconfirm="runSearch" />

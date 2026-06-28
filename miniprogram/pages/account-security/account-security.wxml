@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<view class="page">
+<view class="page {{themeClass}}">
   <!-- 账号信息 -->
   <view class="section">
     <view class="section-title">账号信息</view>

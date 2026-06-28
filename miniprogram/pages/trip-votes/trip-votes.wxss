@@ -255,6 +255,21 @@
   font-size: 22rpx;
 }
 
+.vote-foot-actions {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  flex-shrink: 0;
+}
+
+.adopt-vote {
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  color: var(--trip-blue-deep);
+  background: var(--gradient-trip-soft);
+  font-weight: 850;
+}
+
 .close-vote {
   padding: 8rpx 16rpx;
   border-radius: 999rpx;
@@ -280,6 +295,14 @@
   border-radius: 34rpx;
   background: rgba(255,255,255,0.96);
   box-shadow: 0 -18rpx 64rpx rgba(15, 23, 42, 0.16);
+  box-sizing: border-box;
+  transition: bottom 0.18s ease;
+}
+
+.sheet-scroll {
+  max-height: 568px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .sheet-handle {
@@ -307,7 +330,6 @@
 .sheet-textarea {
   width: 100%;
   margin-top: 12rpx;
-  padding: 18rpx 20rpx;
   border-radius: 22rpx;
   box-sizing: border-box;
   color: var(--text-primary);
@@ -315,8 +337,17 @@
   font-size: 26rpx;
 }
 
+.sheet-input {
+  height: 86rpx;
+  min-height: 86rpx;
+  padding: 0 22rpx;
+  line-height: 86rpx;
+}
+
 .sheet-textarea {
-  height: 150rpx;
+  height: 168rpx;
+  min-height: 168rpx;
+  padding: 18rpx 22rpx;
   line-height: 1.45;
 }
 

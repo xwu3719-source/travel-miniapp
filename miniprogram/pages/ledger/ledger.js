@@ -1,9 +1,12 @@
 const cloud = require('../../utils/cloud');
 const chart = require('../../utils/chart');
 const exportUtil = require('../../utils/export');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     trips: [],
     selectedTripId: '',
     selectedTrip: null,
@@ -33,6 +36,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     this.loadTrips();
   },
 

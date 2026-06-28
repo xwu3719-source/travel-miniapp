@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<view class="search-page">
+<view class="search-page {{themeClass}}">
   <view class="search-box"><input value="{{query}}" placeholder="搜索文字、文件名或位置" focus bindinput="onInput"/></view>
   <view class="search-summary">{{query ? '找到 ' + results.length + ' 条记录' : '共 ' + results.length + ' 条聊天记录'}}</view>
   <view wx:if="{{loading}}" class="search-empty">正在加载聊天记录...</view>

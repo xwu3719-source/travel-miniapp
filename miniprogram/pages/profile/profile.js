@@ -1,4 +1,5 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 const MOOD_ICON_NAMES = new Set(['飞机', '听歌识曲', '运动', '餐饮', '冥想', '难受']);
 const MOOD_ICON_LABELS = {
@@ -61,6 +62,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       const tabBar = this.getTabBar();
       tabBar.setData({ selected: 4 });

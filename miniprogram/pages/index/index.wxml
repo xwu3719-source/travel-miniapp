@@ -1,3 +1,4 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 首页 - 行程列表 -->
 <scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
@@ -21,6 +22,10 @@
       <view class="header-menu-item" bindtap="onJoinFromMenu">
         <image src="/images/icons/trip-members.png" mode="aspectFit"/>
         <text>加入行程</text>
+      </view>
+      <view class="header-menu-item" bindtap="onScanFromMenu">
+        <image src="/images/icons/scan.png" mode="aspectFit"/>
+        <text>扫一扫</text>
       </view>
       <view wx:if="{{activeTrips.length > 0}}" class="header-menu-item" bindtap="onBatchFromMenu">
         <image src="/images/icons/edit.png" mode="aspectFit"/>
@@ -145,7 +150,7 @@
         bindtouchmove="{{batchMode ? '' : 'onTouchMove'}}"
         bindtap="{{batchMode ? 'onToggleSelect' : 'onTripTap'}}"
       >
-        <checkbox wx:if="{{batchMode}}" class="trip-select-checkbox" checked="{{item.selected}}" disabled color="#5b9ff5"/>
+        <checkbox wx:if="{{batchMode}}" class="trip-select-checkbox" checked="{{item.selected}}" disabled color="{{themePrimary}}"/>
         <view class="trip-card-top">
           <view class="trip-info">
             <view class="trip-name">{{item.name}}</view>

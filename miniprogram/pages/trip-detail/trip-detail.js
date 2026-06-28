@@ -1,5 +1,6 @@
 const cloud = require('../../utils/cloud');
 const chart = require('../../utils/chart');
+const theme = require('../../utils/theme');
 
 const recorderManager = wx.getRecorderManager();
 
@@ -21,6 +22,8 @@ Page({
     weatherLoading: false,
     weatherError: '',
     tripReminders: [],
+    dashboard: null,
+    dashboardLoading: false,
 
     // 倒计时
     countdown: { status: '', text: '' },
@@ -105,6 +108,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     this.loadAll();
   },
 
@@ -166,8 +170,21 @@ Page({
 
       if (this.data.currentTab === 'expense') this.loadExpenses();
       if (this.data.currentTab === 'moments') this.loadMoments();
+      this.loadDashboard();
     } catch (e) {
       console.error('加载行程失败:', e);
+    }
+  },
+
+  async loadDashboard() {
+    if (!this.data.tripId) return;
+    this.setData({ dashboardLoading: true });
+    try {
+      const dashboard = await cloud.getTripDashboard(this.data.tripId);
+      this.setData({ dashboard, dashboardLoading: false });
+    } catch (error) {
+      console.warn('加载行程驾驶舱失败:', error);
+      this.setData({ dashboardLoading: false });
     }
   },
 
@@ -254,6 +271,7 @@ Page({
         categoryBreakdown: breakdown,
         tripReminders: this.buildTripReminders(this.data.trip, this.data.dayPlans, { total, budget, budgetPercent })
       });
+      this.loadDashboard();
 
       // 渲染迷你饼图
       if (breakdown.length > 0 && total > 0) {
@@ -725,6 +743,39 @@ Page({
 
   onGoVotes() {
     wx.navigateTo({ url: `/pages/trip-votes/trip-votes?tripId=${this.data.tripId}` });
+  },
+
+  onAddTripTask() {
+    if (this.data.trip && this.data.trip.status === 'archived') return;
+    wx.showModal({
+      title: '新增协作任务',
+      editable: true,
+      placeholderText: '例如：订酒店 / 买门票 / 查餐厅',
+      confirmText: '添加',
+      confirmColor: '#5b9ff5',
+      success: async res => {
+        const title = String(res.content || '').trim();
+        if (!res.confirm || !title) return;
+        try {
+          await cloud.createTripTask(this.data.tripId, { title });
+          wx.showToast({ title: '已添加任务', icon: 'success' });
+          this.loadDashboard();
+        } catch (error) {
+          wx.showToast({ title: error.message || '添加失败', icon: 'none' });
+        }
+      }
+    });
+  },
+
+  async onToggleTripTask(e) {
+    const taskId = e.currentTarget.dataset.id;
+    if (!taskId) return;
+    try {
+      await cloud.toggleTripTask(taskId);
+      this.loadDashboard();
+    } catch (error) {
+      wx.showToast({ title: error.message || '更新失败', icon: 'none' });
+    }
   },
 
   onReminderTap(e) {

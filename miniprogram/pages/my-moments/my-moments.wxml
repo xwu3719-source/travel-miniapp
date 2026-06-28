@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 个人动态空间 -->
-<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll" show-scrollbar="{{false}}" enhanced="{{true}}">
+<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll {{themeClass}}" show-scrollbar="{{false}}" enhanced="{{true}}">
   <!-- 头部 -->
   <view class="space-header">
     <view class="space-avatar-wrap">

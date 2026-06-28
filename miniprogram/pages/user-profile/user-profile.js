@@ -1,7 +1,10 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     targetOpenid: '',
     user: null,
     myOpenid: '',
@@ -18,7 +21,11 @@ Page({
 
   onLoad(options) {
     const safeDecode = (value) => {
-      try { return decodeURIComponent(value || ''); } catch (_) { return value || ''; }
+      try { return decodeURIComponent(value || ''); }
+
+  onShow() {
+    theme.applyToPage(this);
+  }, catch (_) { return value || ''; }
     };
     const initialUser = {
       openid: options.openid || '',

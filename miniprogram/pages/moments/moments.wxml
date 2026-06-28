@@ -1,3 +1,4 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 动态 -->
 <scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll" show-scrollbar="{{false}}" enhanced="{{true}}">
@@ -192,7 +193,7 @@
         <view class="filter-name">全部动态</view>
         <view class="filter-desc">查看所有行程里的动态</view>
       </view>
-        <radio class="filter-radio" checked="{{selectedTripId === ''}}" color="#5b9ff5"/>
+        <radio class="filter-radio" checked="{{selectedTripId === ''}}" color="{{themePrimary}}"/>
     </view>
     <scroll-view scroll-y class="filter-trip-list">
       <view
@@ -207,7 +208,7 @@
           <view class="filter-name">{{item.name}}</view>
           <view class="filter-desc">{{item.city || '行程动态'}}</view>
         </view>
-          <radio class="filter-radio" checked="{{selectedTripId === item._id}}" color="#5b9ff5"/>
+          <radio class="filter-radio" checked="{{selectedTripId === item._id}}" color="{{themePrimary}}"/>
       </view>
     </scroll-view>
   </view>

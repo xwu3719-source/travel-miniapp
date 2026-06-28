@@ -1,7 +1,10 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     activeTab: 'account',
     publicId: '',
     password: '',
@@ -16,6 +19,10 @@ Page({
     if (this.data.activeTab === 'wechat' && !this.data.wechatAvatarUrl) {
       this._fetchWechatProfile();
     }
+
+  onShow() {
+    theme.applyToPage(this);
+  },
   },
 
   onSwitchTab(e) {

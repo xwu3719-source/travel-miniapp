@@ -1,14 +1,21 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 const EMPTY_RESULTS = { contacts: [], chats: [], groups: [], ai: [], trips: [] };
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     keyword: '',
     searching: false,
     searched: false,
     results: EMPTY_RESULTS,
     total: 0
+  },
+
+  onShow() {
+    theme.applyToPage(this);
   },
 
   onUnload() {

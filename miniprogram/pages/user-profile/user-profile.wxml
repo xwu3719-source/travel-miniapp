@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 用户主页 -->
-<scroll-view scroll-y class="container page-scroll" wx:if="{{!loading}}">
+<scroll-view scroll-y class="container page-scroll {{themeClass}}" wx:if="{{!loading}}">
   <!-- 头部卡片 -->
   <view class="up-card">
     <view class="up-row">

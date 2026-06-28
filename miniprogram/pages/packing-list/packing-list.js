@@ -1,4 +1,5 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 const SUBCATEGORIES = {
   clothing: [
@@ -46,6 +47,8 @@ const CATEGORY_DEFS = [
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     allItems: [],
     displayItems: [],
     packingText: '',
@@ -74,6 +77,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     this.loadPackingList();
   },
 

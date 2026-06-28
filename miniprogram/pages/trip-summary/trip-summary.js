@@ -1,4 +1,6 @@
 const cloud = require('../../utils/cloud');
+const exportUtil = require('../../utils/export');
+const theme = require('../../utils/theme');
 
 const CATEGORY_LABELS = {
   transport: '交通',
@@ -32,6 +34,8 @@ function normalizeTime(value) {
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     tripId: '',
     loading: true,
     trip: null,
@@ -59,7 +63,11 @@ Page({
   },
 
   onLoad(options) {
-    this.setData({ tripId: options.tripId || '' });
+    this.setData({ tripId: options.tripId || '' }
+
+  onShow() {
+    theme.applyToPage(this);
+  },);
     this.loadSummary();
   },
 
@@ -293,5 +301,29 @@ Page({
       data: text,
       success: () => wx.showToast({ title: '复盘已复制', icon: 'success' })
     });
+  },
+
+  async onExportRecap() {
+    const { trip, metrics, insights, timeline, recapText } = this.data;
+    if (!trip) return;
+    wx.showLoading({ title: '生成手账图...' });
+    try {
+      const tempPath = await exportUtil.drawTripRecap('exportCanvas', trip, metrics, insights, timeline, recapText || this.localRecapFallback());
+      wx.hideLoading();
+      wx.showShareImageMenu({
+        path: tempPath,
+        fail: () => {
+          wx.saveImageToPhotosAlbum({
+            filePath: tempPath,
+            success: () => wx.showToast({ title: '已保存到相册', icon: 'success' }),
+            fail: () => wx.showToast({ title: '保存失败', icon: 'none' })
+          });
+        }
+      });
+    } catch (error) {
+      wx.hideLoading();
+      console.error('导出旅行手账失败:', error);
+      wx.showToast({ title: '导出失败', icon: 'none' });
+    }
   }
 });

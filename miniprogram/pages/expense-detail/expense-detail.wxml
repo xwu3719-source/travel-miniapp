@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<scroll-view scroll-y class="container page-scroll" wx:if="{{!loading && expense}}">
+<scroll-view scroll-y class="container page-scroll {{themeClass}}" wx:if="{{!loading && expense}}">
   <view class="detail-hero">
     <view class="detail-icon">
       <image src="{{expense.icon}}" mode="aspectFit"/>

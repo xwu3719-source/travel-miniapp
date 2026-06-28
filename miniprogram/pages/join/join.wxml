@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 加入行程 -->
-<view class="container join-page">
+<view class="container join-page {{themeClass}}">
   <view class="join-header">
   <image class="join-icon ui-theme-icon" src="/images/icons/trip-members.png" mode="aspectFit"/>
     <view class="join-title">加入行程</view>
@@ -12,7 +13,7 @@
       class="code-input"
       type="text"
       placeholder="输入邀请码"
-      maxlength="6"
+      maxlength="12"
       value="{{code}}"
       bindinput="onCodeInput"
       focus="{{true}}"
@@ -22,5 +23,10 @@
   <view class="btn btn-primary btn-block" bindtap="onJoin">
       <image wx:if="{{!joining}}" class="ui-inline-icon ui-white-icon" src="/images/icons/create.png" mode="aspectFit"/>
       <text>{{joining ? '加入中...' : '加入行程'}}</text>
+  </view>
+
+  <view class="scan-join-btn" bindtap="onScanJoin">
+    <image src="/images/icons/scan.png" mode="aspectFit"/>
+    <text>扫描行程二维码</text>
   </view>
 </view>

@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<scroll-view scroll-y class="summary-page page-scroll">
+<scroll-view scroll-y class="summary-page page-scroll {{themeClass}}">
   <view wx:if="{{loading}}" class="empty-state">
     <image class="ui-empty-icon ui-theme-icon" src="/images/icons/archive.png" mode="aspectFit"/>
     <view class="empty-text">正在整理这趟旅行…</view>
@@ -117,7 +118,10 @@
 
     <view class="summary-actions safe-bottom">
       <view class="summary-action secondary" bindtap="onCopySummary">复制总结</view>
+      <view class="summary-action secondary" bindtap="onExportRecap">导出手账</view>
       <view class="summary-action primary" bindtap="onGoLedger">查看账本</view>
     </view>
   </block>
 </scroll-view>
+
+<canvas type="2d" id="exportCanvas" class="export-canvas" style="width:375px;height:600px;position:fixed;left:-9999px;top:-9999px;"></canvas>

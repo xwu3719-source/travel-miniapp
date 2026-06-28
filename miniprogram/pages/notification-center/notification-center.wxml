@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<view class="nc-page">
+<view class="nc-page {{themeClass}}">
   <view class="inbox-overview">
     <view class="inbox-card" wx:for="{{inboxCards}}" wx:key="key" data-key="{{item.key}}" bindtap="onInboxCardTap">
       <image class="inbox-card-icon ui-theme-icon" src="{{item.icon}}" mode="aspectFit"/>

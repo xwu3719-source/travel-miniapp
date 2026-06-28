@@ -1,7 +1,10 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     userInfo: {},
     myOpenid: '',
     myMoments: [],
@@ -14,6 +17,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     wx.setInnerAudioOption({ obeyMuteSwitch: false });
     this.loadAll();
   },

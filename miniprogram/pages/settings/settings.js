@@ -1,4 +1,5 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 const DEFAULT_PRIVACY = {
   allowProfileView: true,
@@ -8,16 +9,62 @@ const DEFAULT_PRIVACY = {
   showMoodStatus: true
 };
 
+const COLOR_PALETTE = [
+  // 蓝色系
+  '#3b82f6', '#2563eb', '#1d4ed8', '#0ea5e9', '#06b6d4', '#38bdf8',
+  // 紫色系
+  '#8b5cf6', '#7c3aed', '#6d28d9', '#a855f7', '#c084fc', '#d946ef',
+  // 暖色系
+  '#f97316', '#ea580c', '#ef4444', '#dc2626', '#f59e0b', '#eab308',
+  // 绿/粉/其他
+  '#10b981', '#059669', '#14b8a6', '#ec4899', '#6366f1', '#84cc16',
+  // 中性/暗色
+  '#64748b', '#475569', '#334155', '#1e293b', '#0f172a', '#78716c'
+];
+
+const COLOR_KEY_LABELS = {
+  primary: '主色',
+  deep: '深色',
+  start: '起点',
+  end: '终点'
+};
+
 Page({
   data: {
     privacySettings: { ...DEFAULT_PRIVACY },
     showBadge: true,
     saving: false,
-    loading: true
+    loading: true,
+    themeChoices: [
+      ...Object.values(theme.BUILTIN_THEMES),
+      { id: 'diy', name: '我的 DIY', desc: '用自己的颜色做一套主题', primary: theme.DEFAULT_DIY.primary, deep: theme.DEFAULT_DIY.deep, start: theme.DEFAULT_DIY.start, end: theme.DEFAULT_DIY.end }
+    ],
+    accentPresets: theme.ACCENT_PRESETS,
+    themeId: 'blue',
+    themeStyle: '',
+    themeClass: 'theme-blue',
+    themePrimary: '#5b9ff5',
+    themeName: '浅蓝玻璃',
+    diyColors: { ...theme.DEFAULT_DIY },
+    // DIY 颜色选择器
+    colorPalette: COLOR_PALETTE,
+    activeColorKey: 'primary',
+    diyPreviewStyle: '',
+    colorKeyLabels: COLOR_KEY_LABELS
   },
 
   onShow() {
+    this.applyThemeState();
     this.loadSettings();
+  },
+
+  applyThemeState() {
+    const state = theme.getThemeState();
+    this.setData({
+      ...state,
+      diyColors: { ...theme.DEFAULT_DIY, ...((state.themeConfig && state.themeConfig.diy) || {}) }
+    });
+    this.updateDiyPreview();
   },
 
   async loadSettings() {
@@ -43,6 +90,112 @@ Page({
 
   onGoAccountSecurity() {
     wx.navigateTo({ url: '/pages/account-security/account-security' });
+  },
+
+  onSelectTheme(e) {
+    const id = e.currentTarget.dataset.id || 'blue';
+    const config = theme.saveThemeConfig({
+      id,
+      diy: this.data.diyColors
+    });
+    const current = theme.getTheme(config);
+    this.setData({
+      themeConfig: config,
+      themeId: config.id,
+      themeClass: `theme-${config.id}`,
+      themeStyle: theme.buildThemeStyle(config),
+      themePrimary: current.primary,
+      themeName: current.name
+    });
+    wx.showToast({ title: `已切换到${current.name}`, icon: 'none' });
+  },
+
+  onSelectAccent(e) {
+    const preset = this.data.accentPresets.find(item => item.id === e.currentTarget.dataset.id);
+    if (!preset) return;
+    const diyColors = {
+      primary: preset.primary,
+      deep: preset.deep,
+      start: preset.start,
+      end: preset.end
+    };
+    const config = theme.saveThemeConfig({ id: 'diy', diy: diyColors });
+    const current = theme.getTheme(config);
+    this.setData({
+      diyColors,
+      themeConfig: config,
+      themeId: 'diy',
+      themeClass: 'theme-diy',
+      themeStyle: theme.buildThemeStyle(config),
+      themePrimary: current.primary,
+      themeName: current.name
+    });
+    this.updateDiyPreview();
+    wx.showToast({ title: `已套用${preset.name}`, icon: 'none' });
+  },
+
+  onDiyColorInput(e) {
+    const key = e.currentTarget.dataset.key;
+    if (!key) return;
+    const value = e.detail.value;
+    this.setData({ [`diyColors.${key}`]: value });
+    this.updateDiyPreview();
+  },
+
+  // 选择要编辑的颜色槽位
+  onSelectColorKey(e) {
+    const key = e.currentTarget.dataset.key;
+    if (!key) return;
+    this.setData({ activeColorKey: key });
+  },
+
+  // 从色板选择颜色
+  onSelectPaletteColor(e) {
+    const color = e.currentTarget.dataset.color;
+    if (!color) return;
+    const key = this.data.activeColorKey;
+    this.setData({ [`diyColors.${key}`]: color });
+    this.updateDiyPreview();
+  },
+
+  // 实时预览 DIY 主题效果
+  updateDiyPreview() {
+    const diyColors = {
+      primary: theme.normalizeHex(this.data.diyColors.primary, theme.DEFAULT_DIY.primary),
+      deep: theme.normalizeHex(this.data.diyColors.deep, theme.DEFAULT_DIY.deep),
+      start: theme.normalizeHex(this.data.diyColors.start, theme.DEFAULT_DIY.start),
+      end: theme.normalizeHex(this.data.diyColors.end, theme.DEFAULT_DIY.end)
+    };
+    const previewStyle = [
+      `--preview-primary:${diyColors.primary}`,
+      `--preview-deep:${diyColors.deep}`,
+      `--preview-start:${diyColors.start}`,
+      `--preview-end:${diyColors.end}`,
+      `--preview-gradient:linear-gradient(135deg, ${diyColors.start}, ${diyColors.primary}, ${diyColors.end})`
+    ].join(';');
+    this.setData({ diyPreviewStyle: previewStyle });
+  },
+
+  onApplyDiy() {
+    const diyColors = {
+      primary: theme.normalizeHex(this.data.diyColors.primary, theme.DEFAULT_DIY.primary),
+      deep: theme.normalizeHex(this.data.diyColors.deep, theme.DEFAULT_DIY.deep),
+      start: theme.normalizeHex(this.data.diyColors.start, theme.DEFAULT_DIY.start),
+      end: theme.normalizeHex(this.data.diyColors.end, theme.DEFAULT_DIY.end)
+    };
+    const config = theme.saveThemeConfig({ id: 'diy', diy: diyColors });
+    const current = theme.getTheme(config);
+    this.setData({
+      diyColors,
+      themeConfig: config,
+      themeId: 'diy',
+      themeClass: 'theme-diy',
+      themeStyle: theme.buildThemeStyle(config),
+      themePrimary: current.primary,
+      themeName: current.name
+    });
+    this.updateDiyPreview();
+    wx.showToast({ title: 'DIY 主题已保存', icon: 'success' });
   },
 
   async onPrivacySwitch(e) {

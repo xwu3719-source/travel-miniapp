@@ -1,7 +1,10 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     activeTab: 'search',
     myPublicId: '',
     query: '',
@@ -19,6 +22,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     this.loadAll();
   },
 

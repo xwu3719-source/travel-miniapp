@@ -1,7 +1,10 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     type: 'following', // following / followers
     targetOpenid: '',
     users: [],
@@ -14,7 +17,11 @@ Page({
   onLoad(options) {
     const type = options.type || 'following';
     const targetOpenid = options.openid || '';
-    wx.setNavigationBarTitle({ title: type === 'following' ? '关注列表' : '粉丝列表' });
+    wx.setNavigationBarTitle({ title: type === 'following' ? '关注列表' : '粉丝列表' }
+
+  onShow() {
+    theme.applyToPage(this);
+  },);
     this.setData({ type, targetOpenid });
     this.loadList();
   },

@@ -1,3 +1,4 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <view class="ai-page">
   <view class="ai-hero">
@@ -53,7 +54,20 @@
       <view class="confirm-note">{{pendingCard.type === 'summary_link' ? '确认后打开总结页' : '确认后才会修改数据'}}</view>
       <view class="confirm-actions"><view class="confirm-btn secondary" bindtap="onCancelCard">取消</view><view class="confirm-btn primary {{cardSaving ? 'disabled' : ''}}" bindtap="onConfirmCard">{{cardSaving ? '处理中...' : '确认'}}</view></view>
     </view>
-    <view class="chat-bottom-space"></view>
+    <view id="chat-bottom-anchor" class="chat-bottom-space" style="height: {{chatBottomSpace}}px;"></view>
   </scroll-view>
-  <view class="composer safe-bottom"><input class="composer-input" value="{{inputText}}" bindinput="onInput" bindconfirm="onSend" confirm-type="send" placeholder="说说你想去哪里，或者快速记一笔..." maxlength="500"/><view class="composer-send {{inputText && !sending ? 'active' : ''}}" bindtap="onSend">发送</view></view>
+  <view class="composer safe-bottom" style="bottom: {{keyboardHeight}}px;">
+    <input
+      class="composer-input"
+      value="{{inputText}}"
+      bindinput="onInput"
+      bindconfirm="onSend"
+      bindkeyboardheightchange="onKeyboardHeightChange"
+      confirm-type="send"
+      adjust-position="{{false}}"
+      placeholder="说说你想去哪里，或者快速记一笔..."
+      maxlength="500"
+    />
+    <view class="composer-send {{inputText && !sending ? 'active' : ''}}" bindtap="onSend">发送</view>
+  </view>
 </view>

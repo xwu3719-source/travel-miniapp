@@ -1,11 +1,19 @@
+const theme = require('../../utils/theme');
+
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     ready: false
   },
 
   onLoad() {
     this._waitAndGo();
-  },
+  }
+
+  onShow() {
+    theme.applyToPage(this);
+  },,
 
   async _waitAndGo() {
     const app = getApp();

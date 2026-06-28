@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<view class="cm-page">
+<view class="cm-page {{themeClass}}">
   <scroll-view scroll-x class="cm-tabs" enhanced show-scrollbar="{{false}}">
     <view class="cm-tabs-inner">
       <view wx:for="{{tabs}}" wx:key="key" class="cm-tab {{activeTab === item.key ? 'active' : ''}}" data-key="{{item.key}}" bindtap="onTab">{{item.label}}</view>

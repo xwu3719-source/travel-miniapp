@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<view class="register-page">
+<view class="register-page {{themeClass}}">
   <view class="register-body">
     <view class="brand-section">
       <text class="app-title">拾途 ST</text>

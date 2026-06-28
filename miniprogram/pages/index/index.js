@@ -1,4 +1,6 @@
 const cloud = require('../../utils/cloud');
+const scan = require('../../utils/scan');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
@@ -21,6 +23,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     // 兜底：如果 onLaunch 还没跑完或跳转未生效，再次检查
     const app = getApp();
     if (app.globalData.needsOnboarding) {
@@ -329,6 +332,16 @@ Page({
   onJoinFromMenu() {
     this.setData({ showHeaderMenu: false });
     this.onJoinTap();
+  },
+
+  async onScanFromMenu() {
+    this.setData({ showHeaderMenu: false });
+    try {
+      await scan.scanAndHandle();
+    } catch (error) {
+      if (/cancel/i.test(String(error && (error.errMsg || error.message)))) return;
+      wx.showToast({ title: error.message || '扫码失败', icon: 'none' });
+    }
   },
 
   onBatchFromMenu() {

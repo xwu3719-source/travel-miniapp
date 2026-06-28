@@ -1,8 +1,11 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 Page({
   behaviors: [require('../../behaviors/voice-recorder')],
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     momentId: '',
     moment: null,
     myOpenid: '',
@@ -16,7 +19,11 @@ Page({
   },
 
   onLoad(options) {
-    this.setData({ momentId: options.momentId });
+    this.setData({ momentId: options.momentId }
+
+  onShow() {
+    theme.applyToPage(this);
+  },);
     this.loadMoment();
     wx.setInnerAudioOption({ obeyMuteSwitch: false });
   },

@@ -1,5 +1,6 @@
 const cloud = require('../../utils/cloud');
 const drafts = require('../../utils/drafts');
+const theme = require('../../utils/theme');
 const recorderManager = wx.getRecorderManager();
 
 const SUPPORTED_DOCUMENT_TYPES = new Set(['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf']);
@@ -41,6 +42,8 @@ function messagePreview(message) {
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     groupId: '',
     group: {},
     messages: [],
@@ -89,6 +92,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     const app = getApp();
     if (app && app.globalData) app.globalData._currentGroupId = this.data.groupId;
     if (this.data.groupId && !this.data.loading) this.startWatch();

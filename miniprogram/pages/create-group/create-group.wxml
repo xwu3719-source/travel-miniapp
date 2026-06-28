@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<view class="create-group-page">
+<view class="create-group-page {{themeClass}}">
   <view class="group-name-card">
     <image src="/images/icons/create-group.png" mode="aspectFit"/>
     <input value="{{name}}" maxlength="30" placeholder="给群聊起个名字" bindinput="onNameInput"/>

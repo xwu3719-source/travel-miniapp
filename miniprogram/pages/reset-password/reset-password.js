@@ -1,13 +1,20 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     step: 1,
     publicId: '',
     username: '',
     newPassword: '',
     confirmPassword: '',
     loading: false
+  },
+
+  onShow() {
+    theme.applyToPage(this);
   },
 
   onPublicIdInput(e) {

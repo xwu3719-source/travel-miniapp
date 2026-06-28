@@ -1,4 +1,5 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 function addDays(dateString, offset) {
   const date = new Date(`${dateString}T00:00:00`);
@@ -9,6 +10,8 @@ function addDays(dateString, offset) {
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     isEdit: false,
     tripId: '',
     sourceTripId: '',
@@ -47,7 +50,11 @@ Page({
 
   onLoad(options) {
     if (options.tripId) {
-      this.setData({ isEdit: true, tripId: options.tripId });
+      this.setData({ isEdit: true, tripId: options.tripId }
+
+  onShow() {
+    theme.applyToPage(this);
+  },);
       this.loadTrip(options.tripId);
       return;
     }

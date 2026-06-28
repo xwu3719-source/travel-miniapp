@@ -84,6 +84,9 @@
     },
     "scope.record": {
       "desc": "用于发送语音消息和语音评论"
+    },
+    "scope.camera": {
+      "desc": "用于扫描行程邀请码、好友码或账单凭证二维码"
     }
   },
   "requiredPrivateInfos": ["chooseLocation"],

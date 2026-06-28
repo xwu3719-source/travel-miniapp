@@ -1,5 +1,6 @@
 const cloud = require('../../utils/cloud');
 const drafts = require('../../utils/drafts');
+const theme = require('../../utils/theme');
 
 const QUICK_PROMPTS = [
   { text: '帮我创建北京5日游', icon: '/images/icons/trip-plan.png' },
@@ -96,6 +97,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     if (this._initialized) return;
     this._initialized = true;
     this.initializeConversations();

@@ -1,7 +1,11 @@
 const cloud = require('../../utils/cloud');
+const scan = require('../../utils/scan');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     tripId: '',
     members: [],
     inviteCode: '',
@@ -19,6 +23,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     this.loadMembers();
   },
 
@@ -127,6 +132,15 @@ Page({
   onGoFindFriends() {
     this.setData({ showInvitePanel: false });
     wx.navigateTo({ url: '/pages/find-friends/find-friends' });
+  },
+
+  async onScanMemberCode() {
+    try {
+      await scan.scanAndHandle();
+    } catch (error) {
+      if (/cancel/i.test(String(error && (error.errMsg || error.message)))) return;
+      wx.showToast({ title: error.message || '扫码失败', icon: 'none' });
+    }
   },
 
   async onInviteSelectedFriends() {

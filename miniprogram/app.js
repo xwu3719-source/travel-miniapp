@@ -1,5 +1,9 @@
+const theme = require('./utils/theme');
+
 App({
   async onLaunch() {
+    theme.syncAppTheme();
+
     if (!wx.cloud) {
       console.error('请使用 2.2.3 或以上的基础库以使用云能力');
       this.globalData.cloudReady = false;
@@ -39,6 +43,10 @@ App({
           this.globalData._launchComplete = true;
           this.startGlobalInboxWatch();
           this.startGlobalUnreadLoop();
+          // 从云端拉取主题配置
+          theme.loadThemeFromCloud().then(cloudConfig => {
+            if (cloudConfig) theme.syncAppTheme(cloudConfig);
+          }).catch(() => {});
           // session 恢复成功，跳过微信自动登录
           return;
         }
@@ -58,6 +66,10 @@ App({
         this.globalData.loggedIn = true;
         this.startGlobalInboxWatch();
         this.startGlobalUnreadLoop();
+        // 从云端拉取主题配置
+        theme.loadThemeFromCloud().then(cloudConfig => {
+          if (cloudConfig) theme.syncAppTheme(cloudConfig);
+        }).catch(() => {});
         // 从云函数返回的用户信息恢复（不需要额外查库）
         if (res.result.nickName || res.result.avatarUrl || res.result.publicId) {
           this.globalData.userInfo = {
@@ -380,6 +392,7 @@ App({
     if (!this._tabBars) this._tabBars = new Set();
     this._tabBars.add(tabBar);
     if (tabBar.setUnreadCount) tabBar.setUnreadCount(this.globalData.unreadCount || 0);
+    if (tabBar.applyTheme) tabBar.applyTheme();
   },
 
   unregisterTabBar(tabBar) {
@@ -393,6 +406,18 @@ App({
     this._tabBars.forEach(tabBar => {
       try { if (tabBar.setUnreadCount) tabBar.setUnreadCount(unreadCount); } catch (_) {}
     });
+  },
+
+  broadcastThemeChange() {
+    const pages = typeof getCurrentPages === 'function' ? getCurrentPages() : [];
+    pages.forEach(page => {
+      try { theme.applyToPage(page); } catch (_) {}
+    });
+    if (this._tabBars) {
+      this._tabBars.forEach(tabBar => {
+        try { if (tabBar.applyTheme) tabBar.applyTheme(); } catch (_) {}
+      });
+    }
   },
 
   broadcastMessageNotify(notify) {

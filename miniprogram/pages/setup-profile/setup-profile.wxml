@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<view class="setup-page">
+<view class="setup-page {{themeClass}}">
   <view class="bg-blob bg-blob-1"></view>
   <view class="bg-blob bg-blob-2"></view>
 

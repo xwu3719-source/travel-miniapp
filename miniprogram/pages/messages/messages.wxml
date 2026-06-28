@@ -1,3 +1,4 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 消息 -->
 <view class="messages-page">

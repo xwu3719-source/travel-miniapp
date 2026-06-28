@@ -1,7 +1,10 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     avatarUrl: '',
     avatarFileId: '',
     avatarThumbFileId: '',
@@ -14,7 +17,11 @@ Page({
 
   onLoad() {
     this.loadProfile();
-  },
+  }
+
+  onShow() {
+    theme.applyToPage(this);
+  },,
 
   async loadProfile() {
     try {

@@ -1,3 +1,4 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <view class="chat-page">
   <view class="chat-tools">

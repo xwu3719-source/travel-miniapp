@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 私信 -->
-<view class="chat-page">
+<view class="chat-page {{themeClass}}">
     <!-- 名片栏：点击锁定视角查看对方主页，··· 在名片最右边 -->
   <view class="chat-name-card">
     <image

@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<view class="group-chat-page">
+<view class="group-chat-page {{themeClass}}">
   <!-- 顶栏 -->
   <view class="group-top-bar">
     <view class="group-avatar-grid" style="{{groupAvatarStyle}}">

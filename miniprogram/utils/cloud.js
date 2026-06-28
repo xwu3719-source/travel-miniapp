@@ -602,6 +602,11 @@ async function getTripSnapshot(tripId, include = []) {
   return callDbOps('getTripSnapshot', { tripId, include });
 }
 
+async function getTripDashboard(tripId) {
+  const result = await callDbOps('getTripDashboard', { tripId });
+  return result.dashboard || null;
+}
+
 async function getTripVotes(tripId) {
   const result = await callDbOps('getTripVotes', { tripId });
   return result.votes || [];
@@ -618,6 +623,24 @@ async function voteTripPoll(voteId, optionIndex) {
 
 async function closeTripVote(voteId) {
   return callDbOps('closeTripVote', { voteId });
+}
+
+async function getTripTasks(tripId) {
+  const result = await callDbOps('getTripTasks', { tripId });
+  return result.tasks || [];
+}
+
+async function createTripTask(tripId, task) {
+  const result = await callDbOps('createTripTask', { tripId, task });
+  return result.taskId || '';
+}
+
+async function toggleTripTask(taskId) {
+  return callDbOps('toggleTripTask', { taskId });
+}
+
+async function deleteTripTask(taskId) {
+  return callDbOps('deleteTripTask', { taskId });
 }
 
 async function getMomentFeed(options = {}) {
@@ -1514,6 +1537,16 @@ async function revokeOtherAccountSessions() {
   return Number(res.result.revoked) || 0;
 }
 
+// ---- 主题配置 ----
+async function updateThemeConfig(config) {
+  return callDbOps('updateThemeConfig', { themeConfig: config });
+}
+
+async function getThemeConfig() {
+  const res = await callDbOps('getThemeConfig', {});
+  return (res && res.result) || null;
+}
+
 module.exports = {
   db,
   collection: db.collection.bind(db),
@@ -1567,10 +1600,15 @@ module.exports = {
   setCurrentTrip,
   getTripDetail,
   getTripSnapshot,
+  getTripDashboard,
   getTripVotes,
   createTripVote,
   voteTripPoll,
   closeTripVote,
+  getTripTasks,
+  createTripTask,
+  toggleTripTask,
+  deleteTripTask,
   getMomentFeed,
   getMomentById,
   getWeather,
@@ -1677,5 +1715,7 @@ module.exports = {
   getBadgeIcon,
   setWornBadge,
   updateShowBadge,
-  isOfficialByPublicId
+  isOfficialByPublicId,
+  updateThemeConfig,
+  getThemeConfig
 };

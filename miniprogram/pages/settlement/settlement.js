@@ -1,7 +1,10 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     tripId: '',
     trip: null,
     members: [],
@@ -22,6 +25,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     this.calculate();
   },
 

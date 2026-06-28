@@ -1,8 +1,12 @@
+const theme = require('../utils/theme');
+
 Component({
   data: {
     selected: 0,
     unreadCount: 0,
     unreadText: '',
+    themeStyle: '',
+    themeClass: 'theme-blue',
     list: [
       { pagePath: '/pages/index/index', text: '行程', iconPath: '/images/icons/tab-trip.png' },
       { pagePath: '/pages/moments/moments', text: '动态', iconPath: '/images/icons/tab-moments.png' },
@@ -15,6 +19,7 @@ Component({
     attached() {
       const app = getApp();
       if (app && app.registerTabBar) app.registerTabBar(this);
+      this.applyTheme();
     },
 
     detached() {
@@ -44,6 +49,10 @@ Component({
     refreshUnread() {
       const app = getApp();
       if (app && app.refreshGlobalUnread) app.refreshGlobalUnread();
+    },
+
+    applyTheme() {
+      this.setData(theme.getThemeState());
     }
   }
 });

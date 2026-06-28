@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 成员管理 -->
-<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
+<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll {{themeClass}}">
   <!-- 邀请码 -->
   <view class="invite-section" wx:if="{{isCreator && inviteCode}}">
     <view class="invite-label">邀请码</view>
@@ -11,9 +12,15 @@
   <!-- 成员列表 -->
   <view class="members-heading">
     <view class="section-label">成员 ({{members.length}})</view>
-    <view class="invite-friends-entry" bindtap="onOpenInviteFriends">
-      <image src="/images/icons/trip-members.png" mode="aspectFit" class="invite-friends-icon"/>
-      <text>邀请好友</text>
+    <view class="members-actions">
+      <view class="invite-friends-entry" bindtap="onScanMemberCode">
+        <image src="/images/icons/scan.png" mode="aspectFit" class="invite-friends-icon"/>
+        <text>扫一扫</text>
+      </view>
+      <view class="invite-friends-entry" bindtap="onOpenInviteFriends">
+        <image src="/images/icons/trip-members.png" mode="aspectFit" class="invite-friends-icon"/>
+        <text>邀请好友</text>
+      </view>
     </view>
   </view>
   <view class="member-card" wx:for="{{members}}" wx:key="_id" data-openid="{{item.openid}}" data-nick-name="{{item.nickName}}" data-avatar-url="{{item.avatarUrl}}" bindtap="onAuthorTap">

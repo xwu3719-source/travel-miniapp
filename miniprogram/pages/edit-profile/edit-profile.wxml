@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 编辑资料 -->
-<form class="edit-profile-form" bindsubmit="onSaveSubmit">
+<form class="edit-profile-form {{themeClass}}" bindsubmit="onSaveSubmit">
   <scroll-view scroll-y class="edit-profile-page page-scroll">
     <view class="edit-card profile-editor-card">
       <view class="avatar-editor" bindtap="onAvatarTap">

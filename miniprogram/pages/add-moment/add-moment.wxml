@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 发布动态 -->
-<scroll-view scroll-y class="container page-scroll">
+<scroll-view scroll-y class="container page-scroll {{themeClass}}">
   <view class="form-title">{{isEditing ? '编辑动态' : '分享旅途瞬间'}}</view>
 
   <!-- 文字 -->

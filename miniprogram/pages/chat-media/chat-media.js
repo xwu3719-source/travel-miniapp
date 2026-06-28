@@ -1,4 +1,5 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 const TABS = [
   { key: 'all', label: '全部' },
@@ -17,6 +18,8 @@ function formatSize(size) {
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     targetOpenid: '',
     groupId: '',
     tabs: TABS,
@@ -28,7 +31,11 @@ Page({
   },
 
   onLoad(options) {
-    this.setData({ targetOpenid: options.openid || '', groupId: options.groupId || '' });
+    this.setData({ targetOpenid: options.openid || '', groupId: options.groupId || '' }
+
+  onShow() {
+    theme.applyToPage(this);
+  },);
     this.loadMedia();
   },
 

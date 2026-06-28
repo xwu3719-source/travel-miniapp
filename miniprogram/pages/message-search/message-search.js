@@ -1,4 +1,5 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 function previewText(message) {
   if (message.type === 'image') return '[图片]';
@@ -13,13 +14,19 @@ function previewText(message) {
 }
 
 Page({
-  data: { targetOpenid: '', targetName: '', query: '', loading: true, messages: [], results: [] },
+  data: {
+    themeStyle: '',
+    themeClass: 'theme-blue', targetOpenid: '', targetName: '', query: '', loading: true, messages: [], results: [] },
 
   onLoad(options) {
     this.setData({
       targetOpenid: decodeURIComponent(options.openid || ''),
       targetName: decodeURIComponent(options.nickName || '')
-    });
+    }
+
+  onShow() {
+    theme.applyToPage(this);
+  },);
     this.loadMessages();
   },
 

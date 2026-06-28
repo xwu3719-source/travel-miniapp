@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 创建/编辑行程 -->
-<scroll-view scroll-y class="container page-scroll">
+<scroll-view scroll-y class="container page-scroll {{themeClass}}">
   <view class="form-title">{{isEdit ? '编辑行程' : (sourceLabel ? '复用行程' : '新建行程')}}</view>
 
   <view wx:if="{{!isEdit && sourceLabel}}" class="source-banner">

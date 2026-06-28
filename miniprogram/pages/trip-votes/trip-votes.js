@@ -1,4 +1,5 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 const VOTE_TYPES = [
   { id: 'spot', label: '景点' },
@@ -25,6 +26,9 @@ Page({
     showCreate: false,
     saving: false,
     voteTypes: VOTE_TYPES,
+    keyboardHeight: 0,
+    sheetMaxHeight: 620,
+    sheetScrollMaxHeight: 568,
     form: {
       title: '',
       optionText: '',
@@ -37,6 +41,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     this.loadVotes();
   },
 
@@ -69,16 +74,43 @@ Page({
       wx.showToast({ title: '历史行程不能发起投票', icon: 'none' });
       return;
     }
+    this.updateSheetLayout(0);
     this.setData({ showCreate: true });
   },
 
+  preventBubble() {},
+
   onCloseCreate() {
     if (this.data.saving) return;
-    this.setData({ showCreate: false });
+    this.setData({
+      showCreate: false,
+      keyboardHeight: 0
+    });
+  },
+
+  updateSheetLayout(keyboardHeight = 0) {
+    let windowHeight = 812;
+    try {
+      const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      windowHeight = Number(info.windowHeight) || windowHeight;
+    } catch (error) {
+      console.warn('获取窗口高度失败:', error);
+    }
+    const maxHeight = Math.max(280, Math.min(620, windowHeight - keyboardHeight - 96));
+    this.setData({
+      keyboardHeight,
+      sheetMaxHeight: maxHeight,
+      sheetScrollMaxHeight: Math.max(240, maxHeight - 52)
+    });
   },
 
   onTitleInput(e) {
     this.setData({ 'form.title': e.detail.value });
+  },
+
+  onKeyboardHeightChange(e) {
+    const height = Math.max(0, Number(e.detail && e.detail.height) || 0);
+    this.updateSheetLayout(height);
   },
 
   onOptionsInput(e) {
@@ -147,6 +179,59 @@ Page({
           this.loadVotes();
         } catch (error) {
           wx.showToast({ title: error.message || '操作失败', icon: 'none' });
+        }
+      }
+    });
+  },
+
+  getWinningOption(vote) {
+    const options = vote && Array.isArray(vote.options) ? vote.options : [];
+    if (!options.length) return '';
+    const sorted = [...options].sort((a, b) => (Number(b.count) || 0) - (Number(a.count) || 0));
+    return (sorted[0] && sorted[0].text) || options[0].text || '';
+  },
+
+  onAdoptVote(e) {
+    const voteId = e.currentTarget.dataset.id;
+    const vote = this.data.votes.find(item => item._id === voteId);
+    const title = this.getWinningOption(vote);
+    if (!vote || !title) return;
+    wx.showModal({
+      title: '写入行程',
+      content: `把「${title}」加入哪一天？`,
+      editable: true,
+      placeholderText: '输入 Day 数字，例如 1',
+      confirmText: '写入',
+      confirmColor: '#5b9ff5',
+      success: async res => {
+        if (!res.confirm) return;
+        const dayIndex = Math.max(1, Math.min(Number(this.data.trip && this.data.trip.totalDays) || 1, Number(res.content) || 1));
+        try {
+          wx.showLoading({ title: '写入中...' });
+          const detail = await cloud.getTripDetail(this.data.tripId);
+          const trip = detail.trip || this.data.trip || {};
+          const existing = (detail.dayPlans || []).find(day => Number(day.dayIndex) === dayIndex);
+          const dates = cloud.dateRange(trip.startDate, trip.endDate);
+          const item = {
+            title,
+            type: vote.type === 'food' ? 'food' : (vote.type === 'hotel' ? 'hotel' : 'spot'),
+            time: '',
+            location: title,
+            notes: `来自投票：${vote.title}`,
+            sortId: `vote_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`
+          };
+          await cloud.upsertDayPlan(
+            existing && existing._id,
+            this.data.tripId,
+            dayIndex,
+            (dates && dates[dayIndex - 1]) || '',
+            [...((existing && existing.items) || []), item]
+          );
+          wx.hideLoading();
+          wx.showToast({ title: '已写入日程', icon: 'success' });
+        } catch (error) {
+          wx.hideLoading();
+          wx.showToast({ title: error.message || '写入失败', icon: 'none' });
         }
       }
     });

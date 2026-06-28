@@ -124,7 +124,7 @@ page {
 }
 
 .ui-theme-icon {
-  filter: brightness(0) saturate(100%) invert(59%) sepia(34%) saturate(1111%) hue-rotate(178deg) brightness(101%) contrast(93%);
+  filter: var(--theme-icon-filter, brightness(0) saturate(100%) invert(59%) sepia(34%) saturate(1111%) hue-rotate(178deg) brightness(101%) contrast(93%));
 }
 
 .ui-white-icon {
@@ -181,7 +181,7 @@ page {
 .btn-primary {
   background: var(--gradient-trip);
   color: #fff;
-  box-shadow: 0 4rpx 16rpx rgba(91, 159, 245, 0.3);
+  box-shadow: 0 4rpx 16rpx var(--theme-shadow, rgba(91, 159, 245, 0.3));
 }
 
 .btn-outline {

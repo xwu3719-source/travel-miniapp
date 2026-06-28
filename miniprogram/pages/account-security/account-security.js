@@ -1,7 +1,10 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     userInfo: {},
     isPasswordUser: false,
     oldPassword: '',
@@ -14,7 +17,11 @@ Page({
 
   onLoad() {
     const app = getApp();
-    const userInfo = (app && app.globalData && app.globalData.userInfo) || {};
+    const userInfo = (app && app.globalData && app.globalData.userInfo) || {}
+
+  onShow() {
+    theme.applyToPage(this);
+  },;
     const accountType = (app && app.globalData && app.globalData.accountType) || 'wechat';
     // 有 username 即为密码用户（无论是本次用密码登录还是微信登录）
     const isPasswordUser = !!(userInfo.username) || accountType === 'password';

@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 启动缓冲页 -->
-<view class="splash-page {{ready ? 'fade-out' : ''}}">
+<view class="splash-page {{ready ? 'fade-out' : ''}} {{themeClass}}">
   <!-- 背景装饰 -->
   <view class="splash-bg-circle c1"></view>
   <view class="splash-bg-circle c2"></view>

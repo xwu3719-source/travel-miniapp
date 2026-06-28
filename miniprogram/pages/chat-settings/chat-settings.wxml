@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<scroll-view scroll-y class="cs-page" show-scrollbar="{{false}}">
+<scroll-view scroll-y class="cs-page {{themeClass}}" show-scrollbar="{{false}}">
   <view class="cs-card cs-people-card">
     <view class="cs-profile-row" bindtap="onOpenProfile">
       <image wx:if="{{profile.avatarUrl}}" src="{{profile.avatarUrl}}" class="cs-avatar" mode="aspectFill"/>

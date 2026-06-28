@@ -1,3 +1,4 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 行程详情 · 彩趣版 -->
 <scroll-view scroll-y refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll" show-scrollbar="{{false}}" enhanced="{{true}}">
@@ -63,21 +64,73 @@
     <view><view class="history-readonly-title">历史行程 · 只读</view><view class="history-readonly-copy">可以查看记录、复制行程或保存为模板</view></view>
   </view>
 
+  <view class="trip-dashboard" wx:if="{{dashboard}}">
+    <view class="dashboard-head">
+      <view>
+        <view class="dashboard-kicker">旅行驾驶舱</view>
+        <view class="dashboard-title">{{dashboard.nextPlan ? '下一站：' + dashboard.nextPlan.title : '今天怎么走，一眼看清'}}</view>
+        <view class="dashboard-subtitle">{{dashboard.nextPlan ? ((dashboard.nextPlan.date || '') + ' ' + (dashboard.nextPlan.time || '时间待定') + (dashboard.nextPlan.location ? ' · ' + dashboard.nextPlan.location : '')) : dashboard.todayPlanText}}</view>
+      </view>
+      <view class="dashboard-ai" bindtap="onGoSummary">复盘</view>
+    </view>
+
+    <view class="dashboard-grid">
+      <view class="dashboard-metric">
+        <view class="metric-main">{{dashboard.todayPlanCount}}</view>
+        <view class="metric-label">今日安排</view>
+      </view>
+      <view class="dashboard-metric {{dashboard.budget && dashboard.budgetPercent >= 100 ? 'danger' : ''}}">
+        <view class="metric-main">{{dashboard.budget ? dashboard.budgetPercent + '%' : '未设'}}</view>
+        <view class="metric-label">预算进度</view>
+      </view>
+      <view class="dashboard-metric">
+        <view class="metric-main">¥{{dashboard.sharedUnsettledTotal}}</view>
+        <view class="metric-label">待结算</view>
+      </view>
+      <view class="dashboard-metric">
+        <view class="metric-main">{{dashboard.openVoteCount}}</view>
+        <view class="metric-label">投票中</view>
+      </view>
+    </view>
+
+    <view class="dashboard-strip">
+      <view class="dashboard-strip-item" bindtap="onGoVotes">
+        <image src="/images/icons/trip-members.png" mode="aspectFit"/>
+        <text>{{dashboard.latestVoteTitle || '发起投票'}}</text>
+      </view>
+      <view class="dashboard-strip-item" bindtap="onGoSettlement">
+        <image src="/images/icons/trip-settlement.png" mode="aspectFit"/>
+        <text>{{dashboard.sharedUnsettledCount ? dashboard.sharedUnsettledCount + ' 笔公共账待结算' : '公共账目清爽'}}</text>
+      </view>
+    </view>
+
+    <view class="task-panel" wx:if="{{trip.status !== 'archived'}}">
+      <view class="task-head">
+        <view>
+          <view class="task-title">成员任务</view>
+          <view class="task-subtitle">{{dashboard.pendingTaskCount}} 个未完成 · {{dashboard.doneTaskCount}} 个已完成</view>
+        </view>
+        <view class="task-add" bindtap="onAddTripTask">添加</view>
+      </view>
+      <view wx:if="{{dashboard.tasks.length}}">
+        <view class="task-row" wx:for="{{dashboard.tasks}}" wx:key="_id" data-id="{{item._id}}" bindtap="onToggleTripTask">
+          <view class="task-check"></view>
+          <view class="task-copy">
+            <view class="task-name">{{item.title}}</view>
+            <view class="task-meta">{{item.assigneeName ? '负责人：' + item.assigneeName : '未指定负责人'}}</view>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="task-empty">还没有任务，可以把订酒店、买票、查餐厅分出去。</view>
+    </view>
+  </view>
+
   <view class="trip-summary-entry" wx:if="{{trip}}" bindtap="onGoSummary">
     <view>
       <view class="summary-entry-title">旅行总结</view>
       <view class="summary-entry-copy">行程、动态、照片和账本会自动归档成回忆</view>
     </view>
     <image src="/images/icons/chevron-right.png" mode="aspectFit"/>
-  </view>
-
-  <view class="trip-vote-entry" wx:if="{{trip && trip.status !== 'archived'}}" bindtap="onGoVotes">
-    <view class="vote-entry-icon"><image src="/images/icons/trip-members.png" mode="aspectFit"/></view>
-    <view class="vote-entry-copy">
-      <view class="vote-entry-title">行程投票</view>
-      <view class="vote-entry-text">餐厅、景点、集合时间，让成员先选再决定</view>
-    </view>
-    <image class="vote-entry-arrow" src="/images/icons/chevron-right.png" mode="aspectFit"/>
   </view>
 
   <view class="trip-reminders" wx:if="{{tripReminders.length}}">

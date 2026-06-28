@@ -1,10 +1,17 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 Page({
-  data: { name: '', friends: [], selectedCount: 0, loading: true, creating: false, presetOpenid: '' },
+  data: {
+    themeStyle: '',
+    themeClass: 'theme-blue', name: '', friends: [], selectedCount: 0, loading: true, creating: false, presetOpenid: '' },
 
   onLoad(options) {
-    this.setData({ presetOpenid: decodeURIComponent(options.memberOpenid || '') });
+    this.setData({ presetOpenid: decodeURIComponent(options.memberOpenid || '') }
+
+  onShow() {
+    theme.applyToPage(this);
+  },);
     this.loadFriends();
   },
 

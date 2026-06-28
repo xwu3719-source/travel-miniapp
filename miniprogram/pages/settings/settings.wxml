@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 设置 -->
-<scroll-view scroll-y class="settings-page page-scroll">
+<scroll-view scroll-y class="settings-page page-scroll {{themeClass}}">
   <view class="settings-section">
     <view class="settings-section-title">账号</view>
     <view class="settings-card">
@@ -23,6 +24,116 @@
 
   <view class="settings-section">
     <view class="settings-section-title settings-section-title-with-icon">
+      <image class="settings-section-icon ui-theme-icon" src="/images/icons/edit.png" mode="aspectFit"/>
+      <text>外观与个性化</text>
+    </view>
+    <view class="theme-panel">
+      <view class="theme-current" style="{{themeStyle}}">
+        <view>
+          <view class="theme-current-label">当前主题</view>
+          <view class="theme-current-name">{{themeName}}</view>
+        </view>
+        <view class="theme-current-glow"></view>
+      </view>
+
+      <view class="theme-grid">
+        <view
+          wx:for="{{themeChoices}}"
+          wx:key="id"
+          class="theme-card {{themeId === item.id ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onSelectTheme"
+        >
+          <view class="theme-preview" style="background: linear-gradient(135deg, {{item.start || item.primary}}, {{item.end || item.deep}});">
+            <view class="theme-preview-dot"></view>
+          </view>
+          <view class="theme-card-name">{{item.name}}</view>
+          <view class="theme-card-desc">{{item.desc}}</view>
+        </view>
+      </view>
+
+      <view class="diy-block">
+        <view class="diy-title">DIY 配色</view>
+
+        <!-- 实时预览卡片 -->
+        <view class="diy-preview-card" style="{{diyPreviewStyle}}">
+          <view class="diy-preview-header">
+            <view class="diy-preview-dot"></view>
+            <view class="diy-preview-badge">预览</view>
+          </view>
+          <view class="diy-preview-body">
+            <view class="diy-preview-text">Aa</view>
+            <view class="diy-preview-btn">按钮</view>
+          </view>
+        </view>
+
+        <!-- 当前编辑的颜色槽位 -->
+        <view class="diy-slot-label">正在编辑：{{colorKeyLabels[activeColorKey]}}</view>
+        <view class="diy-color-slots">
+          <view
+            wx:for="{{['primary','deep','start','end']}}"
+            wx:key="*this"
+            class="diy-color-slot {{activeColorKey === item ? 'active' : ''}}"
+            data-key="{{item}}"
+            bindtap="onSelectColorKey"
+          >
+            <view class="diy-slot-swatch" style="background:{{diyColors[item]}};"></view>
+            <text>{{colorKeyLabels[item]}}</text>
+          </view>
+        </view>
+
+        <!-- 色板 -->
+        <view class="diy-palette">
+          <view
+            wx:for="{{colorPalette}}"
+            wx:key="*this"
+            class="diy-palette-chip {{diyColors[activeColorKey] === item ? 'selected' : ''}}"
+            style="background:{{item}};"
+            data-color="{{item}}"
+            bindtap="onSelectPaletteColor"
+          ></view>
+        </view>
+
+        <!-- 预设快速套用 -->
+        <view class="accent-row">
+          <view
+            wx:for="{{accentPresets}}"
+            wx:key="id"
+            class="accent-chip"
+            data-id="{{item.id}}"
+            bindtap="onSelectAccent"
+          >
+            <view class="accent-dot" style="background: linear-gradient(135deg, {{item.start}}, {{item.end}});"></view>
+            <text>{{item.name}}</text>
+          </view>
+        </view>
+
+        <!-- 精确输入 -->
+        <view class="diy-input-grid">
+          <view class="diy-input-item">
+            <view class="diy-input-swatch" style="background:{{diyColors.primary}};"></view>
+            <input value="{{diyColors.primary}}" data-key="primary" bindinput="onDiyColorInput" placeholder="#d946ef"/>
+          </view>
+          <view class="diy-input-item">
+            <view class="diy-input-swatch" style="background:{{diyColors.deep}};"></view>
+            <input value="{{diyColors.deep}}" data-key="deep" bindinput="onDiyColorInput" placeholder="#7c3aed"/>
+          </view>
+          <view class="diy-input-item">
+            <view class="diy-input-swatch" style="background:{{diyColors.start}};"></view>
+            <input value="{{diyColors.start}}" data-key="start" bindinput="onDiyColorInput" placeholder="#ff8a00"/>
+          </view>
+          <view class="diy-input-item">
+            <view class="diy-input-swatch" style="background:{{diyColors.end}};"></view>
+            <input value="{{diyColors.end}}" data-key="end" bindinput="onDiyColorInput" placeholder="#5b6cff"/>
+          </view>
+        </view>
+        <view class="diy-apply" bindtap="onApplyDiy">保存 DIY 主题</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="settings-section">
+    <view class="settings-section-title settings-section-title-with-icon">
       <image class="settings-section-icon" src="/images/icons/settings-privacy.png" mode="aspectFit"/>
       <text>隐私</text>
     </view>
@@ -32,42 +143,42 @@
           <view class="settings-title">允许别人查看主页</view>
           <view class="settings-subtitle">关闭后，其他人无法查看你的动态主页</view>
         </view>
-          <switch checked="{{privacySettings.allowProfileView}}" data-key="allowProfileView" bindchange="onPrivacySwitch" color="#5b9ff5"/>
+          <switch checked="{{privacySettings.allowProfileView}}" data-key="allowProfileView" bindchange="onPrivacySwitch" color="{{themePrimary}}"/>
       </view>
       <view class="settings-row">
         <view class="settings-copy">
           <view class="settings-title">允许别人给我发私信</view>
           <view class="settings-subtitle">关闭后，别人主页里不会显示私信入口</view>
         </view>
-          <switch checked="{{privacySettings.allowPrivateMessage}}" data-key="allowPrivateMessage" bindchange="onPrivacySwitch" color="#5b9ff5"/>
+          <switch checked="{{privacySettings.allowPrivateMessage}}" data-key="allowPrivateMessage" bindchange="onPrivacySwitch" color="{{themePrimary}}"/>
       </view>
       <view class="settings-row">
         <view class="settings-copy">
           <view class="settings-title">新动态默认私密</view>
           <view class="settings-subtitle">发布新动态时自动设为仅自己可见</view>
         </view>
-          <switch checked="{{privacySettings.defaultMomentPrivate}}" data-key="defaultMomentPrivate" bindchange="onPrivacySwitch" color="#5b9ff5"/>
+          <switch checked="{{privacySettings.defaultMomentPrivate}}" data-key="defaultMomentPrivate" bindchange="onPrivacySwitch" color="{{themePrimary}}"/>
       </view>
       <view class="settings-row">
         <view class="settings-copy">
           <view class="settings-title">向对方显示已读状态</view>
           <view class="settings-subtitle">关闭后，对方无法看到你是否已读消息</view>
         </view>
-          <switch checked="{{!privacySettings.hideReadReceipts}}" data-key="hideReadReceipts" data-invert="{{true}}" bindchange="onPrivacySwitch" color="#5b9ff5"/>
+          <switch checked="{{!privacySettings.hideReadReceipts}}" data-key="hideReadReceipts" data-invert="{{true}}" bindchange="onPrivacySwitch" color="{{themePrimary}}"/>
       </view>
       <view class="settings-row">
         <view class="settings-copy">
           <view class="settings-title">向他人展示状态</view>
           <view class="settings-subtitle">关闭后，聊天和动态中不显示你的当前状态</view>
         </view>
-          <switch checked="{{privacySettings.showMoodStatus}}" data-key="showMoodStatus" bindchange="onPrivacySwitch" color="#5b9ff5"/>
+          <switch checked="{{privacySettings.showMoodStatus}}" data-key="showMoodStatus" bindchange="onPrivacySwitch" color="{{themePrimary}}"/>
       </view>
       <view class="settings-row">
         <view class="settings-copy">
           <view class="settings-title">显示徽章</view>
           <view class="settings-subtitle">关闭后，聊天和动态中不显示你佩戴的徽章</view>
         </view>
-          <switch checked="{{showBadge}}" bindchange="onShowBadgeSwitch" color="#5b9ff5"/>
+          <switch checked="{{showBadge}}" bindchange="onShowBadgeSwitch" color="{{themePrimary}}"/>
       </view>
     </view>
   </view>

@@ -1,4 +1,5 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
@@ -27,6 +28,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       const tabBar = this.getTabBar();
       tabBar.setData({ selected: 3 });

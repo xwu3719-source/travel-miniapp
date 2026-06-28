@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 心情状态选择器 -->
-<scroll-view scroll-y class="container mood-page">
+<scroll-view scroll-y class="container mood-page {{themeClass}}">
   <!-- 当前选中的心情预览 -->
   <view class="mood-preview" wx:if="{{selectedEmoji}}">
     <view class="mood-preview-icon-wrap">

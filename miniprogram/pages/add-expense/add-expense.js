@@ -1,4 +1,6 @@
 const cloud = require('../../utils/cloud');
+const scan = require('../../utils/scan');
+const theme = require('../../utils/theme');
 
 const recorderManager = wx.getRecorderManager();
 
@@ -24,6 +26,8 @@ const TEMPLATES = [
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     tripId: '',
     expenseId: '',
     editMode: false,
@@ -65,7 +69,11 @@ Page({
     const tripId = options.tripId;
     const expenseId = options.expenseId || '';
     const members = options.members ? JSON.parse(decodeURIComponent(options.members)) : [];
-    this.setData({ expenseId, editMode: !!expenseId });
+    this.setData({ expenseId, editMode: !!expenseId }
+
+  onShow() {
+    theme.applyToPage(this);
+  },);
     this.initMembers(tripId, members);
     this.loadMembers(tripId).then(() => {
       if (expenseId) this.loadExpenseForEdit(tripId, expenseId);
@@ -270,6 +278,26 @@ Page({
     this.setData({ amount: e.detail.value }, () => this.setSplitAmong(this.data.splitAmong));
   },
   onDescInput(e) { this.setData({ description: e.detail.value }); },
+
+  async onScanExpenseCode() {
+    try {
+      const parsed = await scan.scanCode();
+      const amount = parsed.amount || '';
+      const text = String(parsed.url || parsed.text || '').trim();
+      const shortText = text.length > 34 ? `${text.slice(0, 34)}…` : text;
+      const nextData = {};
+      if (amount && !this.data.amount) nextData.amount = amount;
+      if (shortText) {
+        const base = this.data.description.trim();
+        nextData.description = (base ? `${base} · ` : '') + (parsed.type === 'link' ? '扫码凭证' : shortText);
+      }
+      this.setData(nextData, () => this.setSplitAmong(this.data.splitAmong));
+      wx.showToast({ title: amount ? '已识别金额/凭证' : '已添加扫码内容', icon: 'success' });
+    } catch (error) {
+      if (/cancel/i.test(String(error && (error.errMsg || error.message)))) return;
+      wx.showToast({ title: error.message || '扫码失败', icon: 'none' });
+    }
+  },
 
   onQuickAmount(e) {
     const add = Number(e.currentTarget.dataset.amount) || 0;

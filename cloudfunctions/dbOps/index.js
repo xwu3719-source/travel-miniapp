@@ -5,7 +5,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
 const resolveOpenid = require('./resolveOpenid');
-const CLOUD_VERSION = '2026.06.27.4';
+const CLOUD_VERSION = '2026.06.28.1';
 
 const EXPENSE_CATEGORY_LABELS = {
   transport: '交通', hotel: '住宿', food: '餐饮',
@@ -208,7 +208,7 @@ function callZhipuWithTools(apiKey, messages, tools) {
   });
 }
 
-const XIXI_WRITE_TOOLS = new Set(['create_trip', 'update_trip', 'add_expense', 'delete_trip', 'set_current_trip']);
+const XIXI_WRITE_TOOLS = new Set(['create_trip', 'update_trip', 'add_expense', 'delete_trip', 'set_current_trip', 'create_trip_task']);
 
 function escapeRegExp(value) {
   return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -278,6 +278,11 @@ function getXixiActionPreview(tool, args = {}) {
       return { title: '删除行程', detail: `将永久删除「${args.tripName || '未指定行程'}」及其成员、计划、账本和动态` };
     case 'set_current_trip':
       return { title: '切换当前行程', detail: `将「${args.tripName || '未指定行程'}」设为 AI 和记账默认使用的行程` };
+    case 'create_trip_task':
+      return {
+        title: '新增成员任务',
+        detail: `${args.title || '任务'}${args.assigneeName ? ` · 负责人 ${args.assigneeName}` : ''}${args.tripName ? ` · ${args.tripName}` : ''}`
+      };
     default:
       return { title: '执行操作', detail: tool };
   }
@@ -376,6 +381,39 @@ async function executeXixiTool(db, openid, toolName, args) {
         createdAt: new Date().toISOString()
       } });
       return { ok: true, msg: `已记账：${description} ¥${amt}（${trip.name}）` };
+    }
+    case 'create_trip_task': {
+      const { title, assigneeName, tripName } = args;
+      if (!title) return { ok: false, msg: '缺少任务内容' };
+      const found = await findXixiTrip(db, openid, tripName, !tripName);
+      const trip = found.trip;
+      if (!trip) return { ok: false, msg: tripName ? `找不到「${tripName}」` : '请先设置当前行程，再分配任务' };
+      if (trip.status === 'archived') return { ok: false, msg: '历史行程不能新增任务' };
+      let assigneeOpenid = '';
+      let finalAssigneeName = '';
+      const tripMembers = found.memberships.filter(m => m.tripId === trip._id);
+      if (assigneeName) {
+        const member = tripMembers.find(m => String(m.nickName || '').includes(assigneeName) || String(assigneeName).includes(m.nickName || ''));
+        if (member) {
+          assigneeOpenid = member.openid;
+          finalAssigneeName = member.nickName || assigneeName;
+        } else {
+          finalAssigneeName = String(assigneeName).slice(0, 30);
+        }
+      }
+      await db.createCollection('trip_tasks').catch(() => {});
+      await db.collection('trip_tasks').add({ data: {
+        tripId: trip._id,
+        title: String(title).trim().slice(0, 80),
+        assigneeOpenid,
+        assigneeName: finalAssigneeName,
+        status: 'open',
+        createdBy: openid,
+        createdByName: '我',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      } });
+      return { ok: true, msg: `已新增任务：${title}${finalAssigneeName ? `（${finalAssigneeName}）` : ''}` };
     }
     case 'get_my_trips': {
       const { data: memberships } = await db.collection('trip_members').where({ openid }).get();
@@ -508,6 +546,7 @@ const XIXI_TOOLS = [
   { type: 'function', function: { name: 'update_trip', description: '修改已有行程的名称、目的地、出发日期或天数。未指定行程名称时修改当前行程。', parameters: { type: 'object', properties: { tripName: { type: 'string', description: '行程名称；修改当前行程时可不填' }, newName: { type: 'string', description: '新名称' }, city: { type: 'string', description: '新目的地' }, startDate: { type: 'string', description: '新出发日期 YYYY-MM-DD' }, days: { type: 'number', description: '新天数' } } } } },
   { type: 'function', function: { name: 'set_current_trip', description: '将用户指定的行程设为当前行程。多个旅行计划并存时，AI、天气和未指定行程的记账默认使用当前行程。', parameters: { type: 'object', properties: { tripName: { type: 'string', description: '要设为当前的行程名称' } }, required: ['tripName'] } } },
   { type: 'function', function: { name: 'add_expense', description: '记录一笔共享消费/支出并由行程成员平摊。当用户说记账、花了多少钱、AA等时调用。', parameters: { type: 'object', properties: { description: { type: 'string', description: '消费内容' }, amount: { type: 'number', description: '金额（元）' }, category: { type: 'string', description: '分类：food/transport/hotel/tickets/shopping/other' }, tripName: { type: 'string', description: '所属行程名称，用户明确说出时填写' } }, required: ['description', 'amount'] } } },
+  { type: 'function', function: { name: 'create_trip_task', description: '给当前行程新增协作任务。当用户说让某人负责订酒店、买票、查餐厅、准备物品、处理事项时调用。写入前需要用户确认。', parameters: { type: 'object', properties: { title: { type: 'string', description: '任务内容，如"订酒店"、"查明晚餐厅"' }, assigneeName: { type: 'string', description: '负责人昵称，用户明确说出时填写' }, tripName: { type: 'string', description: '所属行程名称，用户明确说出时填写' } }, required: ['title'] } } },
   { type: 'function', function: { name: 'get_my_trips', description: '查看用户的行程列表。当用户问"我的行程"、"有哪些行程"时调用。', parameters: { type: 'object', properties: {} } } },
   { type: 'function', function: { name: 'delete_trip', description: '删除一个行程。当用户说删除/取消行程时调用。删除前应先告知用户将清除该行程的所有关联数据（成员、计划、记账、动态），需用户确认后再执行。', parameters: { type: 'object', properties: { tripName: { type: 'string', description: '要删除的行程名称' } }, required: ['tripName'] } } },
   { type: 'function', function: { name: 'get_weather', description: '查询城市未来7天天气预报。当用户问天气、气温、穿什么衣服时调用。', parameters: { type: 'object', properties: { city: { type: 'string', description: '城市名称，如"北京"、"三亚"、"东京"' } }, required: ['city'] } } },
@@ -1487,10 +1526,13 @@ exports.main = async (event, context) => {
         let tripContext = '当前没有选中行程。';
         if (tripId) {
           await requireTripMembership(tripId);
-          const [tripRes, membersRes, plansRes] = await Promise.all([
+          const safeData = promise => promise.then(result => result.data || []).catch(e => isCollectionNotFound(e) ? [] : Promise.reject(e));
+          const [tripRes, membersRes, plansRes, votes, tasks] = await Promise.all([
             db.collection('trips').doc(tripId).get(),
             db.collection('trip_members').where({ tripId }).limit(100).get(),
-            db.collection('day_plans').where({ tripId }).orderBy('dayIndex', 'asc').limit(30).get()
+            db.collection('day_plans').where({ tripId }).orderBy('dayIndex', 'asc').limit(30).get(),
+            safeData(db.collection('trip_votes').where({ tripId }).orderBy('createdAt', 'desc').limit(20).get()),
+            safeData(db.collection('trip_tasks').where({ tripId }).orderBy('createdAt', 'desc').limit(20).get())
           ]);
           const trip = tripRes.data;
           if (trip) {
@@ -1508,11 +1550,21 @@ exports.main = async (event, context) => {
             });
             const expenseTotal = expenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
             const expenseLines = expenses.slice(0, 8).map(item => `${item.description || '支出'} ¥${Number(item.amount || 0).toFixed(2)} ${item.category || 'other'}`).join('；');
+            const openVotes = votes.filter(vote => vote.status !== 'closed').slice(0, 5).map(vote => {
+              const voteMap = vote.votes && typeof vote.votes === 'object' ? vote.votes : {};
+              const count = Object.keys(voteMap).length;
+              return `${vote.title || '投票'}（${count}票）`;
+            }).join('；');
+            const openTasks = tasks.filter(task => task.status !== 'done').slice(0, 8).map(task => {
+              return `${task.title || '待办'}${task.assigneeName ? `@${task.assigneeName}` : ''}`;
+            }).join('；');
             tripContext = [
               `当前行程：${trip.name || ''}，目的地 ${trip.city || ''}，${trip.startDate || ''} 至 ${trip.endDate || ''}，${trip.totalDays || 1} 天。`,
               members.length ? `成员：${members.join('、')}。` : '',
               planLines.length ? `已有日程：\n${planLines.join('\n')}` : '已有日程：暂未填写。',
-              `账本概况：${expenses.length} 笔，合计约 ¥${expenseTotal.toFixed(2)}。${expenseLines ? `最近记录：${expenseLines}` : ''}`
+              `账本概况：${expenses.length} 笔，合计约 ¥${expenseTotal.toFixed(2)}。${expenseLines ? `最近记录：${expenseLines}` : ''}`,
+              openTasks ? `未完成任务：${openTasks}` : '',
+              openVotes ? `进行中投票：${openVotes}` : ''
             ].filter(Boolean).join('\n');
           }
         }
@@ -3529,6 +3581,90 @@ exports.main = async (event, context) => {
       }
     }
 
+    case 'getTripDashboard': {
+      const { tripId } = payload || {};
+      if (!tripId) return { success: false, error: '缺少行程 ID' };
+      try {
+        await requireTripMembership(tripId);
+        const safeData = promise => promise.then(result => result.data || []).catch(e => isCollectionNotFound(e) ? [] : Promise.reject(e));
+        const [tripRes, membersRes, plansRes, expenses, moments, votes, tasks] = await Promise.all([
+          db.collection('trips').doc(tripId).get(),
+          db.collection('trip_members').where({ tripId }).limit(100).get(),
+          db.collection('day_plans').where({ tripId }).orderBy('dayIndex', 'asc').limit(40).get(),
+          safeData(db.collection('expenses').where({ tripId }).orderBy('createdAt', 'desc').limit(200).get()),
+          safeData(db.collection('moments').where({ tripId }).orderBy('createdAt', 'desc').limit(20).get()),
+          safeData(db.collection('trip_votes').where({ tripId }).orderBy('createdAt', 'desc').limit(50).get()),
+          safeData(db.collection('trip_tasks').where({ tripId }).orderBy('createdAt', 'desc').limit(50).get())
+        ]);
+        const trip = tripRes.data || {};
+        const members = membersRes.data || [];
+        const days = plansRes.data || [];
+        const today = new Date().toISOString().slice(0, 10);
+        const allPlanItems = days.flatMap(day => (day.items || []).map(item => ({
+          ...item,
+          dayIndex: day.dayIndex,
+          date: day.date
+        })));
+        const todayItems = allPlanItems.filter(item => item.date === today);
+        const futureItems = allPlanItems
+          .filter(item => String(item.date || '') >= today)
+          .sort((a, b) => `${a.date || ''} ${a.time || '99:99'}`.localeCompare(`${b.date || ''} ${b.time || '99:99'}`));
+        const expenseTotal = expenses.reduce((sum, item) => {
+          const amount = Math.max(0, (Number(item.amount) || 0) - (Number(item.refunded) || 0));
+          return sum + amount;
+        }, 0);
+        const sharedUnsettled = expenses.filter(item => item.type === 'shared' && !item.settled);
+        const sharedUnsettledTotal = sharedUnsettled.reduce((sum, item) => {
+          const amount = Math.max(0, (Number(item.amount) || 0) - (Number(item.refunded) || 0));
+          return sum + amount;
+        }, 0);
+        const budget = Number(trip.totalBudget) || 0;
+        const openVotes = votes.filter(vote => vote.status !== 'closed');
+        const openTasks = tasks.filter(task => task.status !== 'done');
+        const doneTasks = tasks.filter(task => task.status === 'done');
+        const latestMoment = moments.find(item => !item.isPrivate || item.authorId === OPENID) || null;
+        const nextPlan = futureItems[0] || null;
+        return {
+          success: true,
+          dashboard: {
+            memberCount: members.length,
+            todayPlanCount: todayItems.length,
+            todayPlanText: todayItems.length ? todayItems.slice(0, 3).map(item => item.title || '安排').join('、') : '今天还没有安排',
+            nextPlan: nextPlan ? {
+              title: nextPlan.title || '下一项安排',
+              time: nextPlan.time || '',
+              date: nextPlan.date || '',
+              location: nextPlan.location || '',
+              dayIndex: nextPlan.dayIndex || 1
+            } : null,
+            expenseTotal: Math.round(expenseTotal * 100) / 100,
+            budget,
+            budgetPercent: budget ? Math.round(expenseTotal / budget * 100) : 0,
+            budgetLeft: budget ? Math.round((budget - expenseTotal) * 100) / 100 : 0,
+            sharedUnsettledCount: sharedUnsettled.length,
+            sharedUnsettledTotal: Math.round(sharedUnsettledTotal * 100) / 100,
+            openVoteCount: openVotes.length,
+            latestVoteTitle: openVotes[0] ? openVotes[0].title || '' : '',
+            pendingTaskCount: openTasks.length,
+            doneTaskCount: doneTasks.length,
+            tasks: openTasks.slice(0, 6).map(task => ({
+              _id: task._id,
+              title: task.title || '待办',
+              assigneeName: task.assigneeName || '',
+              status: task.status || 'open'
+            })),
+            latestMoment: latestMoment ? {
+              text: latestMoment.text || '新动态',
+              authorName: latestMoment.authorName || '旅伴',
+              createdAt: latestMoment.createdAt || ''
+            } : null
+          }
+        };
+      } catch (e) {
+        return { success: false, error: e.message || '获取驾驶舱失败' };
+      }
+    }
+
     case 'getMomentFeed': {
       const input = payload || {};
       const limit = Math.min(Math.max(Number(input.limit) || 10, 1), 50);
@@ -3812,6 +3948,38 @@ exports.main = async (event, context) => {
       }
     }
 
+    // ══════ 主题配置 ══════
+    case 'updateThemeConfig': {
+      const { themeConfig } = payload || {};
+      if (!themeConfig || !themeConfig.id) return { success: false, error: '缺少主题配置' };
+      try {
+        await db.collection('users').where({ _openid: OPENID }).update({
+          data: {
+            themeConfig: {
+              id: themeConfig.id,
+              diy: themeConfig.diy || {}
+            },
+            updatedAt: new Date().toISOString()
+          }
+        });
+        return { success: true };
+      } catch (e) {
+        console.error('updateThemeConfig error:', e);
+        return { success: false, error: e.message || '保存主题失败' };
+      }
+    }
+
+    case 'getThemeConfig': {
+      try {
+        const { data: users } = await db.collection('users').where({ _openid: OPENID }).limit(1).get();
+        const user = users && users[0];
+        return { success: true, themeConfig: (user && user.themeConfig) || null };
+      } catch (e) {
+        console.error('getThemeConfig error:', e);
+        return { success: false, error: e.message || '获取主题失败' };
+      }
+    }
+
     // ══════ 新增/更新日行程 ══════
     case 'upsertDayPlan': {
       const { dpId, tripId, dayIndex, date, items } = payload || {};
@@ -3964,6 +4132,99 @@ exports.main = async (event, context) => {
         return { success: true };
       } catch (e) {
         return { success: false, error: e.message || '结束投票失败' };
+      }
+    }
+
+    // ══════ 行程任务 ══════
+    case 'getTripTasks': {
+      const { tripId } = payload || {};
+      if (!tripId) return { success: false, error: '缺少行程 ID' };
+      try {
+        await requireTripMembership(tripId);
+        let tasks = [];
+        try {
+          const res = await db.collection('trip_tasks').where({ tripId }).orderBy('createdAt', 'desc').limit(100).get();
+          tasks = res.data || [];
+        } catch (e) {
+          if (!isCollectionNotFound(e)) throw e;
+        }
+        return { success: true, tasks };
+      } catch (e) {
+        return { success: false, error: e.message || '获取任务失败' };
+      }
+    }
+
+    case 'createTripTask': {
+      const { tripId, task } = payload || {};
+      if (!tripId || !task) return { success: false, error: '缺少任务信息' };
+      try {
+        const { membership } = await requireTripWritable(tripId);
+        await ensureCollection('trip_tasks');
+        const title = String(task.title || '').trim().slice(0, 80);
+        if (!title) return { success: false, error: '请输入任务内容' };
+        const assigneeOpenid = String(task.assigneeOpenid || '').trim();
+        let assigneeName = '';
+        if (assigneeOpenid) {
+          const { data: members } = await db.collection('trip_members').where({ tripId, openid: assigneeOpenid }).limit(1).get();
+          if (!members.length) return { success: false, error: '负责人不在行程成员中' };
+          assigneeName = members[0].nickName || '';
+        }
+        const now = new Date().toISOString();
+        const added = await db.collection('trip_tasks').add({
+          data: {
+            tripId,
+            title,
+            assigneeOpenid,
+            assigneeName,
+            status: 'open',
+            createdBy: OPENID,
+            createdByName: membership.nickName || '成员',
+            createdAt: now,
+            updatedAt: now
+          }
+        });
+        return { success: true, taskId: added._id };
+      } catch (e) {
+        return { success: false, error: e.message || '创建任务失败' };
+      }
+    }
+
+    case 'toggleTripTask': {
+      const { taskId } = payload || {};
+      if (!taskId) return { success: false, error: '缺少任务 ID' };
+      try {
+        const { data: task } = await db.collection('trip_tasks').doc(taskId).get();
+        if (!task) return { success: false, error: '任务不存在' };
+        await requireTripMembership(task.tripId);
+        const nextStatus = task.status === 'done' ? 'open' : 'done';
+        await db.collection('trip_tasks').doc(taskId).update({
+          data: {
+            status: nextStatus,
+            doneBy: nextStatus === 'done' ? OPENID : '',
+            doneAt: nextStatus === 'done' ? new Date().toISOString() : '',
+            updatedAt: new Date().toISOString()
+          }
+        });
+        return { success: true, status: nextStatus };
+      } catch (e) {
+        return { success: false, error: e.message || '更新任务失败' };
+      }
+    }
+
+    case 'deleteTripTask': {
+      const { taskId } = payload || {};
+      if (!taskId) return { success: false, error: '缺少任务 ID' };
+      try {
+        const { data: task } = await db.collection('trip_tasks').doc(taskId).get();
+        if (!task) return { success: false, error: '任务不存在' };
+        const membership = await requireTripMembership(task.tripId);
+        if (task.createdBy !== OPENID && !['creator', 'owner'].includes(membership.role)) {
+          return { success: false, error: '只有创建者或任务发起人可删除' };
+        }
+        await db.collection('trip_tasks').doc(taskId).remove();
+        return { success: true };
+      } catch (e) {
+        return { success: false, error: e.message || '删除任务失败' };
       }
     }
 

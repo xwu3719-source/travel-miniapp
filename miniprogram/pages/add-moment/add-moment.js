@@ -1,8 +1,11 @@
 const cloud = require('../../utils/cloud');
 const drafts = require('../../utils/drafts');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     momentId: '',
     tripId: '',
     text: '',
@@ -22,7 +25,11 @@ Page({
   onLoad(options) {
     const tripId = options.tripId || '';
     const momentId = options.momentId || '';
-    this.setData({ tripId, momentId, isEditing: !!momentId });
+    this.setData({ tripId, momentId, isEditing: !!momentId }
+
+  onShow() {
+    theme.applyToPage(this);
+  },);
     if (!momentId) {
       const draft = drafts.getDraft('moment', tripId || 'general');
       if (draft) this.setData({

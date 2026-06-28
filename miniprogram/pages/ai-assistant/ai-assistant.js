@@ -1,4 +1,5 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 const QUICK_ACTIONS = [
   { id: 'trip', label: '创建行程', text: '帮我创建武汉三日游', icon: '/images/icons/trip-plan.png' },
@@ -47,10 +48,13 @@ Page({
     messages: [{ id: 'welcome', role: 'assistant', text: '我可以帮你创建行程、整理清单，也能记账、算分摊和查预算。' }],
     pendingCard: null,
     cardSaving: false,
-    scrollIntoView: 'welcome'
+    scrollIntoView: 'welcome',
+    keyboardHeight: 0,
+    chatBottomSpace: 150
   },
 
   onShow() {
+    theme.applyToPage(this);
     const tabBar = typeof this.getTabBar === 'function' && this.getTabBar();
     if (tabBar) {
       tabBar.setData({ selected: 2 });
@@ -84,6 +88,14 @@ Page({
 
   onInput(e) { this.setData({ inputText: e.detail.value }); },
 
+  onKeyboardHeightChange(e) {
+    const height = Math.max(0, Number(e.detail && e.detail.height) || 0);
+    this.setData({
+      keyboardHeight: height,
+      chatBottomSpace: height ? height + 128 : 150
+    }, () => this.revealBottom(40));
+  },
+
   onQuickAction(e) {
     const action = this.data.quickActions.find(item => item.id === e.currentTarget.dataset.id);
     if (!action) return;
@@ -93,6 +105,12 @@ Page({
   appendMessage(role, text) {
     const id = `msg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
     this.setData({ messages: [...this.data.messages, { id, role, text }], scrollIntoView: id });
+  },
+
+  revealBottom(delay = 80) {
+    setTimeout(() => {
+      this.setData({ scrollIntoView: 'chat-bottom-anchor' });
+    }, delay);
   },
 
   selectedTrip() {
@@ -135,6 +153,7 @@ Page({
       if (tripDraft) {
         this.setData({ pendingCard: tripDraft, sending: false });
         this.appendMessage('assistant', '我先把行程信息整理好了，确认后再创建。');
+        this.revealBottom();
         return;
       }
       if (this.isPackingIntent(text)) {
@@ -155,6 +174,7 @@ Page({
           sending: false
         });
         this.appendMessage('assistant', `我按${result.currentTrip ? `「${result.currentTrip.name}」` : '当前行程'}整理了一份行李建议，你可以确认后加入清单。`);
+        this.revealBottom();
         return;
       }
       if (this.isSummaryIntent(text)) {
@@ -165,6 +185,7 @@ Page({
           sending: false
         });
         this.appendMessage('assistant', `我可以把「${selectedTrip.name}」整理成旅行总结，里面会汇总日程、动态、照片和账本。`);
+        this.revealBottom();
         return;
       }
       if (this.isLedgerIntent(text)) {
@@ -174,6 +195,7 @@ Page({
         else {
           this.setData({ pendingCard: { type: 'expense_draft', ...result.draft } });
           this.appendMessage('assistant', '这笔支出已整理好，确认后才会写入账本。');
+          this.revealBottom();
         }
         this.setData({ sending: false });
         return;
@@ -183,6 +205,7 @@ Page({
         const plan = await cloud.generateTripPlan(selectedTrip._id, selectedTrip.city, selectedTrip.totalDays, text);
         this.setData({ pendingCard: { type: 'plan_draft', plan, trip: selectedTrip }, sending: false });
         this.appendMessage('assistant', '行程草案已生成，确认后再写入日程。');
+        this.revealBottom();
         return;
       }
       const answer = await cloud.globalTravelAssistant(text, this.data.selectedTripId);

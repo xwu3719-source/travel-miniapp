@@ -61,7 +61,7 @@
   top: 0;
   bottom: 0;
   z-index: 1200;
-  background: rgba(31,25,42,0.1);
+  background: transparent;
 }
 
 .header-menu {
@@ -72,7 +72,7 @@
   padding: 10rpx;
   border-radius: 22rpx;
   background: #fff;
-  box-shadow: 0 18rpx 54rpx rgba(31,25,42,0.18);
+  box-shadow: 0 12rpx 32rpx rgba(39, 96, 170, 0.10);
 }
 
 .header-menu-item {

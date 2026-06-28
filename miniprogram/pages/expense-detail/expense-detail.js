@@ -1,4 +1,5 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 const CATEGORY_LABELS = {
   transport: '交通',
@@ -11,6 +12,8 @@ const CATEGORY_LABELS = {
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     tripId: '',
     expenseId: '',
     expense: null,
@@ -31,6 +34,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     this.loadExpense();
   },
 

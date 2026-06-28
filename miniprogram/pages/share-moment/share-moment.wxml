@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<view class="select-page">
+<view class="select-page {{themeClass}}">
   <view class="select-summary">
     <view>
       <view class="select-title">分享给</view>

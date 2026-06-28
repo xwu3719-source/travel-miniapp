@@ -1,5 +1,6 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
-<scroll-view scroll-y class="friend-page page-scroll">
+<scroll-view scroll-y class="friend-page page-scroll {{themeClass}}">
   <view class="friend-tabs">
     <view class="friend-tab {{activeTab === 'search' ? 'active' : ''}}" data-tab="search" bindtap="onTabSelect">
       <image src="/images/icons/friend-add.png" mode="aspectFit"/>

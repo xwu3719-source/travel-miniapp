@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 结算 -->
-<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll">
+<scroll-view scroll-y refresher-enabled="{{true}}" refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh" class="container page-scroll {{themeClass}}">
   <view wx:if="{{loading}}" class="empty-state">
   <image class="ui-empty-icon ui-theme-icon" src="/images/icons/trip-settlement.png" mode="aspectFit"/>
     <view class="empty-text">计算中...</view>

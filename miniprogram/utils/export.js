@@ -277,6 +277,140 @@ async function drawBillSummary(canvasId, trip, expenses, summary, categoryBreakd
   return canvasToTempPath(canvas);
 }
 
+async function drawTripRecap(canvasId, trip, metrics, insights, timeline, recapText) {
+  const width = 375;
+  const rows = Math.min((timeline || []).length, 10);
+  const height = Math.min(1200, 560 + rows * 58 + (recapText ? 120 : 0));
+  const { canvas, ctx } = await getExportCanvas(width, height);
+  const pad = 22;
+  let y = pad;
+
+  ctx.clearRect(0, 0, width, height);
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+  bgGrad.addColorStop(0, '#f3f8ff');
+  bgGrad.addColorStop(1, '#f8fbff');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, width, height);
+
+  const headerH = 166;
+  const headerGrad = ctx.createLinearGradient(pad, y, width - pad, y + headerH);
+  headerGrad.addColorStop(0, '#8fc9ff');
+  headerGrad.addColorStop(0.55, '#6eb2f7');
+  headerGrad.addColorStop(1, '#5b9ff5');
+  ctx.fillStyle = headerGrad;
+  roundRect(ctx, pad, y, width - pad * 2, headerH, 26);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(255,255,255,0.76)';
+  ctx.font = '12px -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText('拾途 ST · 旅行手账', pad + 20, y + 22);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 23px -apple-system, sans-serif';
+  ctx.fillText((trip && trip.name) || '旅行回忆', pad + 20, y + 48);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.84)';
+  ctx.font = '12px -apple-system, sans-serif';
+  const meta = [trip && trip.city, trip && trip.startDate, trip && trip.endDate].filter(Boolean).join(' · ');
+  ctx.fillText(meta, pad + 20, y + 80);
+
+  const statText = `${metrics.days || 0} 天 · ${metrics.members || 0} 位成员 · ${metrics.planItems || 0} 个安排`;
+  ctx.fillText(statText, pad + 20, y + 104);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 28px -apple-system, sans-serif';
+  ctx.fillText(`¥${metrics.total || '0.00'}`, pad + 20, y + 126);
+  y += headerH + 18;
+
+  const stats = [
+    { label: '动态', value: String(metrics.moments || 0) },
+    { label: '图片', value: String(metrics.images || 0) },
+    { label: '公共账', value: '¥' + (metrics.shared || '0.00') }
+  ];
+  const statGap = 8;
+  const statW = (width - pad * 2 - statGap * 2) / 3;
+  stats.forEach((s, i) => {
+    const sx = pad + (statW + statGap) * i;
+    ctx.fillStyle = '#ffffff';
+    roundRect(ctx, sx, y, statW, 70, 16);
+    ctx.fill();
+    ctx.fillStyle = '#357de8';
+    ctx.font = 'bold 15px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(s.value, sx + statW / 2, y + 15);
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.fillText(s.label, sx + statW / 2, y + 40);
+  });
+  y += 92;
+
+  if (recapText) {
+    ctx.fillStyle = '#ffffff';
+    roundRect(ctx, pad, y, width - pad * 2, 126, 20);
+    ctx.fill();
+    ctx.fillStyle = '#1f2937';
+    ctx.font = 'bold 14px -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('AI 复盘', pad + 16, y + 16);
+    ctx.fillStyle = '#536174';
+    ctx.font = '12px -apple-system, sans-serif';
+    const lines = String(recapText).replace(/\s+/g, ' ').slice(0, 110).match(/.{1,24}/g) || [];
+    lines.slice(0, 3).forEach((line, index) => ctx.fillText(line, pad + 16, y + 42 + index * 20));
+    y += 144;
+  }
+
+  if (insights && insights.length) {
+    ctx.fillStyle = '#1e1e2e';
+    ctx.font = 'bold 14px -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('这趟的小结', pad, y);
+    y += 20;
+    insights.slice(0, 3).forEach(item => {
+      ctx.fillStyle = '#ffffff';
+      roundRect(ctx, pad, y, width - pad * 2, 44, 14);
+      ctx.fill();
+      ctx.fillStyle = '#5b9ff5';
+      roundRect(ctx, pad + 12, y + 16, 10, 10, 5);
+      ctx.fill();
+      ctx.fillStyle = '#536174';
+      ctx.font = '12px -apple-system, sans-serif';
+      ctx.fillText(String(item).slice(0, 28), pad + 30, y + 13);
+      y += 52;
+    });
+  }
+
+  ctx.fillStyle = '#1e1e2e';
+  ctx.font = 'bold 14px -apple-system, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('旅行时间线', pad, y + 6);
+  y += 28;
+  (timeline || []).slice(0, 10).forEach(item => {
+    ctx.fillStyle = '#ffffff';
+    roundRect(ctx, pad, y, width - pad * 2, 50, 16);
+    ctx.fill();
+    ctx.fillStyle = '#357de8';
+    ctx.font = 'bold 11px -apple-system, sans-serif';
+    ctx.fillText(String(item.displayDate || '').slice(0, 8), pad + 14, y + 10);
+    ctx.fillStyle = '#1f2937';
+    ctx.font = 'bold 13px -apple-system, sans-serif';
+    ctx.fillText(String(item.title || '安排').slice(0, 20), pad + 82, y + 9);
+    ctx.fillStyle = '#9ca3af';
+    ctx.font = '11px -apple-system, sans-serif';
+    ctx.fillText(String(item.meta || '').slice(0, 28), pad + 82, y + 29);
+    y += 58;
+  });
+
+  y = height - 48;
+  ctx.fillStyle = '#d1d5db';
+  ctx.font = '12px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('由 拾途 ST 生成', width / 2, y);
+  ctx.fillText(new Date().toISOString().slice(0, 10), width / 2, y + 18);
+  return canvasToTempPath(canvas);
+}
+
 module.exports = {
-  drawBillSummary
+  drawBillSummary,
+  drawTripRecap
 };

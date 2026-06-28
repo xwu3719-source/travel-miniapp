@@ -47,12 +47,19 @@
   margin-bottom: 18rpx;
 }
 
+.members-actions {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  flex-shrink: 0;
+}
+
 .invite-friends-entry {
   display: flex;
   align-items: center;
   gap: 8rpx;
   min-height: 58rpx;
-  padding: 0 22rpx;
+  padding: 0 18rpx;
   border-radius: 999rpx;
   background: var(--gradient-trip);
   color: #fff;

@@ -1,4 +1,5 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 const MOOD_PRESETS = [
   { emoji: '飞机', label: '旅行中' },
@@ -25,6 +26,8 @@ function normalizeMoodIcon(value) {
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     moodPresets: MOOD_PRESETS,
     selectedEmoji: '',
     selectedLabel: '',
@@ -36,7 +39,11 @@ Page({
     // 如果有当前心情，预填
     const currentEmoji = normalizeMoodIcon(decodeURIComponent(options.emoji || ''));
     const currentText = decodeURIComponent(options.text || '');
-    wx.setNavigationBarTitle({ title: currentEmoji || currentText ? '修改心情状态' : '设置心情状态' });
+    wx.setNavigationBarTitle({ title: currentEmoji || currentText ? '修改心情状态' : '设置心情状态' }
+
+  onShow() {
+    theme.applyToPage(this);
+  },);
     if (currentEmoji || currentText) {
       this.setData({ hasCurrentMood: true });
     }

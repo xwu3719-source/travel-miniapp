@@ -1,5 +1,6 @@
 const cloud = require('../../utils/cloud');
 const drafts = require('../../utils/drafts');
+const theme = require('../../utils/theme');
 const recorderManager = wx.getRecorderManager();
 
 const SUPPORTED_DOCUMENT_TYPES = new Set(['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf']);
@@ -69,6 +70,8 @@ function messagePreview(message) {
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     targetOpenid: '',
     targetUser: { nickName: '', avatarUrl: '' },
     targetRawAvatarUrl: '',
@@ -170,6 +173,7 @@ Page({
   },
 
   onShow() {
+    theme.applyToPage(this);
     // 重新标记当前聊天对象（从后台恢复时 _currentChatOpenid 可能已被清除）
     const app = getApp();
     if (app && app.globalData && this.data.targetOpenid) {

@@ -1,6 +1,7 @@
+<page-meta page-style="{{themeStyle}}"/>
 <message-popup />
 <!-- 添加消费 -->
-<scroll-view scroll-y class="container page-scroll">
+<scroll-view scroll-y class="container page-scroll {{themeClass}}">
   <view class="form-title">{{editMode ? '编辑账单' : '记一笔'}}</view>
 
   <!-- 预算状态条 -->
@@ -71,7 +72,13 @@
 
   <!-- 票据拍照 -->
   <view class="form-group">
-    <view class="form-label">凭证照片（可选）</view>
+    <view class="form-label receipt-label">
+      <text>凭证照片（可选）</text>
+      <view class="receipt-scan" bindtap="onScanExpenseCode">
+        <image src="/images/icons/scan.png" mode="aspectFit"/>
+        <text>扫凭证码</text>
+      </view>
+    </view>
     <view class="receipt-area" bindtap="onAddReceipt">
       <image wx:if="{{receiptPhoto}}" src="{{receiptPhoto}}" mode="aspectFill" class="receipt-preview"/>
       <view wx:else class="receipt-add-btn">

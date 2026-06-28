@@ -1,9 +1,12 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 const STORAGE_KEY = '_privateChatSettings';
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     targetOpenid: '',
     profile: { nickName: '', avatarUrl: '', publicId: '' },
     following: false,
@@ -20,7 +23,11 @@ Page({
 
   onLoad(options) {
     const safeDecode = value => {
-      try { return decodeURIComponent(value || ''); } catch (_) { return value || ''; }
+      try { return decodeURIComponent(value || ''); }
+
+  onShow() {
+    theme.applyToPage(this);
+  }, catch (_) { return value || ''; }
     };
     const targetOpenid = safeDecode(options.openid);
     const local = (wx.getStorageSync(STORAGE_KEY) || {})[targetOpenid] || {};

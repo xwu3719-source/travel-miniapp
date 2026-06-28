@@ -1,7 +1,10 @@
 const cloud = require('../../utils/cloud');
+const theme = require('../../utils/theme');
 
 Page({
   data: {
+    themeStyle: '',
+    themeClass: 'theme-blue',
     momentId: '',
     loading: true,
     sending: false,
@@ -10,7 +13,11 @@ Page({
   },
 
   onLoad(options) {
-    this.setData({ momentId: decodeURIComponent(options.momentId || '') });
+    this.setData({ momentId: decodeURIComponent(options.momentId || '') }
+
+  onShow() {
+    theme.applyToPage(this);
+  },);
     this.loadFriends();
   },
 
